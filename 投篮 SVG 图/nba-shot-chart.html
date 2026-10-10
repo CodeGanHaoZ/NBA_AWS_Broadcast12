@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>本场投篮数据 - 2026/10/09 骑士@凯尔特人</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: #f5f6f8;
+    color: #1a1d23;
+    min-height: 100vh;
+  }
+
+  /* ===== 主体 ===== */
+  .container { max-width: 1080px; margin: 0 auto; padding: 28px 20px 60px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 18px; }
+
+  .panel {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(16,24,40,.06);
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+  }
+
+  /* 左侧：投篮图 */
+  .chart-col { flex: 0 0 46%; min-width: 0; }
+  .game-title { font-size: 14px; color: #565c68; margin-bottom: 14px; }
+  .court-wrap {
+    background: #f2f3f5;
+    border-radius: 8px;
+    padding: 12px;
+  }
+  .court-shots { width: 100%; height: auto; display: block; }
+  .court-line { stroke: #1a1d23; stroke-width: 2; fill: none; }
+  .miss-mark line { stroke: #d6336c; stroke-width: 2.4; stroke-linecap: round; }
+
+  .legend {
+    margin-top: 14px;
+    font-size: 13px;
+    color: #565c68;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  .legend .rate { color: #1a1d23; font-weight: 600; }
+  .legend .item { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .hollow {
+    width: 11px; height: 11px; border: 2px solid #1d428a; border-radius: 50%;
+    display: inline-block;
+  }
+  .legend .cross { color: #d6336c; font-weight: 700; font-size: 15px; line-height: 1; }
+
+  /* 右侧：数据表 */
+  .table-col { flex: 1; min-width: 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  thead th {
+    text-align: left;
+    color: #8a90a0;
+    font-weight: 500;
+    padding: 10px 12px;
+    border-bottom: 1px solid #eceef2;
+    white-space: nowrap;
+  }
+  tbody td { padding: 14px 12px; border-bottom: 1px solid #f2f3f5; color: #333844; white-space: nowrap; }
+  tbody tr:last-child td { border-bottom: none; }
+  .miss { color: #d6336c; font-weight: 700; }
+  .hit  { color: #1d428a; font-weight: 700; }
+
+  @media (max-width: 860px) {
+    .panel { flex-direction: column; }
+    .chart-col { flex: none; width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<main class="container">
+  <h1>本场投篮数据</h1>
+
+  <div class="panel">
+    <!-- 左：半场投篮分布 -->
+    <section class="chart-col">
+      <div class="game-title">2026/10/09 骑士@凯尔特人</div>
+      <div class="court-wrap">
+        <svg class="court-shots" viewBox="0 0 516.337 486.335" xmlns="http://www.w3.org/2000/svg">
+          <!-- ===== 半场场地线 ===== -->
+          <!-- 场地外框 -->
+          <rect class="court-line" x="8" y="8" width="500.337" height="470.335"></rect>
+          <!-- 中场线 -->
+          <line class="court-line" x1="8" y1="478.335" x2="508.337" y2="478.335"></line>
+          <!-- 中场圈（半圆） -->
+          <path class="court-line" d="M 196.169,478.335 A 62 62 0 0 1 320.169,478.335"></path>
+          <!-- 禁区 -->
+          <rect class="court-line" x="176.169" y="8" width="164" height="190"></rect>
+          <!-- 罚球圈：上半实线、下半虚线 -->
+          <path class="court-line" d="M 196.169,198 A 62 62 0 0 1 320.169,198"></path>
+          <path class="court-line" stroke-dasharray="6 6" d="M 196.169,198 A 62 62 0 0 0 320.169,198"></path>
+          <!-- 篮板 & 篮筐 -->
+          <line class="court-line" x1="228.169" y1="41" x2="288.169" y2="41"></line>
+          <circle class="court-line" cx="258.169" cy="52" r="7.5"></circle>
+          <!-- 合理冲撞区弧 -->
+          <path class="court-line" d="M 217.169,52 A 41 41 0 0 0 299.169,52"></path>
+          <!-- 三分线：两角直线 + 弧 -->
+          <line class="court-line" x1="39" y1="8" x2="39" y2="160"></line>
+          <line class="court-line" x1="477.337" y1="8" x2="477.337" y2="160"></line>
+          <path class="court-line" d="M 39,160 A 245 245 0 0 0 477.337,160"></path>
+
+          <!-- ===== 投篮点（原始数据） ===== -->
+          <!-- 未进：× -->
+          <g class="miss-mark" transform="translate(160.06447000000003, 301.5277)">
+            <line x1="-5.5" y1="-5.5" x2="5.5" y2="5.5"></line>
+            <line x1="5.5" y1="-5.5" x2="-5.5" y2="5.5"></line>
+          </g>
+          <!-- 进球：○ -->
+          <g><circle cx="134.24762" cy="311.2544" r="7" fill="none" stroke="#1d428a" stroke-width="2"></circle></g>
+          <g><circle cx="8.261392" cy="38.9068" r="7" fill="none" stroke="#1d428a" stroke-width="2"></circle></g>
+          <g><circle cx="180.71794999999997" cy="175.08059999999998" r="7" fill="none" stroke="#1d428a" stroke-width="2"></circle></g>
+        </svg>
+      </div>
+      <div class="legend">
+        <span class="rate">本场投篮命中率: 75.0% (3/4)</span>
+        <span class="item"><span class="hollow"></span> 进球</span>
+        <span class="item"><span class="cross">×</span> 未进</span>
+      </div>
+    </section>
+
+    <!-- 右：出手明细表 -->
+    <section class="table-col">
+      <table>
+        <thead>
+          <tr>
+            <th>进攻战术类型</th><th>投篮类型</th><th>进球</th><th>时间</th><th>XFG%</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>急停跳投</td><td>3分投篮</td><td class="miss">×</td><td>Q1 1:40</td><td>31.6%</td></tr>
+          <tr><td>急停跳投</td><td>3分投篮</td><td class="hit">○</td><td>Q1 57.1</td><td>27.3%</td></tr>
+          <tr><td>跳投</td><td>3分投篮</td><td class="hit">○</td><td>Q2 10:56</td><td>39.2%</td></tr>
+          <tr><td>急停跳投</td><td>2分投篮</td><td class="hit">○</td><td>Q2 8:31</td><td>9.7%</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+</main>
+
+</body>
+</html>
