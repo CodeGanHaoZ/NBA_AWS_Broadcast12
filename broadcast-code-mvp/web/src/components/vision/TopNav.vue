@@ -58,10 +58,12 @@ function go(id) {
     </nav>
     <div class="vb-top-right">
       <span class="vb-team-chip"><i class="dot"></i>TEAM <b>20</b><span class="lbl">&nbsp;· 一人亿城</span></span>
+      <!-- 实时叠加开关：按需求暂时隐藏（功能保留，恢复展示只需取消注释）
       <button class="vb-chip" :class="{ 'vb-chip--signal': S.overlayOn }" style="cursor:pointer;background:none"
               @click="toggleOverlay()">
         {{ S.overlayOn ? '实时叠加 · 开' : '实时叠加 · 关' }}
       </button>
+      -->
       <button class="bc-btn bc-btn--primary bc-btn--sm" @click="emit('import')">分析新回合</button>
     </div>
   </header>

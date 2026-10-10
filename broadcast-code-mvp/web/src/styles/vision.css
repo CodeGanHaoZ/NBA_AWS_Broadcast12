@@ -212,11 +212,38 @@
 .vb-factor__link { width: 1px; height: 14px; background: var(--bc-line); margin: 0 0 0 22px; }
 
 /* ---------------- 证据表 ---------------- */
-.vb-ev-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--bc-s3) var(--bc-s6); }
-.vb-ev-cell { border-bottom: 1px solid var(--bc-line); padding-bottom: var(--bc-s2); }
+.vb-ev-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--bc-s3) var(--bc-s6); position: relative; padding-top: 2px; }
+/* 顶部扫光线：证据流持续流动 */
+.vb-ev-grid::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(249,83,12,.75) 50%, transparent);
+  background-size: 220% 100%; animation: vb-ev-line 3.6s linear infinite;
+}
+@keyframes vb-ev-line { 0% { background-position: 130% 0; } 100% { background-position: -130% 0; } }
+
+.vb-ev-cell {
+  position: relative; border-bottom: 1px solid var(--bc-line); padding: 0 0 var(--bc-s2) 10px;
+  animation: vb-ev-in .55s var(--bc-ease) both; animation-delay: calc(var(--i, 0) * 45ms);
+}
+@keyframes vb-ev-in { from { opacity: 0; transform: translateY(9px); } }
+/* 渲染完成后的驻留动效：格子信号轮巡高亮（周期 = 格数 × 0.5s，永续循环） */
+.vb-ev-cell::before {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0;
+  background: linear-gradient(90deg, rgba(249,83,12,.10), rgba(249,83,12,.02) 55%, transparent);
+  border-left: 2px solid var(--bc-signal);
+  animation: vb-ev-cycle 6.5s linear infinite; animation-delay: calc(2s + var(--i, 0) * .5s);
+}
+@keyframes vb-ev-cycle { 0%, 14% { opacity: 1; } 22%, 100% { opacity: 0; } }
+.vb-ev-cell > span, .vb-ev-cell > b, .vb-ev-cell > em { position: relative; z-index: 1; }
 .vb-ev-cell span { display: block; font-size: 12px; color: var(--bc-muted); }
 .vb-ev-cell b { font-family: var(--bc-font-mono); font-size: 16px; font-weight: 700; color: var(--bc-chalk); }
-.vb-ev-cell em { font-style: normal; font-family: var(--bc-font-mono); font-size: 11px; color: var(--bc-signal); margin-left: 6px; }
+.vb-ev-cell em { font-style: normal; font-family: var(--bc-font-mono); font-size: 11px; color: var(--bc-signal); margin-left: 6px; animation: vb-num-pop .5s var(--bc-ease) both; animation-delay: calc(var(--i, 0) * 45ms + 260ms); }
+.vb-ev-cell:hover { background: rgba(245,242,236,.04); }
+.vb-ev-cell:hover b { color: var(--bc-signal); }
+@media (prefers-reduced-motion: reduce) {
+  .vb-ev-grid::before, .vb-ev-cell, .vb-ev-cell em, .vb-ev-cell::before { animation: none !important; }
+  .vb-ev-cell::before { opacity: 0 !important; }
+}
 
 /* ---------------- 解说 ---------------- */
 .vb-narr { border-left: 2px solid var(--bc-signal); padding-left: var(--bc-s4); }
@@ -587,8 +614,9 @@
    ============================================================ */
 @media (max-width: 1120px) {
   :root { --sidebar-w: 220px; }
-  /* shell 从固定视口改为自然文档流：顶栏行高放开，换行不再溢出 */
-  .vb-shell { grid-template-rows: auto auto 1fr; height: auto; min-height: 100vh; overflow: visible; }
+  /* shell 从固定视口改为自然文档流：顶栏行高放开，换行不再溢出
+     （.vb-bx.vb-shell 特异性 0,2,0，必须一并匹配，否则转播台顶栏行被锁死、导航换行压到记分条上） */
+  .vb-shell, .vb-bx.vb-shell { grid-template-rows: auto auto 1fr; height: auto; min-height: 100vh; overflow: visible; }
   .vb-body, .vb-main, .vb-rail { overflow: visible; }
   /* 顶栏：品牌 + 主操作一行，导航整行换到第二行 */
   .vb-top { flex-wrap: wrap; height: auto; padding: 8px var(--bc-s4); row-gap: 6px; }
@@ -645,4 +673,41 @@
 
 @media (prefers-reduced-motion: reduce) {
   .vb-top, .vb-top + *, .vb-team-chip .dot { animation: none !important; }
+}
+
+/* ---------------- 数据看板图表动效：擦除入场 · 流光巡游 · 条形生长 ---------------- */
+.vb-chart { transition: box-shadow .35s var(--bc-ease); }
+.vb-chart:hover { box-shadow: 0 0 0 1px rgba(249,83,12,.18), 0 14px 34px rgba(0,0,0,.35); }
+
+/* 曲线组擦除入场（clip 对虚线友好，dashoffset 会破坏 5-4 虚线节拍） */
+@keyframes vb-wipe-in {
+  from { clip-path: inset(-6% 100% -6% 0); }
+  to { clip-path: inset(-6% -2% -6% 0); }
+}
+.vb-wipe { animation: vb-wipe-in 1.1s var(--bc-ease) both; }
+
+/* 沿进攻曲线巡游的数据流光点 */
+@keyframes vb-flow { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+@supports (offset-path: path('M0 0 L1 1')) {
+  .vb-flow-dot { offset-rotate: 0deg; offset-distance: 0%; opacity: .9; animation: vb-flow 7s linear infinite; }
+}
+
+/* 条形：animation 驱动生长（挂载即播；em :key=数据指纹 切回合重放）+ 行级联滑入（--i 错峰） */
+@keyframes vb-bar-grow { from { width: 0; } }
+@keyframes vb-bar-row { from { opacity: 0; transform: translateX(-12px); } }
+.vb-bar { transition: background .25s var(--bc-ease); border-radius: 2px; animation: vb-bar-row .5s var(--bc-ease) both; animation-delay: calc(var(--i, 0) * 55ms); }
+.vb-bar em { transition: filter .25s ease; animation: vb-bar-grow .9s var(--bc-ease) both; animation-delay: calc(var(--i, 0) * 55ms + 120ms); }
+.vb-bar:hover { background: rgba(245,242,236,.045); }
+.vb-bar:hover em { filter: brightness(1.25) drop-shadow(0 0 6px rgba(249,83,12,.4)); }
+.vb-bar:hover b { color: var(--bc-signal); }
+
+/* 数值弹入（:key=数据指纹 重挂载时重放） */
+@keyframes vb-num-pop {
+  from { opacity: 0; transform: translateY(5px) scale(.85); color: var(--bc-signal); }
+}
+.vb-bar b { animation: vb-num-pop .5s var(--bc-ease) both; display: inline-block; }
+
+@media (prefers-reduced-motion: reduce) {
+  .vb-wipe, .vb-flow-dot, .vb-bar b, .vb-bar, .vb-bar em { animation: none !important; }
+  .vb-wipe { clip-path: none; }
 }

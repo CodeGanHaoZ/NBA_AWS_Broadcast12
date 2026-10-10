@@ -14,6 +14,39 @@ import {
   DURATION, getPos, dist, clamp, lerp, wpValue, fmtGameClock, bT, BS, selectPid,
 } from '../../lib/broadcast/model.js'
 
+/* ------------------------------------------------------------ 实拍回放层（处理完成视频 · 与时间轴联动） */
+const FEED_SRC = '/media/processed-feed.mp4'
+const vidEl = ref(null)
+const feedError = ref(false)
+let vidReady = false
+
+/** 视频从动于母钟 bT：漂移 > 0.18s 才校正，避免频繁 seek 卡顿 */
+function vidSync(force = false) {
+  const v = vidEl.value
+  if (!v || !vidReady || !v.duration) return
+  const target = Math.min(bT.value, Math.max(0, v.duration - 0.05))
+  if (force || Math.abs(v.currentTime - target) > 0.18) {
+    try { v.currentTime = Math.max(0, target) } catch (_) { /* seeking 中 */ }
+  }
+}
+watch(bT, () => vidSync())
+watch(() => S.playing, (on) => {
+  const v = vidEl.value
+  if (!v || !vidReady) return
+  if (on) { vidSync(true); v.play().catch(() => {}) }
+  else v.pause()
+})
+function onFeedReady() {
+  const v = vidEl.value
+  if (!v) return
+  vidReady = true
+  vidSync(true)
+  if (S.playing) v.play().catch(() => {})
+}
+
+/** 信号监视面板：电平表条数（错峰跳动动效） */
+const VU_BARS = 18
+
 /* ------------------------------------------------------------ 画布与机位 */
 const CANVAS_W = 1600, CANVAS_H = 900
 const COURT_W = 15.24, COURT_H = 14.33
@@ -635,34 +668,66 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section ref="stageEl" class="bs-stage" aria-label="视频分析舞台" :class="{ 'bs-off': !S.overlayOn }">
-    <canvas ref="feedEl" aria-hidden="true"></canvas>
-    <canvas ref="ovEl" role="img" aria-label="深度数据叠加层：球员名牌、指标、战术标注"
-            @mousemove="onMove" @mouseleave="onLeave" @click="onClick"></canvas>
-
-    <div ref="metaEl" class="bs-meta">
-      <span class="bs-tag">SYNTHETIC PREVIEW</span>
-      <div class="bs-layerbar" role="group" aria-label="数据图层开关">
-        <button v-for="(l, i) in LAYERS" :key="l.id" class="bs-layerbtn"
-                :aria-pressed="String(layers[l.id])" :title="`${l.desc}（快捷键 ${i + 1}）`"
-                @click.stop="toggleLayer(l.id)">
-          <i class="sw"></i>{{ l.name }}
-        </button>
+  <section ref="stageEl" class="bs-split" aria-label="视频分析舞台" :class="{ 'bs-off': !S.overlayOn }">
+    <!-- 左：处理完成视频（完整展示 · 与时间轴联动） -->
+    <div class="bs-videocol">
+      <div class="bs-videobox">
+        <video v-if="!feedError" ref="vidEl" class="bs-video" :src="FEED_SRC" muted playsinline preload="auto"
+               aria-label="处理完成的实拍回放" @canplay="onFeedReady" @error="feedError = true"></video>
+        <div v-else class="bs-video bs-video--off">FEED OFFLINE</div>
+        <span class="bs-tag">PROCESSED FEED</span>
+        <span class="bs-rec"><i></i>LIVE</span>
       </div>
-    </div>
-
-    <div class="bs-hovercard" :class="{ show: hover.show }" :style="{ left: hover.x + 'px', top: hover.y + 'px' }" aria-hidden="true">
-      <div v-if="hover.head" class="hc-head">
-        <span class="hc-num" :style="{ color: hover.head.color }">{{ hover.head.num }}</span>
-        <span><span class="hc-name">{{ hover.head.name }}</span><br><span class="hc-team">{{ hover.head.sub }}</span></span>
-      </div>
-      <div v-if="hover.head" class="hc-grid">
-        <div v-for="c in hover.cells" :key="c.k" class="hc-cell">
-          <div class="k">{{ c.k }}</div><div class="v" :class="{ hi: c.hi }">{{ c.v }}</div>
+      <!-- 信号监视面板：填充视频下方剩余高度（参数 + 电平表动效） -->
+      <div class="bs-feedmon" v-reveal>
+        <div class="fm-head">
+          <span class="slash"><i></i>FEED MONITOR · 信号监视</span>
+          <span class="fm-sync"><i class="dot"></i>SYNC LOCKED</span>
+        </div>
+        <div class="fm-grid">
+          <div class="fm-cell"><span class="k">SOURCE</span><span class="v">1080P <em>59.94</em></span></div>
+          <div class="fm-cell"><span class="k">OUTPUT</span><span class="v">720P <em>30</em></span></div>
+          <div class="fm-cell"><span class="k">PIPELINE</span><span class="v">检测·跟踪·投影</span></div>
+          <div class="fm-cell"><span class="k">LATENCY</span><span class="v">0.4 <em>s</em></span></div>
+        </div>
+        <div class="fm-meter" aria-hidden="true">
+          <i v-for="n in VU_BARS" :key="n"
+             :style="{ animationDelay: (n * 0.13) + 's', animationDuration: (0.8 + (n % 5) * 0.21) + 's' }"></i>
         </div>
       </div>
     </div>
 
+    <!-- 右：战术台（合成球场 + 数据叠加层） -->
+    <div class="bs-stage">
+      <canvas ref="feedEl" aria-hidden="true"></canvas>
+      <canvas ref="ovEl" role="img" aria-label="深度数据叠加层：球员名牌、指标、战术标注"
+              @mousemove="onMove" @mouseleave="onLeave" @click="onClick"></canvas>
+
+      <div ref="metaEl" class="bs-meta">
+        <span class="bs-tag">TACTICAL OVERLAY</span>
+        <div class="bs-layerbar" role="group" aria-label="数据图层开关">
+          <button v-for="(l, i) in LAYERS" :key="l.id" class="bs-layerbtn"
+                  :aria-pressed="String(layers[l.id])" :title="`${l.desc}（快捷键 ${i + 1}）`"
+                  @click.stop="toggleLayer(l.id)">
+            <i class="sw"></i>{{ l.name }}
+          </button>
+        </div>
+      </div>
+
+      <div class="bs-hovercard" :class="{ show: hover.show }" :style="{ left: hover.x + 'px', top: hover.y + 'px' }" aria-hidden="true">
+        <div v-if="hover.head" class="hc-head">
+          <span class="hc-num" :style="{ color: hover.head.color }">{{ hover.head.num }}</span>
+          <span><span class="hc-name">{{ hover.head.name }}</span><br><span class="hc-team">{{ hover.head.sub }}</span></span>
+        </div>
+        <div v-if="hover.head" class="hc-grid">
+          <div v-for="c in hover.cells" :key="c.k" class="hc-cell">
+            <div class="k">{{ c.k }}</div><div class="v" :class="{ hi: c.hi }">{{ c.v }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 解说条：横跨两栏底部 -->
     <div ref="commEl" class="bs-commentary" :class="{ 'is-live': !!liveComm }">
       <div class="cue" style="white-space:pre-line">{{ commLabel }}</div>
       <div>

@@ -19,8 +19,8 @@ const list = computed(() => [...METRICS].sort((a, b) =>
               @click="selectPid(m.pid)">
         <span class="no" :style="{ color: TEAM_COLOR[m.team] }">{{ m.number }}</span>
         <span class="nm">{{ m.name }}<small>{{ m.team }} · {{ m.role }}</small></span>
-        <span class="mv"><k>GRAV</k>{{ m.gravity }}</span>
-        <span class="mv"><k>xFG</k>{{ m.xfgAvg.toFixed(2) }}</span>
+        <span class="mv"><i>GRAV</i>{{ m.gravity }}</span>
+        <span class="mv"><i>xFG</i>{{ m.xfgAvg.toFixed(2) }}</span>
       </button>
     </div>
   </div>

@@ -6,6 +6,11 @@ import { S, curNarration, evidence } from '../../lib/store.js'
 const narr = computed(() => curNarration.value)
 const evs = computed(() => evidence.value || [])
 
+/** 数据指纹：证据变化时驱动格子级联入场 / 数值滚动重放（cell :key 变更 → 重新挂载） */
+const stamp = computed(() =>
+  evs.value.length + '-' + evs.value.map(e => Math.round((e.value || 0) * 100)).join('.')
+)
+
 function fmt(v) {
   if (v === null || v === undefined || Number.isNaN(v)) return '—'
   return Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 10 ? v.toFixed(1) : v.toFixed(2)
@@ -34,9 +39,9 @@ function fmt(v) {
         <span class="r">结构化指标 · {{ evs.length }} 项</span>
       </div>
       <div class="vb-ev-grid" style="margin-top:12px">
-        <div v-for="e in evs" :key="e.key" class="vb-ev-cell">
+        <div v-for="(e, i) in evs" :key="e.key + '-' + stamp" class="vb-ev-cell" :style="{ '--i': i }">
           <span>{{ e.label }}</span>
-          <b>{{ fmt(e.value) }}</b>
+          <b v-countup>{{ fmt(e.value) }}</b>
           <em>{{ e.unit }}</em>
           <em v-if="e.delta !== null && e.delta !== undefined" :style="{ color: e.delta >= 0 ? 'var(--bc-signal)' : '#4C9EE8' }">
             {{ e.delta >= 0 ? '+' : '' }}{{ fmt(e.delta) }}

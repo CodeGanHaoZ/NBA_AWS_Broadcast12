@@ -231,7 +231,7 @@
 .vb-bx .prow .nm { font-size: 12.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--bc-chalk); }
 .vb-bx .prow .nm small { display: block; font-family: var(--bc-font-mono); font-size: 9px; letter-spacing: .12em; color: var(--bc-muted); }
 .vb-bx .prow .mv { font-family: var(--bc-font-mono); font-size: 11px; text-align: right; }
-.vb-bx .prow .mv k { display: block; font-size: 8.5px; letter-spacing: .1em; color: var(--bc-muted); }
+.vb-bx .prow .mv i { display: block; font-size: 8.5px; letter-spacing: .1em; font-style: normal; color: var(--bc-muted); }
 
 /* ---------------- 战术板 ---------------- */
 .vb-bx .boards { background: var(--bc-surface); border: 1px solid var(--bc-line); border-radius: var(--bc-radius-card); padding: 14px; }
@@ -286,9 +286,62 @@
 }
 .bs-stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .bs-stage canvas[role="img"]{pointer-events:auto}
+/* 左右布局：左 = 处理完成视频（完整展示），右 = 战术台；解说条横跨底部 */
+.bs-split{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:var(--bc-s4)}
+.bs-videocol{display:flex;flex-direction:column;min-width:0}
+.bs-videobox{
+  position:relative;aspect-ratio:16/9;background:#000;
+  border:1px solid var(--bc-line);border-radius:var(--bc-radius-card);overflow:hidden;
+}
+.bs-video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
+.bs-video--off{display:flex;align-items:center;justify-content:center;font-family:var(--bc-font-mono);font-size:10px;letter-spacing:.2em;color:var(--bc-muted)}
+.bs-videobox .bs-tag{position:absolute;top:10px;left:10px;z-index:2}
+.bs-rec{
+  position:absolute;top:10px;right:10px;z-index:2;display:inline-flex;align-items:center;gap:5px;
+  font-family:var(--bc-font-mono);font-size:9px;letter-spacing:.16em;color:var(--bc-signal);
+  background:rgba(11,11,12,.72);border:1px solid rgba(249,83,12,.45);padding:4px 8px;border-radius:2px;
+}
+.bs-rec i{width:6px;height:6px;border-radius:50%;background:var(--bc-signal);animation:bc-rec-blink 1.6s ease-in-out infinite}
+@keyframes bc-rec-blink{0%,100%{opacity:1}50%{opacity:.25}}
+.bs-videocap{margin:8px 2px 0;font-family:var(--bc-font-mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--bc-muted)}
+@media (max-width:900px){ .bs-split{grid-template-columns:1fr} }
+
+/* 信号监视面板：填充视频下方剩余高度；电平行 flex-basis:0 自适应，不撑高栅格 */
+.bs-feedmon{
+  flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:8px;margin-top:10px;
+  padding:10px 12px;background:var(--bc-surface);border:1px solid var(--bc-line);
+  border-radius:var(--bc-radius-card);overflow:hidden;position:relative;
+}
+.bs-feedmon::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(249,83,12,.85) 50%,transparent);
+  background-size:220% 100%;animation:bc-fm-line 3.4s linear infinite;
+}
+@keyframes bc-fm-line{0%{background-position:130% 0}100%{background-position:-130% 0}}
+.bs-feedmon .fm-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.bs-feedmon .fm-sync{
+  display:inline-flex;align-items:center;gap:5px;flex:none;
+  font-family:var(--bc-font-mono);font-size:9px;letter-spacing:.16em;color:var(--bc-signal);
+}
+.bs-feedmon .fm-sync .dot{width:6px;height:6px;border-radius:50%;background:var(--bc-signal);animation:bc-rec-blink 1.6s ease-in-out infinite}
+.bs-feedmon .fm-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.bs-feedmon .fm-cell{border-left:2px solid var(--bc-line);padding-left:8px;min-width:0}
+.bs-feedmon .fm-cell .k{display:block;font-family:var(--bc-font-mono);font-size:8.5px;letter-spacing:.14em;color:var(--bc-muted);text-transform:uppercase}
+.bs-feedmon .fm-cell .v{display:block;font-family:var(--bc-font-display);font-size:15px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bs-feedmon .fm-cell .v em{font-style:normal;font-family:var(--bc-font-mono);font-size:9.5px;color:var(--bc-muted)}
+.bs-feedmon .fm-meter{flex:1 1 0;min-height:0;display:flex;align-items:flex-end;gap:4px}
+.bs-feedmon .fm-meter i{
+  flex:1;height:100%;border-radius:1px;transform-origin:bottom;transform:scaleY(.15);
+  background:linear-gradient(180deg,var(--bc-signal),rgba(249,83,12,.22));
+  animation:bc-fm-vu 1s ease-in-out infinite alternate;
+}
+@keyframes bc-fm-vu{from{transform:scaleY(.12)}to{transform:scaleY(1)}}
+/* 单列堆叠后无剩余高度，电平行改固定高 */
+@media (max-width:900px){ .bs-feedmon .fm-meter{flex:0 0 34px} }
+
 .bs-meta{
   position:absolute;top:0;left:0;right:0;display:flex;align-items:flex-start;
-  justify-content:space-between;gap:12px;padding:10px 12px;pointer-events:none;
+  justify-content:space-between;gap:12px;padding:10px 12px;pointer-events:none;z-index:5;
 }
 .bs-tag{
   font-family:var(--bc-font-mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;
@@ -306,11 +359,12 @@
 .bs-layerbtn[aria-pressed="true"]{color:var(--bc-chalk);border-color:var(--bc-signal);background:rgba(249,83,12,.12)}
 .bs-layerbtn[aria-pressed="true"] .sw{background:var(--bc-signal)}
 
-/* 下三分之一解说条 */
+/* 解说条：横跨左右两栏底部的独立卡片（不再是舞台内覆盖层） */
 .bs-commentary{
-  position:absolute;left:0;right:0;bottom:0;padding:12px 14px 14px;
-  background:linear-gradient(to top,rgba(11,11,12,.94) 30%,rgba(11,11,12,.6) 70%,transparent);
-  display:flex;gap:12px;align-items:flex-end;pointer-events:none;
+  grid-column:1 / -1;display:flex;gap:12px;align-items:flex-start;
+  padding:12px 14px;border:1px solid var(--bc-line);border-radius:var(--bc-radius-card);
+  background:linear-gradient(90deg,rgba(249,83,12,.09),rgba(19,19,21,.88) 42%,var(--bc-surface));
+  pointer-events:none;
 }
 .bs-commentary .cue{
   flex:none;font-family:var(--bc-font-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
@@ -381,4 +435,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .bs-stage::after, .vb-bx .sb-score .n { animation: none !important; }
+  .bs-feedmon::before, .bs-feedmon .fm-sync .dot, .bs-feedmon .fm-meter i { animation: none !important; }
+  .bs-feedmon .fm-meter i { transform: scaleY(.55); }
 }
