@@ -1,0 +1,116 @@
+/* ============================================================
+   Broadcast Code MVP · 工作台全局布局（五区：A 顶栏 / B 左栏 /
+   C 主区 / D 右栏 / E 底部 scrubber）+ 全页底层
+   规范：docs/UIUX.md §3/§8；token 一律引 design-tokens.css
+   ============================================================ */
+
+* { box-sizing: border-box; }
+html, body, #app { height: 100%; margin: 0; }
+
+.wb {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* S-01 球场线全页铺底（z 0） */
+.wb-court-bg {
+  position: fixed;
+  inset: -12%;
+  width: 124%;
+  height: 124%;
+  z-index: var(--z-court-bg);
+  pointer-events: none;
+}
+
+.wb-banner {
+  position: relative;
+  z-index: var(--z-workbench);
+  background: var(--bc-surface-2);
+  color: var(--bc-key-yellow);
+  text-align: center;
+  padding: var(--bc-s1) 0;
+  border-bottom: 1px solid var(--bc-line);
+}
+
+/* 三柱主区（z 2） */
+.wb-main {
+  position: relative;
+  z-index: var(--z-workbench);
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr var(--panel-w);
+}
+
+.wb-main > * { min-height: 0; }
+
+/* 栏间 1px 硬分隔，不用 gap 留白 */
+.rl { border-right: 1px solid var(--bc-line); }
+.sp { border-left: 1px solid var(--bc-line); }
+
+/* 栏头通用 */
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--bc-s4) var(--bc-s4) var(--bc-s3);
+  border-bottom: 1px solid var(--bc-line);
+}
+
+/* ghost 小按钮（控制条/顶栏） */
+.ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--bc-s1);
+  height: 40px;
+  min-width: 44px;
+  padding: 0 var(--bc-s3);
+  background: transparent;
+  border: 1px solid var(--bc-line);
+  border-radius: var(--bc-radius-card);
+  color: var(--bc-chalk);
+  font-family: var(--bc-font-mono);
+  font-size: 12px;
+  letter-spacing: .08em;
+  cursor: pointer;
+  transition: border-color var(--bc-dur-fast) var(--bc-ease), color var(--bc-dur-fast) var(--bc-ease);
+}
+.ghost-btn:hover { border-color: var(--bc-signal); color: var(--bc-signal); }
+.ghost-btn:focus-visible { outline: 2px solid var(--bc-signal); outline-offset: 2px; }
+.ghost-btn[disabled] { opacity: .35; pointer-events: none; }
+.ghost-btn.is-active { color: var(--bc-signal); border-color: var(--bc-signal); }
+
+/* focus-visible 全局 */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--bc-signal);
+  outline-offset: 2px;
+}
+
+/* 断点：1280-1440px 栏宽压缩 */
+@media (max-width: 1440px) {
+  .wb-main { grid-template-columns: 248px 1fr 320px; }
+}
+
+/* <1024px：左栏折叠为顶部横向 chip 条（兜底，不深度适配） */
+@media (max-width: 1024px) {
+  .wb-main {
+    grid-template-columns: 1fr 320px;
+    grid-template-rows: auto 1fr;
+  }
+  .rl {
+    grid-column: 1 / -1;
+    border-right: none;
+    border-bottom: 1px solid var(--bc-line);
+    max-height: 132px;
+  }
+  .cs { grid-column: 1; }
+  .sp { grid-column: 2; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ghost-btn { transition: none; }
+}

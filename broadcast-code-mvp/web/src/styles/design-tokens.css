@@ -1,0 +1,419 @@
+/* ============================================================
+   Broadcast Code MVP · Design Tokens & 工具类
+   设计师：颜好看 | 2026-10-10
+   来源：broadcast-code-ui 范式（assets/broadcast-code.css 值级对齐）
+        + docs/UIUX.md §8 产品语义别名 + 附录 A/B 组件补充
+   用法：web/src/main.js 中 `import './styles/design-tokens.css'`
+   ============================================================ */
+
+/* ---------- 本地字体（woff2 文件置于 web/public/fonts/） ----------
+   待放入文件清单（Google Fonts 下载，woff2）：
+     anton-latin-400.woff2            —— Anton regular（仅 400 一档）
+     noto-sans-sc-400.woff2           —— Noto Sans SC Regular
+     noto-sans-sc-500.woff2           —— Noto Sans SC Medium
+     noto-sans-sc-700.woff2           —— Noto Sans SC Bold
+     noto-sans-sc-900.woff2           —— Noto Sans SC Black（中文大标题）
+     jetbrains-mono-400.woff2         —— JetBrains Mono Regular
+     jetbrains-mono-700.woff2         —— JetBrains Mono Bold
+   注意：本产品禁用书法字体，不引入 Ma Shan Zheng。
+   文件未就位时按 font-family 回退栈静默降级，不阻塞渲染。
+-------------------------------------------------------------- */
+@font-face {
+  font-family: "Anton";
+  src: url("/fonts/anton-latin-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url("/fonts/noto-sans-sc-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url("/fonts/noto-sans-sc-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url("/fonts/noto-sans-sc-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url("/fonts/noto-sans-sc-900.woff2") format("woff2");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/jetbrains-mono-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/jetbrains-mono-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============================================================
+   A1 - Identity / Primitive Token（与范式 broadcast-code.css 对齐）
+   ============================================================ */
+:root {
+  /* color · 配色（hex 即范式唯一来源，禁止另起值） */
+  --bc-bg: #0B0B0C;            /* 转播间黑 · 页面底色 */
+  --bc-surface: #131315;       /* 卡片/分区底 */
+  --bc-surface-2: #1B1B1F;     /* 嵌套层/hover 底 */
+  --bc-line: #2A2A2E;          /* 结构线、卡片描边 */
+  --bc-chalk: #F5F2EC;         /* 粉笔白 · 主文字 */
+  --bc-muted: #8E8E96;         /* 次要文字、mono 标签 */
+  --bc-signal: #F9530C;        /* 唯一主强调色 · 信号橙（面积 ≤10%） */
+  --bc-signal-deep: #C43A08;   /* 皮革纹理暗端 */
+  --bc-navy: #12183A;          /* 视频分析帧/战术板底 */
+  --bc-key-red: #E23B3B;       /* 骨骼关键点：持球（仅数据标注） */
+  --bc-key-yellow: #F5C518;    /* 骨骼关键点：无球跑动（仅数据标注） */
+  --bc-key-cyan: #39C2D7;      /* 骨骼关键点：防守（仅数据标注） */
+
+  /* font · 字体（禁用系统默认字体直出） */
+  --bc-font-display: "Anton", "Arial Narrow", sans-serif;
+  --bc-font-body: "Noto Sans SC", sans-serif;
+  --bc-font-mono: "JetBrains Mono", "IBM Plex Mono", monospace;
+
+  /* spacing · 间距（4px 基准网格，禁止非标值） */
+  --bc-s1: 4px;   --bc-s2: 8px;   --bc-s3: 12px;  --bc-s4: 16px;
+  --bc-s6: 24px;  --bc-s8: 32px;  --bc-s12: 48px;
+  --bc-s16: 64px; --bc-s24: 96px;
+
+  /* radius · 圆角纪律（转播终端是「硬」的） */
+  --bc-radius-card: 2px;       /* 卡片/按钮/输入框/帧 */
+  --bc-radius-pill: 999px;     /* 仅日期/模式 pill */
+  /* Telestrator 标注圆 50%，三者之外无圆角 */
+
+  /* motion · 动效（仅 opacity/transform，禁弹跳） */
+  --bc-ease: cubic-bezier(.2, .6, .2, 1);
+  --bc-dur: .25s;
+  --bc-dur-fast: .15s;         /* 确认操作/选中态 */
+  --bc-dur-slow: .5s;          /* 入场淡入，上限 */
+
+  /* ============================================================
+     B/C - 产品语义别名（UIUX §8 · 值全部引用上方 primitive）
+     ============================================================ */
+  /* 区域底色 */
+  --app-bg: var(--bc-bg);
+  --panel-bg: var(--bc-surface);
+  --panel-bg-hover: var(--bc-surface-2);
+  --frame-bg: var(--bc-navy);
+
+  /* 解说面板专用 */
+  --commentary-text: var(--bc-chalk);
+  --commentary-highlight: var(--bc-signal);
+  --commentary-history: rgba(245, 242, 236, .6);
+
+  /* 战术板标注层 */
+  --overlay-ring: var(--bc-signal);
+  --skeleton-ball: var(--bc-key-red);
+  --skeleton-offball: var(--bc-key-yellow);
+  --skeleton-defense: var(--bc-key-cyan);
+  --court-line: rgba(245, 242, 236, .07);      /* 全页球场线底色 */
+  --court-line-frame: rgba(245, 242, 236, .14); /* 帧内透视线 */
+
+  /* 工作台结构尺寸（大屏 1920×1080 基线） */
+  --topbar-h: 56px;
+  --scrubber-h: 64px;
+  --sidebar-w: 288px;          /* 1280-1440px 压至 248px */
+  --panel-w: 360px;            /* 1280-1440px 压至 320px */
+
+  /* z-index 层级 */
+  --z-court-bg: 0;
+  --z-grain: 1;
+  --z-workbench: 2;
+  --z-overlay: 10;             /* 帧内标注层 */
+  --z-topbar: 40;
+  --z-error: 50;
+}
+
+/* ============================================================
+   基础
+   ============================================================ */
+.bc-root {
+  background: var(--bc-bg);
+  color: var(--bc-chalk);
+  font-family: var(--bc-font-body);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+.bc-root ::selection { background: var(--bc-signal); color: var(--bc-chalk); }
+
+/* ============================================================
+   排版工具类
+   ============================================================ */
+.bc-display {
+  font-family: var(--bc-font-display);
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  line-height: 1.05;
+  font-weight: 400;
+}
+.bc-mono {
+  font-family: var(--bc-font-mono);
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+/* 分区斜杠标签（签名 S-07）：<span class="bc-kicker">POSSESSIONS <i>/</i> Q4</span> */
+.bc-kicker {
+  font-family: var(--bc-font-mono);
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--bc-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--bc-s3);
+}
+.bc-kicker i { font-style: normal; color: var(--bc-signal); }
+
+/* ============================================================
+   按钮（三变体 × 9 态核心：default/hover/active/focus/disabled）
+   ============================================================ */
+.bc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--bc-s2);
+  padding: 14px 32px;
+  border-radius: var(--bc-radius-card);
+  font-family: var(--bc-font-display);
+  font-size: 17px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: none;
+  color: var(--bc-chalk);
+  transition: transform var(--bc-dur) var(--bc-ease),
+              background var(--bc-dur) var(--bc-ease),
+              color var(--bc-dur) var(--bc-ease),
+              border-color var(--bc-dur) var(--bc-ease);
+}
+.bc-btn--primary { background: var(--bc-signal); color: var(--bc-chalk); }   /* 每屏 ≤1 个 */
+.bc-btn--primary:hover { background: #FF6A24; transform: translateY(-1px); }
+.bc-btn--primary:active { transform: translateY(1px); }
+.bc-btn--ghost { background: transparent; border-color: var(--bc-line); }
+.bc-btn--ghost:hover { border-color: var(--bc-signal); color: var(--bc-signal); }
+.bc-btn--dashed { color: var(--bc-signal); border: 1.5px dashed var(--bc-signal); }
+.bc-btn--dashed:hover { background: rgba(249, 83, 12, .08); }
+.bc-btn:focus-visible { outline: 2px solid var(--bc-signal); outline-offset: 2px; }
+.bc-btn[disabled] { opacity: .35; pointer-events: none; }
+.bc-btn--sm { padding: 9px 20px; font-size: 13px; }   /* 控制条/顶栏小按钮 */
+
+/* ============================================================
+   卡片 / pill / marquee / tele / leather（签名元素工具类）
+   ============================================================ */
+.bc-card {
+  background: var(--bc-surface);
+  border: 1px solid var(--bc-line);
+  border-radius: var(--bc-radius-card);
+  padding: var(--bc-s8);
+  transition: background var(--bc-dur) var(--bc-ease),
+              border-color var(--bc-dur) var(--bc-ease);
+}
+.bc-card:hover { background: var(--bc-surface-2); border-color: #3A3A40; }
+
+/* 日期/模式 pill（签名 S-05，一屏 ≤3 个实心） */
+.bc-pill {
+  display: inline-block;
+  background: var(--bc-signal);
+  color: var(--bc-chalk);
+  font-family: var(--bc-font-mono);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: .08em;
+  padding: 4px 14px;
+  border-radius: var(--bc-radius-pill);
+  white-space: nowrap;
+}
+.bc-pill--ghost { background: transparent; border: 1px solid var(--bc-line); color: var(--bc-muted); }
+.bc-pill--ghost:hover { border-color: var(--bc-signal); color: var(--bc-signal); }
+
+/* 虚线选框 marquee（签名 S-04，四角 7px chalk 手柄，子元素 <b>×4） */
+.bc-marquee { position: relative; border: 1.5px dashed var(--bc-signal); padding: var(--bc-s4) var(--bc-s6); }
+.bc-marquee > b { position: absolute; width: 7px; height: 7px; background: var(--bc-chalk); }
+.bc-marquee > b:nth-of-type(1) { top: -4px; left: -4px; }
+.bc-marquee > b:nth-of-type(2) { top: -4px; right: -4px; }
+.bc-marquee > b:nth-of-type(3) { bottom: -4px; left: -4px; }
+.bc-marquee > b:nth-of-type(4) { bottom: -4px; right: -4px; }
+
+/* Telestrator 标注圆环（签名 S-03，绝对定位于帧上） */
+.bc-tele {
+  position: absolute;
+  border: 2px solid var(--bc-signal);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.bc-tele::before, .bc-tele::after {
+  content: "";
+  position: absolute;
+  background: var(--bc-signal);
+}
+.bc-tele::before { width: 1px; height: 30%; left: 50%; top: -15%; }
+.bc-tele::after  { height: 1px; width: 30%; top: 50%; left: -15%; }
+.bc-tele--pulse { animation: bc-pulse 2.4s var(--bc-ease) infinite; }
+.bc-tele--clutch { animation: bc-pulse-clutch 1.6s var(--bc-ease) infinite; }  /* §7.5 clutch 档加强 */
+@keyframes bc-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.06); opacity: .75; }
+}
+@keyframes bc-pulse-clutch {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: .7; }
+}
+
+/* 皮革纹理（签名 S-06，仅顶栏下缘 4px 细条，面积 <1%） */
+.bc-leather {
+  background:
+    radial-gradient(rgba(0, 0, 0, .35) 1px, transparent 1.4px),
+    linear-gradient(160deg, var(--bc-signal) 0%, var(--bc-signal-deep) 70%);
+  background-size: 5px 5px, 100% 100%;
+}
+
+/* 大数字统计（签名 S-09） */
+.bc-stat__num {
+  font-family: var(--bc-font-display);
+  font-size: clamp(56px, 9vw, 120px);
+  line-height: 1;
+  color: var(--bc-chalk);
+}
+.bc-stat__num--signal { color: var(--bc-signal); }
+.bc-stat__cap {
+  font-family: var(--bc-font-mono);
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--bc-muted);
+  margin-top: var(--bc-s3);
+}
+
+/* ============================================================
+   数据表格（无竖线，仅横线；数字列 mono）
+   ============================================================ */
+.bc-table { width: 100%; border-collapse: collapse; }
+.bc-table th {
+  font-family: var(--bc-font-mono);
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--bc-muted);
+  text-align: left;
+  padding: var(--bc-s3) var(--bc-s4);
+  border-bottom: 1px solid var(--bc-line);
+}
+.bc-table td { padding: var(--bc-s4); border-bottom: 1px solid var(--bc-line); font-size: 15px; }
+.bc-table td[data-num] { font-family: var(--bc-font-mono); letter-spacing: .04em; }
+.bc-table tbody tr { transition: background var(--bc-dur) var(--bc-ease); }
+.bc-table tbody tr:hover { background: var(--bc-surface-2); }
+
+/* ============================================================
+   输入框
+   ============================================================ */
+.bc-input {
+  width: 100%;
+  background: var(--bc-surface);
+  border: 1px solid var(--bc-line);
+  border-radius: var(--bc-radius-card);
+  color: var(--bc-chalk);
+  font-family: var(--bc-font-body);
+  font-size: 15px;
+  padding: 12px 16px;
+  transition: border-color var(--bc-dur) var(--bc-ease), box-shadow var(--bc-dur) var(--bc-ease);
+}
+.bc-input::placeholder { color: rgba(142, 142, 150, .5); }
+.bc-input:focus {
+  outline: none;
+  border-color: var(--bc-signal);
+  box-shadow: 0 0 0 3px rgba(249, 83, 12, .15);
+}
+
+/* ============================================================
+   动效原语（扫描线 / 虚线流动 / 打字光标 / 入场）
+   ============================================================ */
+/* 骨骼帧 loading 扫描线（UIUX §4.1 T0-T0.3s） */
+@keyframes bc-scan { to { transform: translateY(calc(100% + 460px)); } }
+.bc-scanline {
+  position: absolute;
+  left: 0; right: 0;
+  height: 56px; top: -56px;
+  background: linear-gradient(180deg, transparent, rgba(249, 83, 12, .12), transparent);
+  animation: bc-scan 3.2s linear infinite;
+  pointer-events: none;
+}
+
+/* 跑动路径虚线流动（标注层 L3） */
+@keyframes bc-dash { to { stroke-dashoffset: -22; } }
+.bc-dash-run { stroke-dasharray: 6 5; animation: bc-dash 1.6s linear infinite; }
+
+/* 打字机光标（§7.2/§7.5；clutch 档叠加 bc-pulse-clutch） */
+@keyframes bc-caret { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+.bc-caret {
+  display: inline-block;
+  width: .5em;
+  color: var(--bc-signal);
+  animation: bc-caret 1.06s steps(1) infinite;
+}
+.bc-caret--excited { animation-duration: .8s; }
+.bc-caret--clutch { animation: bc-caret 1.06s steps(1) infinite, bc-pulse-clutch 1.6s var(--bc-ease) infinite; }
+
+/* 入场：8px 上移淡入 */
+.bc-reveal { opacity: 0; transform: translateY(8px); transition: opacity .5s var(--bc-ease), transform .5s var(--bc-ease); }
+.bc-reveal.is-in { opacity: 1; transform: none; }
+
+/* AI 状态灯 / 当下节点呼吸点（顶栏 ·AI、管线条当前步） */
+.bc-live-dot {
+  width: 8px; height: 8px;
+  background: var(--bc-signal);
+  border-radius: 50%;
+  animation: bc-pulse 2.4s var(--bc-ease) infinite;
+}
+
+/* 噪点颗粒（全页 grain，z-index var(--z-grain)，opacity 已含） */
+.bc-grain {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-grain);
+  pointer-events: none;
+  opacity: .05;
+  background-image: radial-gradient(rgba(245, 242, 236, .6) .5px, transparent .6px);
+  background-size: 3px 3px;
+}
+
+/* ============================================================
+   prefers-reduced-motion 降级块（P0 无障碍纪律）
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .bc-tele--pulse,
+  .bc-tele--clutch,
+  .bc-scanline,
+  .bc-dash-run,
+  .bc-caret,
+  .bc-caret--excited,
+  .bc-caret--clutch,
+  .bc-live-dot { animation: none; }
+  .bc-caret, .bc-caret--excited, .bc-caret--clutch { opacity: 1; }  /* 光标常显不闪烁 */
+  .bc-reveal { opacity: 1; transform: none; transition: none; }
+  .bc-btn, .bc-card, .bc-input, .bc-table tbody tr { transition: none; }
+  /* 打字机降级为整句直出（JS 侧检测 matchMedia 同步处理） */
+}

@@ -1,0 +1,386 @@
+openapi: 3.0.3
+info:
+  title: Broadcast Code MVP API
+  version: 1.0.1
+  description: >
+    NBA 深度赛场可视化 AI Agent 的后端契约，前后端联调唯一依据。
+    统一响应壳 { code, data, message }；code=0 成功。
+    错误码：1001 参数非法 / 1002 资源不存在 / 1003 数据损坏 / 2000 服务器内部错误。
+    全部端点只读；无认证、无分页、无写操作（MVP out-of-scope）。
+    数据字段细则以 docs/api/dataset-contract.md 为准。
+    v1.0.1：同步 SPEC v1.0 §5/§6 命名（/health 无前缀、quarter、tags、
+    features 七项、Overlay.type、Narration.highlights、端口 3000）。
+servers:
+  - url: http://localhost:3000
+
+paths:
+  /health:
+    get:
+      summary: 健康检查
+      responses:
+        '200':
+          description: 服务正常
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status: { type: string, example: ok }
+                  games: { type: integer, example: 2 }
+
+  /api/v1/games:
+    get:
+      summary: 比赛列表
+      responses:
+        '200':
+          description: 全部比赛摘要（不少于 2 场）
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        minItems: 2
+                        items: { $ref: '#/components/schemas/GameSummary' }
+
+  /api/v1/games/{gameId}:
+    get:
+      summary: 单场元信息（含分节比分、球场映射常量、roster）
+      parameters:
+        - $ref: '#/components/parameters/GameId'
+      responses:
+        '200':
+          description: 比赛详情
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/GameDetail' }
+        '404':
+          description: 资源不存在（code=1002）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+
+  /api/v1/games/{gameId}/plays:
+    get:
+      summary: 回合列表（importance.total 降序）
+      parameters:
+        - $ref: '#/components/parameters/GameId'
+        - name: top
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 50, default: 10 }
+      responses:
+        '200':
+          description: 回合摘要列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/PlaySummary' }
+        '400':
+          description: 参数非法（code=1001，如 top=abc）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+        '404':
+          description: 资源不存在（code=1002）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+
+  /api/v1/games/{gameId}/plays/{playId}:
+    get:
+      summary: 单回合全量（meta + features + frames + overlays + narration）
+      parameters:
+        - $ref: '#/components/parameters/GameId'
+        - name: playId
+          in: path
+          required: true
+          schema: { type: string, example: p001 }
+      responses:
+        '200':
+          description: 回合完整播放数据
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/Play' }
+        '404':
+          description: 资源不存在（code=1002）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+
+  /api/v1/meta/flags:
+    get:
+      summary: 特性开关
+      responses:
+        '200':
+          description: 服务端可控开关状态
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        required: [video, tts]
+                        properties:
+                          video: { type: boolean, example: false }
+                          tts: { type: boolean, example: true }
+
+components:
+  parameters:
+    GameId:
+      name: gameId
+      in: path
+      required: true
+      schema: { type: string, example: g001 }
+
+  schemas:
+    Envelope:
+      type: object
+      required: [code, data, message]
+      properties:
+        code: { type: integer, example: 0 }
+        data: {}
+        message: { type: string, example: '' }
+
+    ErrorEnvelope:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: integer
+          description: 1001=参数非法 1002=资源不存在 1003=数据损坏 2000=内部错误
+        data: { nullable: true }
+        message: { type: string }
+
+    GameSummary:
+      type: object
+      required: [id, home, away, date, possessionCount]
+      properties:
+        id: { type: string, example: g001 }
+        label: { type: string, example: '火箭 vs 独行侠 · 第三节' }
+        date: { type: string, format: date }
+        home:
+          type: object
+          properties:
+            abbr: { type: string, example: HOU }
+            name: { type: string, example: 休斯顿火箭 }
+        away:
+          type: object
+          properties:
+            abbr: { type: string, example: DAL }
+            name: { type: string, example: 达拉斯独行侠 }
+        possessionCount: { type: integer, example: 8 }
+
+    GameDetail:
+      type: object
+      required: [id, home, away, date, quarters, score, court]
+      properties:
+        id: { type: string }
+        label: { type: string }
+        date: { type: string, format: date }
+        venue: { type: string }
+        home: { $ref: '#/components/schemas/Team' }
+        away: { $ref: '#/components/schemas/Team' }
+        quarters:
+          type: array
+          items:
+            type: object
+            properties:
+              q: { type: integer }
+              home: { type: integer }
+              away: { type: integer }
+        score: { $ref: '#/components/schemas/Score' }
+        court:
+          type: object
+          properties:
+            widthFt: { type: number, example: 94 }
+            heightFt: { type: number, example: 50 }
+            viewBox: { type: string, example: '0 0 940 500' }
+            leftHoop: { type: array, items: { type: number }, example: [40, 250] }
+            rightHoop: { type: array, items: { type: number }, example: [900, 250] }
+            threePtRadius: { type: number, example: 237.5 }
+            cornerThreeInset: { type: number, example: 30 }
+
+    Team:
+      type: object
+      properties:
+        teamId: { type: string }
+        name: { type: string }
+        abbr: { type: string }
+        color: { type: string, example: '#CE1141' }
+        players:
+          type: array
+          minItems: 5
+          maxItems: 5
+          items: { $ref: '#/components/schemas/Player' }
+
+    Player:
+      type: object
+      required: [id, name, number, star]
+      properties:
+        id: { type: string, example: dal-77 }
+        name: { type: string, example: Luka Doncic }
+        number: { type: integer }
+        star: { type: boolean }
+
+    Score:
+      type: object
+      properties:
+        home: { type: integer }
+        away: { type: integer }
+
+    Importance:
+      type: object
+      required: [total, breakdown]
+      properties:
+        total: { type: number, minimum: 0, maximum: 1, example: 0.91 }
+        breakdown:
+          type: object
+          required: [clutch, difficulty, rarity, momentum, star]
+          properties:
+            clutch: { type: number, description: 权重 0.30 }
+            difficulty: { type: number, description: 权重 0.25 }
+            rarity: { type: number, description: 权重 0.20 }
+            momentum: { type: number, description: 权重 0.15 }
+            star: { type: number, description: 权重 0.10 }
+
+    Features:
+      type: object
+      required: [shotDifficulty, gravity, clutchScore, spacingGain, defenseCollapseMs, offBallMovement, passCount]
+      properties:
+        shotDifficulty: { type: number, minimum: 0, maximum: 1, description: 由投篮距离与防守人距离合成 }
+        gravity: { type: number, minimum: 0, maximum: 1, description: 持球人吸引防守注意力指数 }
+        clutchScore: { type: number, minimum: 0, maximum: 1, description: 由节次/剩余时间/分差合成 }
+        spacingGain: { type: number, minimum: 0, description: 战术执行带来的空间增益（平方英尺） }
+        defenseCollapseMs: { type: integer, minimum: 0, description: 防守轮转崩塌耗时 }
+        offBallMovement: { type: number, minimum: 0, maximum: 1, description: 无球跑动强度 }
+        passCount: { type: integer, minimum: 0 }
+
+    PlaySummary:
+      type: object
+      required: [id, quarter, clock, label, tags, importance, durationMs]
+      properties:
+        id: { type: string, example: p001 }
+        quarter: { type: integer, example: 3 }
+        clock: { type: string, example: '02:41.0' }
+        label: { type: string, example: '东契奇后撤步三分' }
+        tags:
+          type: array
+          items: { type: string, example: deep_three }
+        importance: { $ref: '#/components/schemas/Importance' }
+        durationMs: { type: integer, example: 12400 }
+
+    Play:
+      allOf:
+        - $ref: '#/components/schemas/PlaySummary'
+        - type: object
+          required: [scoreBefore, actors, features, frames, overlays, narration]
+          properties:
+            scoreBefore: { $ref: '#/components/schemas/Score' }
+            actors:
+              type: object
+              properties:
+                shooter: { type: string }
+                defender: { type: string, nullable: true }
+                assister: { type: string, nullable: true }
+                screener: { type: string, nullable: true }
+            features: { $ref: '#/components/schemas/Features' }
+            frames:
+              type: array
+              minItems: 100
+              maxItems: 240
+              items: { $ref: '#/components/schemas/Frame' }
+            overlays:
+              type: array
+              minItems: 3
+              items: { $ref: '#/components/schemas/Overlay' }
+            narration:
+              type: array
+              minItems: 3
+              items: { $ref: '#/components/schemas/NarrationCue' }
+            video:
+              type: object
+              properties:
+                available: { type: boolean, example: false }
+                src: { type: string, nullable: true }
+                offsetMs: { type: integer }
+
+    Frame:
+      type: object
+      required: [t, ball, players]
+      properties:
+        t: { type: integer, description: 回合内毫秒，100ms 步进，从 0 开始 }
+        ball:
+          type: object
+          required: [x, y, z]
+          properties:
+            x: { type: number, description: 单位 ft，保留 2 位小数 }
+            y: { type: number }
+            z: { type: number, minimum: 0, description: 球高度 ft }
+        players:
+          type: array
+          minItems: 10
+          maxItems: 10
+          items:
+            type: object
+            required: [id, team, x, y, role]
+            properties:
+              id: { type: string }
+              team: { type: string, example: home }
+              x: { type: number }
+              y: { type: number }
+              role:
+                type: string
+                enum: [handler, cutter, screener, defender, help]
+
+    Overlay:
+      type: object
+      required: [type, t0, t1]
+      properties:
+        type: { type: string, enum: [arrow, ring, zone] }
+        t0: { type: integer, minimum: 0 }
+        t1: { type: integer, description: 必须 > t0 且 ≤ durationMs }
+        from: { type: array, items: { type: number }, minItems: 2, maxItems: 2, description: 'arrow 专用，[x,y] ft' }
+        to: { type: array, items: { type: number }, minItems: 2, maxItems: 2 }
+        style: { type: string, enum: [solid, dashed], description: arrow 专用 }
+        playerId: { type: string, description: ring 专用 }
+        r: { type: number, description: ring 半径 ft }
+        label: { type: string, description: ring/zone 的 mono 标注文案 }
+        points: { type: array, items: { type: array, items: { type: number } }, description: zone 专用多边形顶点 }
+        opacity: { type: number, minimum: 0, maximum: 1, description: zone 专用 }
+
+    NarrationCue:
+      type: object
+      required: [t0, t1, tone, text, highlights]
+      properties:
+        t0: { type: integer, minimum: 0, description: 与锚点 overlay.t0 偏差 ≤200ms（契约：取等） }
+        t1: { type: integer }
+        tone: { type: string, enum: [calm, excited, clutch] }
+        text: { type: string }
+        highlights:
+          type: array
+          maxItems: 3
+          items: { type: string }
+          description: 高亮词，须为 text 的子串，每句 ≤3 个
