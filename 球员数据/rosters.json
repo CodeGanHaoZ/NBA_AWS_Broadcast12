@@ -1,0 +1,717 @@
+{
+  "title": "Dallas Mavericks & Houston Rockets roster directory",
+  "season": "2026-27 preseason roster snapshot",
+  "retrieved_date": "2026-10-10",
+  "note": "Snapshot transcribed from NBA.com team roster pages. Rosters can change; blank jersey numbers mean no number was listed on the source roster page. Age and listed details reflect the source snapshot.",
+  "sources": [
+    {
+      "team": "Dallas Mavericks",
+      "url": "https://www.nba.com/mavs/roster?layout=grid"
+    },
+    {
+      "team": "Houston Rockets",
+      "url": "https://www.nba.com/rockets/player"
+    },
+    {
+      "team": "Dallas Mavericks roster cross-check",
+      "url": "https://www.nba.com/team/1610612742/mavericks"
+    },
+    {
+      "team": "Houston Rockets roster cross-check",
+      "url": "https://www.nba.com/team/1610612745/rockets/roster"
+    }
+  ],
+  "teams": [
+    {
+      "name": "Dallas Mavericks",
+      "abbreviation": "DAL",
+      "players": [
+        {
+          "name": "Tarik Biberovic",
+          "number": null,
+          "position": "F",
+          "height": "6-7",
+          "weight": "218 lbs",
+          "birthdate": "2001-01-28",
+          "age": 25,
+          "nba_experience_years": "R",
+          "last_school_or_club": null,
+          "how_acquired": "Draft rights traded from MEM on 2026-07-08",
+          "name_zh": "塔里克·比贝罗维奇",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/mavs/roster?layout=grid"
+        },
+        {
+          "name": "Max Christie",
+          "number": 0,
+          "position": "G",
+          "height": "6-5",
+          "weight": "190 lbs",
+          "birthdate": "2003-02-10",
+          "age": 23,
+          "nba_experience_years": 4,
+          "last_school_or_club": "Michigan State",
+          "how_acquired": "Traded from LAL on 2025-02-02",
+          "name_zh": "马克斯·克里斯蒂",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/mavs/roster?layout=grid"
+        },
+        {
+          "name": "John Poulakidas",
+          "number": 1,
+          "position": "G",
+          "height": "6-6",
+          "weight": "205 lbs",
+          "birthdate": "2003-04-04",
+          "age": 23,
+          "nba_experience_years": 1,
+          "last_school_or_club": "Yale",
+          "how_acquired": "Signed on 2026-02-28",
+          "name_zh": "约翰·普拉拉基达斯",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/mavs/roster?layout=grid"
+        },
+        {
+          "name": "Dereck Lively II",
+          "number": 2,
+          "position": "C",
+          "height": "7-1",
+          "weight": "230 lbs",
+          "birthdate": "2004-02-12",
+          "age": 22,
+          "nba_experience_years": 3,
+          "last_school_or_club": "Duke",
+          "how_acquired": "Draft rights traded from OKC on 2023-07-06",
+          "name_zh": "德里克·莱夫利二世",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/mavs/roster?layout=grid"
+        },
+        {
+          "name": "Naji Marshall",
+          "number": 3,
+          "position": "F",
+          "height": "6-6",
+          "weight": "220 lbs",
+          "birthdate": "1998-01-24",
+          "age": 28,
+          "nba_experience_years": 6,
+          "last_school_or_club": "Xavier",
+          "how_acquired": "Signed on 2024-07-06",
+          "name_zh": "纳吉·马绍尔",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/mavs/roster?layout=grid"
+        },
+        {
+          "name": "Dwight Powell",
+          "number": 7,
+          "position": "F-C",
+          "height": "6-10",
+          "weight": "240 lbs",
+          "birthdate": "1991-07-20",
+          "age": 35,
+          "nba_experience_years": 12,
+          "last_school_or_club": "Stanford",
+          "how_acquired": "Traded from BOS on 2014-12-18",
+          "name_zh": "德怀特·鲍威尔",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/mavs/roster?layout=grid"
+        },
+        {
+          "name": "Marcus Sasser",
+          "number": 8,
+          "position": "G",
+          "height": "6-1",
+          "weight": "195 lbs",
+          "birthdate": "2000-09-21",
+          "age": 26,
+          "nba_experience_years": 3,
+          "last_school_or_club": "Houston",
+          "how_acquired": "Traded from DET on 2026-07-08",
+          "name_zh": "马库斯·萨瑟",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/mavs/roster?layout=grid"
+        },
+        {
+          "name": "Jett Howard",
+          "number": 9,
+          "position": "G",
+          "height": "6-8",
+          "weight": "215 lbs",
+          "birthdate": "2003-09-14",
+          "age": 23,
+          "nba_experience_years": 3,
+          "last_school_or_club": "Michigan",
+          "how_acquired": "Signed on 2026-07-20",
+          "name_zh": "杰特·霍华德",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/mavs/roster?layout=grid"
+        },
+        {
+          "name": "Zaccharie Risacher",
+          "number": 10,
+          "position": "F",
+          "height": "6-8",
+          "weight": "200 lbs",
+          "birthdate": "2005-04-08",
+          "age": 21,
+          "nba_experience_years": 2,
+          "last_school_or_club": "JL Bourg-en-Bresse",
+          "how_acquired": "Traded from ATL on 2026-07-19",
+          "name_zh": "扎卡里·里萨谢",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/mavs/roster?layout=grid"
+        },
+        {
+          "name": "Kyrie Irving",
+          "number": 11,
+          "position": "G",
+          "height": "6-2",
+          "weight": "195 lbs",
+          "birthdate": "1992-03-23",
+          "age": 34,
+          "nba_experience_years": 14,
+          "last_school_or_club": "Duke",
+          "how_acquired": "Traded from BKN on 2023-02-06",
+          "name_zh": "凯里·欧文",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/mavs/roster?layout=grid"
+        },
+        {
+          "name": "Morez Johnson Jr.",
+          "number": 14,
+          "position": "F",
+          "height": "6-9",
+          "weight": "250 lbs",
+          "birthdate": "2006-01-25",
+          "age": 20,
+          "nba_experience_years": "R",
+          "last_school_or_club": "Michigan",
+          "how_acquired": "2026 draft, 9th pick",
+          "name_zh": "莫雷兹·约翰逊 Jr.",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/mavs/roster?layout=grid"
+        },
+        {
+          "name": "Caleb Martin",
+          "number": 16,
+          "position": "F",
+          "height": "6-5",
+          "weight": "205 lbs",
+          "birthdate": "1995-09-28",
+          "age": 31,
+          "nba_experience_years": 7,
+          "last_school_or_club": "Nevada",
+          "how_acquired": "Traded from PHI on 2025-02-04",
+          "name_zh": "凯莱布·马丁",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/mavs/roster?layout=grid"
+        },
+        {
+          "name": "Daniel Gafford",
+          "number": 21,
+          "position": "F-C",
+          "height": "6-10",
+          "weight": "265 lbs",
+          "birthdate": "1998-10-01",
+          "age": 28,
+          "nba_experience_years": 7,
+          "last_school_or_club": "Arkansas",
+          "how_acquired": "Traded from WAS on 2024-02-08",
+          "name_zh": "丹尼尔·加福德",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/mavs/roster?layout=grid"
+        },
+        {
+          "name": "P.J. Washington",
+          "number": 25,
+          "position": "F",
+          "height": "6-7",
+          "weight": "230 lbs",
+          "birthdate": "1998-08-23",
+          "age": 28,
+          "nba_experience_years": 7,
+          "last_school_or_club": "Kentucky",
+          "how_acquired": "Traded from CHA on 2024-02-08",
+          "name_zh": "P.J. 华盛顿",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/mavs/roster?layout=grid"
+        },
+        {
+          "name": "Moussa Cisse",
+          "number": 30,
+          "position": "C",
+          "height": "6-11",
+          "weight": "220 lbs",
+          "birthdate": "2002-09-10",
+          "age": 24,
+          "nba_experience_years": 1,
+          "last_school_or_club": "Memphis",
+          "how_acquired": "Signed on 2025-07-08",
+          "name_zh": "穆萨·西塞",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/mavs/roster?layout=grid"
+        },
+        {
+          "name": "Seth Lundy",
+          "number": 31,
+          "position": "G-F",
+          "height": "6-4",
+          "weight": "220 lbs",
+          "birthdate": "2000-04-02",
+          "age": 26,
+          "nba_experience_years": 1,
+          "last_school_or_club": "Penn State",
+          "how_acquired": "Signed on 2026-09-25",
+          "name_zh": "塞斯·伦迪",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/mavs/roster?layout=grid"
+        },
+        {
+          "name": "Cooper Flagg",
+          "number": 32,
+          "position": "F",
+          "height": "6-9",
+          "weight": "205 lbs",
+          "birthdate": "2006-12-21",
+          "age": 19,
+          "nba_experience_years": 1,
+          "last_school_or_club": "Duke",
+          "how_acquired": "2025 draft, 1st pick",
+          "name_zh": "库珀·弗拉格",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/mavs/roster?layout=grid"
+        },
+        {
+          "name": "Tobi Lawal",
+          "number": 33,
+          "position": "F",
+          "height": "6-8",
+          "weight": "215 lbs",
+          "birthdate": "2003-05-01",
+          "age": 23,
+          "nba_experience_years": "R",
+          "last_school_or_club": "Virginia Tech",
+          "how_acquired": "2026 draft, 48th pick",
+          "name_zh": "托比·劳瓦尔",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/mavs/roster?layout=grid"
+        },
+        {
+          "name": "Santi Aldama",
+          "number": 34,
+          "position": "F-C",
+          "height": "7-0",
+          "weight": "215 lbs",
+          "birthdate": "2001-01-10",
+          "age": 25,
+          "nba_experience_years": 5,
+          "last_school_or_club": "Loyola-Maryland",
+          "how_acquired": "Traded from MEM on 2026-07-08",
+          "name_zh": "桑蒂·阿尔达马",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/mavs/roster?layout=grid"
+        },
+        {
+          "name": "Sergio de Larrea",
+          "number": 55,
+          "position": "G",
+          "height": "6-5",
+          "weight": "175 lbs",
+          "birthdate": "2005-12-04",
+          "age": 20,
+          "nba_experience_years": "R",
+          "last_school_or_club": "Valencia, Spain",
+          "how_acquired": "Draft rights traded from LAL on 2026-06-24",
+          "name_zh": "塞尔吉奥·德·拉雷亚",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/mavs/roster?layout=grid"
+        }
+      ],
+      "staff": [
+        {
+          "name": "Dusty May",
+          "role": "Head Coach",
+          "name_zh": "达斯蒂·梅"
+        },
+        {
+          "name": "Willie Green",
+          "role": "Assistant Coach",
+          "name_zh": "威利·格林"
+        },
+        {
+          "name": "Garrett Temple",
+          "role": "Assistant Coach",
+          "name_zh": "加雷特·坦普尔"
+        },
+        {
+          "name": "Joe Boylan",
+          "role": "Assistant Coach",
+          "name_zh": "乔·博伊兰"
+        },
+        {
+          "name": "Drew Williamson",
+          "role": "Assistant Coach",
+          "name_zh": "德鲁·威廉姆森"
+        },
+        {
+          "name": "Mody Maor",
+          "role": "Assistant Coach",
+          "name_zh": "莫迪·马奥尔"
+        },
+        {
+          "name": "Rob Fodor",
+          "role": "Assistant Coach",
+          "name_zh": "罗布·福多"
+        },
+        {
+          "name": "Sam Hershberger",
+          "role": "Assistant Coach",
+          "name_zh": "萨姆·赫什伯格"
+        },
+        {
+          "name": "Tyson Chandler",
+          "role": "Assistant Coach for Player Development",
+          "name_zh": "泰森·钱德勒"
+        },
+        {
+          "name": "Quincy Acy",
+          "role": "Assistant Coach for Player Development",
+          "name_zh": "昆西·埃西"
+        },
+        {
+          "name": "Jana Austin",
+          "role": "Trainer",
+          "name_zh": "贾娜·奥斯汀"
+        }
+      ]
+    },
+    {
+      "name": "Houston Rockets",
+      "abbreviation": "HOU",
+      "players": [
+        {
+          "name": "Sean Pedulla",
+          "number": null,
+          "position": "G",
+          "height": "6-1",
+          "weight": "195 lbs",
+          "birthdate": "2002-10-10",
+          "age": 23,
+          "nba_experience_years": 1,
+          "last_school_or_club": "Mississippi",
+          "how_acquired": "Signed on 2026-08-17",
+          "name_zh": "肖恩·佩杜拉",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/rockets/player"
+        },
+        {
+          "name": "Quadir Copeland",
+          "number": null,
+          "position": "G",
+          "height": "6-6",
+          "weight": "203 lbs",
+          "birthdate": "2003-09-01",
+          "age": 23,
+          "nba_experience_years": "R",
+          "last_school_or_club": "North Carolina State",
+          "how_acquired": "Signed on 2026-07-07",
+          "name_zh": "夸迪尔·科普兰",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/rockets/player"
+        },
+        {
+          "name": "Amen Thompson",
+          "number": 1,
+          "position": "G-F",
+          "height": "6-7",
+          "weight": "200 lbs",
+          "birthdate": "2003-01-30",
+          "age": 23,
+          "nba_experience_years": 3,
+          "last_school_or_club": "Overtime Elite",
+          "how_acquired": "2023 draft, 4th pick",
+          "name_zh": "阿门·汤普森",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/rockets/player"
+        },
+        {
+          "name": "Bruce Thornton",
+          "number": 2,
+          "position": "G",
+          "height": "6-2",
+          "weight": "215 lbs",
+          "birthdate": "2003-09-14",
+          "age": 23,
+          "nba_experience_years": "R",
+          "last_school_or_club": "Ohio State",
+          "how_acquired": "Draft rights traded from NYK on 2026-06-24",
+          "name_zh": "布鲁斯·桑顿",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/rockets/player"
+        },
+        {
+          "name": "Julian Phillips",
+          "number": 4,
+          "position": "F",
+          "height": "6-6",
+          "weight": "201 lbs",
+          "birthdate": "2003-11-05",
+          "age": 22,
+          "nba_experience_years": 3,
+          "last_school_or_club": "Tennessee",
+          "how_acquired": "Signed on 2026-07-24",
+          "name_zh": "朱利安·菲利普斯",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/rockets/player"
+        },
+        {
+          "name": "Fred VanVleet",
+          "number": 5,
+          "position": "G",
+          "height": "6-0",
+          "weight": "197 lbs",
+          "birthdate": "1994-02-25",
+          "age": 32,
+          "nba_experience_years": 9,
+          "last_school_or_club": "Wichita State",
+          "how_acquired": "Signed on 2023-07-07",
+          "name_zh": "弗雷德·范弗利特",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/rockets/player"
+        },
+        {
+          "name": "Kevin Durant",
+          "number": 7,
+          "position": "F",
+          "height": "6-11",
+          "weight": "240 lbs",
+          "birthdate": "1988-09-29",
+          "age": 38,
+          "nba_experience_years": 19,
+          "last_school_or_club": "Texas",
+          "how_acquired": "Traded from PHX on 2025-07-06",
+          "name_zh": "凯文·杜兰特",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/rockets/player"
+        },
+        {
+          "name": "Jae'Sean Tate",
+          "number": 8,
+          "position": "F",
+          "height": "6-4",
+          "weight": "230 lbs",
+          "birthdate": "1995-10-28",
+          "age": 30,
+          "nba_experience_years": 6,
+          "last_school_or_club": "Ohio State",
+          "how_acquired": "Signed on 2020-11-25",
+          "name_zh": "杰肖恩·泰特",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/rockets/player"
+        },
+        {
+          "name": "Jabari Smith Jr.",
+          "number": 10,
+          "position": "F",
+          "height": "6-11",
+          "weight": "220 lbs",
+          "birthdate": "2003-05-13",
+          "age": 23,
+          "nba_experience_years": 4,
+          "last_school_or_club": "Auburn",
+          "how_acquired": "2022 draft, 3rd pick",
+          "name_zh": "小贾巴里·史密斯",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/rockets/player"
+        },
+        {
+          "name": "Steven Adams",
+          "number": 12,
+          "position": "C",
+          "height": "6-11",
+          "weight": "265 lbs",
+          "birthdate": "1993-07-20",
+          "age": 33,
+          "nba_experience_years": 13,
+          "last_school_or_club": "Pittsburgh",
+          "how_acquired": "Traded from MEM on 2024-02-01",
+          "name_zh": "史蒂文·亚当斯",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/rockets/player"
+        },
+        {
+          "name": "Reed Sheppard",
+          "number": 15,
+          "position": "G",
+          "height": "6-2",
+          "weight": "185 lbs",
+          "birthdate": "2004-06-24",
+          "age": 22,
+          "nba_experience_years": 2,
+          "last_school_or_club": "Kentucky",
+          "how_acquired": "2024 draft, 3rd pick",
+          "name_zh": "里德·谢泼德",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/rockets/player"
+        },
+        {
+          "name": "Tari Eason",
+          "number": 17,
+          "position": "F",
+          "height": "6-8",
+          "weight": "215 lbs",
+          "birthdate": "2001-05-10",
+          "age": 25,
+          "nba_experience_years": 4,
+          "last_school_or_club": "Louisiana State",
+          "how_acquired": "2022 draft, 17th pick",
+          "name_zh": "塔里·伊森",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/rockets/player"
+        },
+        {
+          "name": "Isaiah Crawford",
+          "number": 27,
+          "position": "F",
+          "height": "6-6",
+          "weight": "220 lbs",
+          "birthdate": "2001-11-01",
+          "age": 24,
+          "nba_experience_years": 2,
+          "last_school_or_club": "Louisiana Tech",
+          "how_acquired": "Signed on 2025-07-26",
+          "name_zh": "以赛亚·克劳福德",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/rockets/player"
+        },
+        {
+          "name": "Alperen Sengun",
+          "number": 28,
+          "position": "C",
+          "height": "6-11",
+          "weight": "243 lbs",
+          "birthdate": "2002-07-25",
+          "age": 24,
+          "nba_experience_years": 5,
+          "last_school_or_club": "Besiktas",
+          "how_acquired": "Draft rights traded from OKC on 2021-07-30",
+          "name_zh": "阿尔佩伦·申京",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/rockets/player"
+        },
+        {
+          "name": "Clint Capela",
+          "number": 30,
+          "position": "C",
+          "height": "6-10",
+          "weight": "256 lbs",
+          "birthdate": "1994-05-18",
+          "age": 32,
+          "nba_experience_years": 12,
+          "last_school_or_club": "Elan Chalon",
+          "how_acquired": "Traded from ATL on 2025-07-06",
+          "name_zh": "克林特·卡佩拉",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/rockets/player"
+        },
+        {
+          "name": "Bogdan Bogdanović",
+          "number": 31,
+          "position": "G",
+          "height": "6-5",
+          "weight": "225 lbs",
+          "birthdate": "1992-08-18",
+          "age": 34,
+          "nba_experience_years": 9,
+          "last_school_or_club": "Fenerbahce",
+          "how_acquired": "Signed on 2026-07-08",
+          "name_zh": "博扬·博格达诺维奇",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/rockets/player"
+        },
+        {
+          "name": "Oscar Tshiebwe",
+          "number": 34,
+          "position": "F-C",
+          "height": "6-8",
+          "weight": "255 lbs",
+          "birthdate": "1999-11-27",
+          "age": 26,
+          "nba_experience_years": 3,
+          "last_school_or_club": "Kentucky",
+          "how_acquired": "Signed on 2026-07-23",
+          "name_zh": "奥斯卡·齐布韦",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/rockets/player"
+        },
+        {
+          "name": "Marcus Smart",
+          "number": 36,
+          "position": "G",
+          "height": "6-3",
+          "weight": "220 lbs",
+          "birthdate": "1994-03-06",
+          "age": 32,
+          "nba_experience_years": 12,
+          "last_school_or_club": "Oklahoma State",
+          "how_acquired": "Signed on 2026-07-10",
+          "name_zh": "马库斯·斯马特",
+          "image_source": "NBA 官方球队名册球员头像",
+          "profile_url": "https://www.nba.com/rockets/player"
+        }
+      ],
+      "staff": [
+        {
+          "name": "Ime Udoka",
+          "role": "Head Coach",
+          "name_zh": "伊梅·乌多卡"
+        },
+        {
+          "name": "Ben Sullivan",
+          "role": "Assistant Coach",
+          "name_zh": "本·沙利文"
+        },
+        {
+          "name": "Royal Ivey",
+          "role": "Assistant Coach",
+          "name_zh": "罗伊尔·艾维"
+        },
+        {
+          "name": "Garrett Jackson",
+          "role": "Assistant Coach",
+          "name_zh": "加雷特·杰克逊"
+        },
+        {
+          "name": "Cam Hodges",
+          "role": "Assistant Coach",
+          "name_zh": "卡姆·霍奇斯"
+        },
+        {
+          "name": "Mike Moser",
+          "role": "Assistant Coach",
+          "name_zh": "迈克·莫泽"
+        },
+        {
+          "name": "Robbie Lemons",
+          "role": "Assistant Coach",
+          "name_zh": "罗比·莱蒙斯"
+        },
+        {
+          "name": "Chip Engelland",
+          "role": "Assistant Coach",
+          "name_zh": "奇普·英格兰德"
+        },
+        {
+          "name": "Josh Bostic",
+          "role": "Assistant Coach",
+          "name_zh": "乔什·博斯蒂克"
+        },
+        {
+          "name": "Jason Biles",
+          "role": "Trainer",
+          "name_zh": "杰森·拜尔斯"
+        }
+      ]
+    }
+  ]
+}
