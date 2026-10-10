@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Broadcast Code 12 · 12h 黑客松极限赛</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;700&family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* ===== Broadcast Code UI token (from broadcast-code-ui skill) ===== */
+:root{
+  --bc-bg:#0B0B0C; --bc-surface:#131315; --bc-surface-2:#1B1B1F; --bc-line:#2A2A2E;
+  --bc-chalk:#F5F2EC; --bc-muted:#8E8E96; --bc-signal:#F9530C; --bc-signal-deep:#C43A08;
+  --bc-navy:#12183A; --bc-key-red:#E23B3B; --bc-key-yellow:#F5C518; --bc-key-cyan:#39C2D7;
+  --bc-font-display:"Anton","Arial Narrow",sans-serif;
+  --bc-font-brush:"Ma Shan Zheng",cursive;
+  --bc-font-body:"Noto Sans SC",sans-serif;
+  --bc-font-mono:"JetBrains Mono","IBM Plex Mono",monospace;
+  --bc-ease:cubic-bezier(.2,.6,.2,1); --bc-dur:.25s;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bc-bg);color:var(--bc-chalk);font-family:var(--bc-font-body);line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--bc-signal);color:var(--bc-chalk)}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 32px;position:relative;z-index:2}
+section{padding:112px 0;position:relative}
+
+/* ===== type ===== */
+.bc-display{font-family:var(--bc-font-display);text-transform:uppercase;letter-spacing:.02em;line-height:1.05;font-weight:400}
+.bc-brush{font-family:var(--bc-font-brush);line-height:1.2;font-weight:400}
+.bc-mono{font-family:var(--bc-font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.bc-kicker{font-family:var(--bc-font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--bc-muted);display:inline-flex;align-items:center;gap:12px;margin-bottom:20px}
+.bc-kicker i{font-style:normal;color:var(--bc-signal)}
+.sec-title{font-family:var(--bc-font-display);font-size:clamp(36px,5.4vw,72px);text-transform:uppercase;letter-spacing:.02em;line-height:1.08;margin-bottom:24px}
+.sec-desc{color:var(--bc-muted);max-width:640px;font-size:16px}
+
+/* ===== buttons ===== */
+.bc-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 32px;border-radius:2px;font-family:var(--bc-font-display);font-size:17px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border:1px solid transparent;transition:transform var(--bc-dur) var(--bc-ease),background var(--bc-dur) var(--bc-ease),color var(--bc-dur) var(--bc-ease),border-color var(--bc-dur) var(--bc-ease)}
+.bc-btn--primary{background:var(--bc-signal);color:var(--bc-chalk)}
+.bc-btn--primary:hover{background:#FF6A24;transform:translateY(-1px)}
+.bc-btn--primary:active{transform:translateY(1px)}
+.bc-btn--ghost{background:transparent;color:var(--bc-chalk);border-color:var(--bc-line)}
+.bc-btn--ghost:hover{border-color:var(--bc-signal);color:var(--bc-signal)}
+.bc-btn:focus-visible{outline:2px solid var(--bc-signal);outline-offset:2px}
+
+/* ===== pill / marquee / tele / leather ===== */
+.bc-pill{display:inline-block;background:var(--bc-signal);color:var(--bc-chalk);font-family:var(--bc-font-mono);font-weight:700;font-size:13px;letter-spacing:.08em;padding:4px 14px;border-radius:999px;white-space:nowrap}
+.bc-marquee{position:relative;border:1.5px dashed var(--bc-signal);padding:16px 24px;display:inline-block}
+.bc-marquee>b{position:absolute;width:7px;height:7px;background:var(--bc-chalk)}
+.bc-marquee>b:nth-of-type(1){top:-4px;left:-4px}.bc-marquee>b:nth-of-type(2){top:-4px;right:-4px}
+.bc-marquee>b:nth-of-type(3){bottom:-4px;left:-4px}.bc-marquee>b:nth-of-type(4){bottom:-4px;right:-4px}
+.bc-tele{position:absolute;border:2px solid var(--bc-signal);border-radius:50%;pointer-events:none}
+.bc-tele::before{content:"";position:absolute;width:1px;height:30%;left:50%;top:-15%;background:var(--bc-signal)}
+.bc-tele::after{content:"";position:absolute;height:1px;width:30%;top:50%;left:-15%;background:var(--bc-signal)}
+.bc-tele--pulse{animation:bc-pulse 2.4s var(--bc-ease) infinite}
+@keyframes bc-pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.06);opacity:.75}}
+.bc-leather{background:radial-gradient(rgba(0,0,0,.35) 1px,transparent 1.4px),linear-gradient(160deg,var(--bc-signal) 0%,var(--bc-signal-deep) 70%);background-size:5px 5px,100% 100%}
+
+/* ===== court lines background ===== */
+.court-bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.05;background-image:radial-gradient(rgba(245,242,236,.6) .5px,transparent .6px);background-size:3px 3px}
+
+/* ===== nav ===== */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(11,11,12,.86);backdrop-filter:blur(8px);border-bottom:1px solid transparent;transition:border-color var(--bc-dur) var(--bc-ease)}
+.nav.is-scrolled{border-bottom-color:var(--bc-line)}
+.nav-inner{max-width:1180px;margin:0 auto;padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between}
+.wordmark{font-family:var(--bc-font-display);font-size:19px;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:12px}
+.wordmark .dot{width:8px;height:8px;background:var(--bc-signal);border-radius:50%}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{font-family:var(--bc-font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--bc-muted);transition:color var(--bc-dur) var(--bc-ease)}
+.nav-links a:hover{color:var(--bc-signal)}
+.nav .bc-btn{padding:9px 22px;font-size:14px}
+@media(max-width:860px){.nav-links a{display:none}}
+
+/* ===== hero ===== */
+.hero{min-height:100vh;display:flex;align-items:center;padding:140px 0 96px}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center}
+.hero-eyebrow{display:flex;align-items:center;gap:16px;margin-bottom:28px;flex-wrap:wrap}
+.hero-title-en{font-family:var(--bc-font-display);font-size:clamp(22px,2.6vw,32px);color:var(--bc-signal);letter-spacing:.05em;text-transform:uppercase}
+.hero-brush{font-family:var(--bc-font-brush);font-size:clamp(64px,8.4vw,118px);line-height:1.06;color:var(--bc-chalk);margin:8px 0 20px;text-shadow:3px 3px 0 rgba(249,83,12,.22)}
+.hero-sub{font-size:clamp(17px,1.7vw,21px);font-weight:700;line-height:1.9}
+.hero-sub .hl{color:var(--bc-signal)}
+.hero-powered{margin-top:24px;font-family:var(--bc-font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--bc-muted)}
+.hero-cta{display:flex;gap:16px;margin-top:36px;flex-wrap:wrap}
+
+/* hero visual: skeleton frame */
+.frame{position:relative;background:var(--bc-navy);border:1px solid var(--bc-line);border-radius:2px;overflow:hidden;aspect-ratio:4/3}
+.frame-status{position:absolute;top:12px;left:14px;font-family:var(--bc-font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--bc-muted);z-index:3}
+.frame-status em{font-style:normal;color:var(--bc-signal)}
+.frame svg{position:absolute;inset:0;width:100%;height:100%}
+.frame-tele{right:8%;bottom:14%;width:92px;height:92px}
+.hero-visual{position:relative}
+.hero-dots{position:absolute;left:-46px;bottom:-46px;z-index:4}
+.hero-pill{position:absolute;top:-16px;right:-8px;z-index:5}
+@media(max-width:960px){.hero-grid{grid-template-columns:1fr}.hero-dots{display:none}}
+
+/* ===== stats bar ===== */
+.stats{border-top:1px solid var(--bc-line);border-bottom:1px solid var(--bc-line);padding:56px 0}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:48px}
+.stat+.stat{border-left:1px solid var(--bc-line);padding-left:48px}
+.stat-num{font-family:var(--bc-font-display);font-size:clamp(44px,5.4vw,72px);line-height:1;color:var(--bc-chalk)}
+.stat-num.sig{color:var(--bc-signal)}
+.stat-cap{font-family:var(--bc-font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--bc-muted);margin-top:10px}
+@media(max-width:860px){.stats-grid{grid-template-columns:repeat(2,1fr)}.stat+.stat{border-left:none;padding-left:0}}
+
+/* ===== two-col intro ===== */
+.intro-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:72px;align-items:center}
+.intro-copy p{color:var(--bc-muted);margin-bottom:18px;font-size:16px}
+.intro-copy p strong{color:var(--bc-chalk);font-weight:700}
+@media(max-width:960px){.intro-grid{grid-template-columns:1fr}}
+.dots-card{background:var(--bc-surface);border:1px solid var(--bc-line);border-radius:2px;padding:32px;display:flex;flex-direction:column;gap:20px}
+.dots-card .bc-mono{color:var(--bc-muted)}
+.dots-legend{display:flex;gap:24px;font-family:var(--bc-font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--bc-muted)}
+.dots-legend span{display:flex;align-items:center;gap:8px}
+.lg{width:9px;height:9px;border-radius:50%;display:inline-block}
+
+/* ===== pipeline ===== */
+.pipe{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:64px;border-top:1px solid var(--bc-line)}
+.pipe-step{padding:40px 28px 8px;position:relative}
+.pipe-step::before{content:"";position:absolute;top:-4px;left:28px;width:8px;height:8px;border-radius:50%;background:var(--bc-signal)}
+.pipe-step+.pipe-step{border-left:1px solid var(--bc-line)}
+.pipe-idx{font-family:var(--bc-font-display);font-size:56px;line-height:1;color:var(--bc-chalk)}
+.pipe-idx small{font-family:var(--bc-font-mono);font-size:13px;letter-spacing:.12em;color:var(--bc-signal);text-transform:lowercase;margin-left:8px}
+.pipe-step h3{font-size:17px;font-weight:700;margin:16px 0 8px}
+.pipe-step p{font-size:14px;color:var(--bc-muted);line-height:1.8}
+@media(max-width:960px){.pipe{grid-template-columns:repeat(2,1fr)}.pipe-step+.pipe-step{border-left:none}.pipe-step:nth-child(even){border-left:1px solid var(--bc-line)}}
+@media(max-width:600px){.pipe{grid-template-columns:1fr}.pipe-step:nth-child(even){border-left:none}}
+
+/* ===== vision section ===== */
+.vision-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:72px;align-items:center}
+.check-list{list-style:none;margin-top:28px}
+.check-list li{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--bc-line);font-size:15px;color:var(--bc-muted)}
+.check-list li b{color:var(--bc-chalk);font-weight:700}
+.check-list .tick{font-family:var(--bc-font-mono);color:var(--bc-signal);font-size:13px;letter-spacing:.05em;white-space:nowrap}
+@media(max-width:960px){.vision-grid{grid-template-columns:1fr}}
+
+/* ===== timeline ===== */
+.tl{position:relative;margin-top:64px;padding-left:40px}
+.tl::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:1px;background:var(--bc-line)}
+.tl-item{position:relative;padding:0 0 44px}
+.tl-item::before{content:"";position:absolute;left:-37px;top:8px;width:9px;height:9px;border-radius:50%;background:var(--bc-signal)}
+.tl-item.now::before{box-shadow:0 0 0 5px rgba(249,83,12,.18)}
+.tl-date{font-family:var(--bc-font-mono);font-size:13px;letter-spacing:.12em;color:var(--bc-signal);text-transform:uppercase}
+.tl-item h3{font-size:18px;font-weight:700;margin:6px 0 4px}
+.tl-item p{font-size:14px;color:var(--bc-muted);max-width:560px}
+
+/* ===== prizes ===== */
+.prize-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:24px;margin-top:64px}
+.prize{background:var(--bc-surface);border:1px solid var(--bc-line);border-radius:2px;padding:32px;transition:background var(--bc-dur) var(--bc-ease),border-color var(--bc-dur) var(--bc-ease)}
+.prize:hover{background:var(--bc-surface-2);border-color:#3A3A40}
+.prize--top{grid-row:span 1;position:relative;overflow:hidden;padding-top:52px}
+.prize--top::before{content:"";position:absolute;top:0;left:0;right:0;height:14px;background:radial-gradient(rgba(0,0,0,.35) 1px,transparent 1.4px),linear-gradient(160deg,var(--bc-signal) 0%,var(--bc-signal-deep) 70%);background-size:5px 5px,100% 100%}
+.prize-rank{font-family:var(--bc-font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--bc-muted)}
+.prize--top .prize-rank{color:var(--bc-signal)}
+.prize-name{font-family:var(--bc-font-display);font-size:clamp(24px,2.6vw,34px);text-transform:uppercase;letter-spacing:.03em;margin:10px 0 16px;line-height:1.15}
+.prize ul{list-style:none}
+.prize li{padding:10px 0;border-top:1px solid var(--bc-line);font-size:14px;color:var(--bc-muted)}
+.prize li b{color:var(--bc-chalk);font-weight:500}
+.prize-note{margin-top:20px;font-family:var(--bc-font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--bc-muted)}
+@media(max-width:960px){.prize-grid{grid-template-columns:1fr}}
+
+/* ===== final cta ===== */
+.final{text-align:center;padding:128px 0}
+.final .bc-brush{font-size:clamp(40px,6vw,84px);margin:24px 0 32px}
+.final-slogan{font-size:clamp(20px,2.6vw,32px);font-weight:900;line-height:1.8}
+.final-marquee{margin:36px auto 0;font-size:clamp(16px,1.8vw,22px);font-weight:700}
+.final-marquee em{font-style:normal;color:var(--bc-signal)}
+
+/* ===== footer ===== */
+.footer{background:var(--bc-surface);border-top:1px solid var(--bc-line);padding:56px 0 0}
+.footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:48px;padding-bottom:48px}
+.footer h4{font-family:var(--bc-font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--bc-muted);margin-bottom:16px}
+.footer a,.footer p{display:block;font-size:14px;color:var(--bc-muted);padding:4px 0;transition:color var(--bc-dur) var(--bc-ease)}
+.footer a:hover{color:var(--bc-signal)}
+.footer-strip{height:8px}
+@media(max-width:860px){.footer-grid{grid-template-columns:1fr}}
+
+/* ===== reveal ===== */
+.reveal{opacity:0;transform:translateY(8px);transition:opacity .5s var(--bc-ease),transform .5s var(--bc-ease)}
+.reveal.is-in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .bc-tele--pulse{animation:none}
+  .reveal{opacity:1;transform:none;transition:none}
+  .bc-btn{transition:none}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<!-- 签名元素 1：球场线背景 -->
+<svg class="court-bg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <g fill="none" stroke="rgba(245,242,236,0.07)" stroke-width="1.5">
+    <circle cx="720" cy="450" r="180"/>
+    <circle cx="720" cy="450" r="60"/>
+    <line x1="720" y1="0" x2="720" y2="900"/>
+    <path d="M0,180 h240 v540 h-240"/>
+    <path d="M1440,180 h-240 v540 h240"/>
+    <path d="M0,90 a330,330 0 0 1 0,720"/>
+    <path d="M1440,90 a330,330 0 0 0 0,720"/>
+    <circle cx="240" cy="450" r="90"/>
+    <circle cx="1200" cy="450" r="90"/>
+  </g>
+</svg>
+<div class="grain" aria-hidden="true"></div>
+
+<!-- 导航 -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="wordmark" href="#top"><span class="dot"></span>Broadcast Code <span style="color:var(--bc-signal)">12</span></a>
+    <nav class="nav-links">
+      <a href="#about">赛题</a>
+      <a href="#pipeline">流程</a>
+      <a href="#schedule">赛程</a>
+      <a href="#prizes">奖项</a>
+      <a class="bc-btn bc-btn--primary" href="#apply">立即报名</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div class="reveal">
+      <div class="hero-eyebrow">
+        <span class="bc-kicker" style="margin:0">NBA <i>/</i> 亚马逊云科技 <i>/</i> CSDN BuilderX</span>
+        <span class="bc-pill">10/10 - 10/11</span>
+      </div>
+      <div class="hero-title-en">Broadcast Code 12</div>
+      <h1 class="hero-brush">12h黑客松<br>极限赛</h1>
+      <p class="hero-sub"><span class="hl">NBA深度赛场可视化</span><br><span class="hl">让 AGENT 解读数据</span></p>
+      <p class="hero-powered">Powered by 亚马逊云科技</p>
+      <div class="hero-cta">
+        <a class="bc-btn bc-btn--primary" href="#apply">立即报名</a>
+        <a class="bc-btn bc-btn--ghost" href="#about">查看赛题</a>
+      </div>
+    </div>
+
+    <div class="hero-visual reveal">
+      <span class="hero-pill bc-pill">10/10 - 10/11</span>
+      <!-- 签名元素 10：骨骼追踪帧 -->
+      <div class="frame">
+        <div class="frame-status">Telestrator / possession #24 · Q3 07:41 · <em>AI overlay running</em></div>
+        <svg viewBox="0 0 400 300" aria-hidden="true">
+          <!-- 球场透视线 -->
+          <g fill="none" stroke="rgba(245,242,236,0.14)" stroke-width="1">
+            <path d="M0,240 L400,210"/><path d="M0,300 L400,255"/>
+            <path d="M120,300 L150,120"/><path d="M330,300 L310,110"/>
+            <ellipse cx="230" cy="180" rx="120" ry="42"/>
+          </g>
+          <!-- 球员骨架：持球人（红） -->
+          <g stroke="#E23B3B" stroke-width="1.5" fill="none">
+            <polyline points="250,96 246,130 232,158 220,196"/>
+            <polyline points="246,130 262,152 276,142"/>
+            <polyline points="250,96 246,130 258,160 264,200"/>
+          </g>
+          <g fill="#E23B3B"><circle cx="250" cy="96" r="3.5"/><circle cx="246" cy="130" r="2.5"/><circle cx="232" cy="158" r="2.5"/><circle cx="220" cy="196" r="2.5"/><circle cx="276" cy="142" r="2.5"/><circle cx="264" cy="200" r="2.5"/></g>
+          <!-- 无球跑动（黄） -->
+          <g stroke="#F5C518" stroke-width="1.5" fill="none">
+            <polyline points="96,120 104,152 92,184 84,216"/>
+            <polyline points="104,152 122,168 138,158"/>
+            <path d="M104,152 Q160,190 210,176" stroke-dasharray="4 4"/>
+          </g>
+          <g fill="#F5C518"><circle cx="96" cy="120" r="3.5"/><circle cx="104" cy="152" r="2.5"/><circle cx="84" cy="216" r="2.5"/><circle cx="138" cy="158" r="2.5"/></g>
+          <!-- 防守（青） -->
+          <g stroke="#39C2D7" stroke-width="1.5" fill="none">
+            <polyline points="196,84 202,118 190,150 180,188"/>
+            <polyline points="202,118 222,132 236,124"/>
+          </g>
+          <g fill="#39C2D7"><circle cx="196" cy="84" r="3.5"/><circle cx="202" cy="118" r="2.5"/><circle cx="180" cy="188" r="2.5"/><circle cx="236" cy="124" r="2.5"/></g>
+          <!-- 篮球 -->
+          <circle cx="290" cy="132" r="7" fill="none" stroke="#F9530C" stroke-width="2"/>
+          <circle cx="290" cy="132" r="2.5" fill="#F9530C"/>
+        </svg>
+        <!-- 签名元素 3：Telestrator 标注 -->
+        <div class="bc-tele bc-tele--pulse frame-tele"></div>
+      </div>
+      <!-- 签名元素 2：点阵数据块 -->
+      <svg class="hero-dots" width="150" height="150" viewBox="0 0 150 150" aria-hidden="true">
+        <g id="heroDots"></g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 签名元素 9：大数字统计 -->
+<section class="stats">
+  <div class="wrap stats-grid">
+    <div class="stat reveal"><div class="stat-num sig">120</div><div class="stat-cap">参赛规模上限 · Capacity</div></div>
+    <div class="stat reveal"><div class="stat-num">2-3</div><div class="stat-cap">人 / 队 · Team Size</div></div>
+    <div class="stat reveal"><div class="stat-num">09/27</div><div class="stat-cap">报名截止 · Deadline</div></div>
+    <div class="stat reveal"><div class="stat-num sig">TOP 8</div><div class="stat-cap">晋级澳门决赛 · Shortlist</div></div>
+  </div>
+</section>
+
+<!-- 赛题介绍 -->
+<section id="about">
+  <div class="wrap intro-grid">
+    <div class="intro-copy reveal">
+      <span class="bc-kicker">GAME DATA <i>/</i> AI STORYTELLING</span>
+      <h2 class="sec-title">当篮球<br>遇见 AI</h2>
+      <p>本次黑客松将在 <strong>NBA 中国赛休斯顿火箭队与达拉斯独行侠队</strong>对决期间举办。你真正要动手分析的，是这两支球队过往交手的经典比赛——官方提供的历史比赛视频与深度赛场数据，就是你手中的素材。</p>
+      <p>传统解说依赖解说员的经验与即时判断，一次跑位、一处空档、一次防守收缩，往往只能通过手工标注呈现。<strong>这一次，我们把那支分析比赛的「笔」交给你。</strong></p>
+      <p>用数据看见赛场上隐藏的博弈，用 AI 讲出每一次攻防背后的故事。</p>
+    </div>
+    <div class="dots-card reveal">
+      <span class="bc-mono">SHOT CHART / HOU vs DAL · Q3</span>
+      <svg width="100%" viewBox="0 0 280 200" aria-hidden="true"><g id="shotChart"></g></svg>
+      <div class="dots-legend">
+        <span><i class="lg" style="background:var(--bc-signal)"></i>命中 · Made</span>
+        <span><i class="lg" style="background:rgba(245,242,236,.9)"></i>关键回合 · Clutch</span>
+        <span><i class="lg" style="background:rgba(245,242,236,.22)"></i>未中 · Missed</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 签名元素 8：编号管线 -->
+<section id="pipeline" style="padding-top:0">
+  <div class="wrap">
+    <span class="bc-kicker">PIPELINE <i>/</i> WHAT YOU BUILD</span>
+    <h2 class="sec-title">用 AI，把一次出手<br>重新讲述一遍</h2>
+    <p class="sec-desc">围绕比赛视频与深度赛场数据打造 AI Agent：读取投篮难度、球员引力、关键度，自动识别并解读关键回合，把分析结果画回原始画面。</p>
+    <div class="pipe">
+      <div class="pipe-step reveal"><div class="pipe-idx">01<small>input</small></div><h3>比赛视频 + 深度赛场数据</h3><p>官方比赛画面，配合投篮难度、球员引力、关键度等赛场数据流。</p></div>
+      <div class="pipe-step reveal"><div class="pipe-idx">02<small>analyze</small></div><h3>关键回合识别与战术解读</h3><p>自动定位关键回合，读出跑位、空档与防守变化背后的选择。</p></div>
+      <div class="pipe-step reveal"><div class="pipe-idx">03<small>visualize</small></div><h3>箭头、色块与球员标注叠加</h3><p>把分析结果画回原始画面，让看不见的战术浮现在视频之上。</p></div>
+      <div class="pipe-step reveal"><div class="pipe-idx">04<small>narrate</small></div><h3>画面同步的篮球解说</h3><p>生成与画面、数据准确对应的解说，懂球与不懂球都看得明白。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- COURT VISION -->
+<section style="padding-top:0">
+  <div class="wrap vision-grid">
+    <div class="reveal">
+      <span class="bc-kicker">LIVE SIGNAL <i>/</i> COURT VISION</span>
+      <h2 class="sec-title">看见<br>隐藏的博弈</h2>
+      <p class="sec-desc">同一次 24 秒进攻，AI Agent 可依次画出持球人的突破路线、无球跑动创造出的空档，以及防守收缩慢了 0.4 秒的位置，并输出与画面同步的解说。</p>
+      <ul class="check-list">
+        <li><span class="tick">[01]</span><span><b>持球突破路线</b> — 箭头叠加，还原第一步启动角度</span></li>
+        <li><span class="tick">[02]</span><span><b>无球空档识别</b> — 色块标注，量化引力拉扯出的空间</span></li>
+        <li><span class="tick">[03]</span><span><b>防守收缩延迟</b> — 精确到 0.1s 的轮转时机分析</span></li>
+      </ul>
+    </div>
+    <div class="frame reveal" style="aspect-ratio:16/10">
+      <div class="frame-status">DEFENSE COLLAPSE / -0.4s · <em>annotated</em></div>
+      <svg viewBox="0 0 480 300" aria-hidden="true">
+        <g fill="none" stroke="rgba(245,242,236,0.13)" stroke-width="1">
+          <path d="M0,250 L480,220"/><ellipse cx="240" cy="200" rx="150" ry="48"/>
+          <rect x="180" y="120" width="120" height="110" fill="none"/>
+          <path d="M180,120 a60,60 0 0 1 120,0"/>
+        </g>
+        <!-- 空档色块 -->
+        <rect x="196" y="150" width="88" height="66" fill="rgba(249,83,12,.16)" stroke="#F9530C" stroke-width="1" stroke-dasharray="5 4"/>
+        <text x="240" y="188" fill="#F9530C" font-family="JetBrains Mono, monospace" font-size="11" text-anchor="middle" letter-spacing="2">OPEN LANE</text>
+        <!-- 突破箭头 -->
+        <path d="M110,260 Q170,230 205,205" fill="none" stroke="#E23B3B" stroke-width="2"/>
+        <path d="M205,205 l-12,2 l6,10 z" fill="#E23B3B"/>
+        <!-- 无球跑位 -->
+        <path d="M360,270 Q330,220 300,190" fill="none" stroke="#F5C518" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <!-- 防守人 -->
+        <g stroke="#39C2D7" stroke-width="1.5" fill="none"><polyline points="255,110 250,140 238,165 230,196"/><polyline points="250,140 266,156 278,148"/></g>
+        <g fill="#39C2D7"><circle cx="255" cy="110" r="3.5"/><circle cx="250" cy="140" r="2.5"/><circle cx="230" cy="196" r="2.5"/></g>
+        <!-- 持球人 -->
+        <g stroke="#E23B3B" stroke-width="1.5" fill="none"><polyline points="118,226 126,246 120,272"/><polyline points="126,246 142,236"/></g>
+        <g fill="#E23B3B"><circle cx="118" cy="226" r="3.5"/><circle cx="126" cy="246" r="2.5"/><circle cx="120" cy="272" r="2.5"/></g>
+        <circle cx="150" cy="230" r="5" fill="none" stroke="#F9530C" stroke-width="1.5"/>
+      </svg>
+      <div class="bc-tele" style="left:36%;top:42%;width:120px;height:96px;border-radius:50%"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 赛程 -->
+<section id="schedule" style="padding-top:0">
+  <div class="wrap">
+    <span class="bc-kicker">ROAD TO MACAO <i>/</i> SCHEDULE</span>
+    <h2 class="sec-title">双城赛场，<br>一路打到澳门</h2>
+    <div class="tl">
+      <div class="tl-item reveal"><div class="tl-date">即日起 — 09/27</div><h3>线上报名及组队</h3><p>寻找互补队友，完成报名，9 月 27 日截止。</p></div>
+      <div class="tl-item reveal"><div class="tl-date">09/28</div><h3>公布入围参赛资格</h3><p>组委会公布入围名单及后续参赛通知。</p></div>
+      <div class="tl-item reveal"><div class="tl-date">10/09</div><h3>抵达珠海</h3><p>完成报到及入住，交通与住宿安排另行通知。</p></div>
+      <div class="tl-item now reveal"><div class="tl-date">10/10 · 珠海</div><h3>珠海初赛 · 极限 Coding</h3><p>现场签到、赛题抽签、12 小时开发与提交，当晚公布晋级 TOP 8。</p></div>
+      <div class="tl-item reveal"><div class="tl-date">10/11 · 澳门</div><h3>澳门决赛 · NBA House 路演</h3><p>TOP 8 现场路演终评、颁奖与合影，其他选手到场观赛。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 奖项 -->
+<section id="prizes" style="padding-top:0">
+  <div class="wrap">
+    <span class="bc-kicker">PRIZE <i>/</i> RECOGNITION</span>
+    <h2 class="sec-title">为最完整的<br>篮球答案加冕</h2>
+    <div class="prize-grid">
+      <div class="prize prize--top reveal">
+        <div class="prize-rank">一等奖 / TOP 1</div>
+        <div class="prize-name">2026 亚马逊云科技<br>re:Invent</div>
+        <ul>
+          <li><b>TRAVEL + PASS</b> — 大会门票、往返拉斯维加斯机票及 4 晚酒店</li>
+          <li><b>CHAMPION JERSEYS</b> — 冠军队球衣：库里 / 爱德华兹 / 约基奇</li>
+        </ul>
+        <div class="prize-note">12 小时，换一张飞 re:Invent 的门票</div>
+      </div>
+      <div class="prize reveal">
+        <div class="prize-rank">二等奖 / TOP 2-4</div>
+        <div class="prize-name">电子产品<br>每人 1 台</div>
+        <ul>
+          <li>另任选 1 项：<b>Wilson 中性联盟篮球</b></li>
+          <li><b>NBA Style 简约纯色短袖</b> · 男女同款</li>
+        </ul>
+      </div>
+      <div class="prize reveal">
+        <div class="prize-rank">三等奖 / TOP 5-8</div>
+        <div class="prize-name">电子产品<br>+ NBA 双肩包</div>
+        <ul>
+          <li><b>电子产品</b> — 每人 1 台</li>
+          <li><b>NBA 双肩包</b> — 每人 1 个</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final" id="apply" style="padding-top:0">
+  <div class="wrap reveal">
+    <span class="bc-kicker" style="justify-content:center;display:flex">LAST CALL <i>/</i> 09.27 DEADLINE</span>
+    <div class="bc-brush">上次黑客松赢了去澳门<br>这次赢了去拉斯维加斯</div>
+    <div class="bc-marquee final-marquee"><b></b><b></b><b></b><b></b>12 小时，换一张飞 <em>亚马逊云科技 re:Invent</em> 的门票</div>
+    <div class="hero-cta" style="justify-content:center;margin-top:48px">
+      <a class="bc-btn bc-btn--primary" href="#top">立即报名</a>
+      <a class="bc-btn bc-btn--ghost" href="#schedule">查看赛程</a>
+    </div>
+    <p class="bc-mono" style="margin-top:32px;color:var(--bc-muted)">报名截止 9 月 27 日 · 入围名单 9 月 28 日公布</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="wrap footer-grid">
+    <div>
+      <a class="wordmark" href="#top" style="margin-bottom:16px"><span class="dot"></span>Broadcast Code <span style="color:var(--bc-signal)">12</span></a>
+      <p>12h 黑客松极限赛 — NBA 深度赛场可视化，让 Agent 解读数据。</p>
+    </div>
+    <div>
+      <h4>HOST / 主办</h4>
+      <p>NBA · 亚马逊云科技</p>
+      <p>CSDN BuilderX</p>
+    </div>
+    <div>
+      <h4>LINKS / 链接</h4>
+      <a href="#about">赛题详情</a>
+      <a href="#schedule">赛程安排</a>
+      <a href="#prizes">奖项设置</a>
+    </div>
+  </div>
+  <!-- 签名元素 6：皮革纹理条 -->
+  <div class="footer-strip bc-leather"></div>
+</footer>
+
+<script>
+/* 点阵生成：投篮热图 */
+(function(){
+  function buildDots(g, cols, rows, gap, r, pattern){
+    if(!g) return;
+    var ns = "http://www.w3.org/2000/svg";
+    for(var y=0; y<rows; y++){
+      for(var x=0; x<cols; x++){
+        var c = document.createElementNS(ns,"circle");
+        c.setAttribute("cx", x*gap + r);
+        c.setAttribute("cy", y*gap + r);
+        c.setAttribute("r", r);
+        var v = pattern(x,y);
+        c.setAttribute("fill", v);
+        g.appendChild(c);
+      }
+    }
+  }
+  /* hero 角落点阵：上橙下白、中间一行白 */
+  buildDots(document.getElementById("heroDots"), 9, 9, 16, 4.5, function(x,y){
+    if(y===4) return "rgba(245,242,236,.95)";
+    return (x+y)%3===0 ? "#F9530C" : ((x*7+y*3)%5===0 ? "rgba(245,242,236,.25)" : "#C43A08");
+  });
+  /* 投篮热图：模拟半场分布 */
+  buildDots(document.getElementById("shotChart"), 14, 10, 20, 5, function(x,y){
+    var dx=x-7, dy=y-8.5, d=Math.sqrt(dx*dx+dy*dy*2.2);
+    var seed=(x*13+y*29)%11;
+    if(d<3.2 && seed<6) return "#F9530C";            /* 禁区命中密集 */
+    if(seed===7) return "rgba(245,242,236,.95)";     /* 关键回合 */
+    if(seed<4) return "rgba(245,242,236,.22)";       /* 未中 */
+    return "rgba(245,242,236,.08)";
+  });
+
+  /* 导航滚动状态 */
+  var nav=document.getElementById("nav");
+  addEventListener("scroll",function(){ nav.classList.toggle("is-scrolled", scrollY>40); },{passive:true});
+
+  /* 入场揭示 */
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("is-in"); io.unobserve(e.target);} });
+  },{threshold:.12});
+  document.querySelectorAll(".reveal").forEach(function(el){ io.observe(el); });
+})();
+</script>
+</body>
+</html>

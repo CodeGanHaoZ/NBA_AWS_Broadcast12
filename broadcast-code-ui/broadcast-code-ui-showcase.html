@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="v6EvsUgKdHKBVl4F6uiejK">
+<head data-page-node-id="AUrZQRjm7N3fTBwcn7YU7Q">
+<meta charset="UTF-8" data-page-node-id="leKhKpfVSA0Fg7Z8DmbG1Q">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="GXOvI2vf7787Rds1P83g2r">
+<title>Broadcast Code UI · 设计范式演示手册</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" data-page-node-id="zm80uq1Cu7fXwq5rn4IH7U">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin data-page-node-id="3LtnmVeOjIbqMxfeDhvIbJ">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet" data-page-node-id="bEJZRJajZ7dpTopkKBLxUq">
+<style>
+/* ============================================================
+   Broadcast Code UI · Showcase — 范式自我演示页
+   页面本身就是范式的第一份实例
+   ============================================================ */
+:root{
+  --bc-bg:#0B0B0C; --bc-surface:#131315; --bc-surface-2:#1B1B1F; --bc-line:#2A2A2E;
+  --bc-chalk:#F5F2EC; --bc-muted:#8E8E96; --bc-signal:#F9530C; --bc-signal-deep:#C43A08;
+  --bc-navy:#12183A; --bc-key-red:#E23B3B; --bc-key-yellow:#F5C518; --bc-key-cyan:#39C2D7;
+  --bc-font-display:"Anton","Arial Narrow",sans-serif;
+  --bc-font-body:"Noto Sans SC",sans-serif;
+  --bc-font-mono:"JetBrains Mono","IBM Plex Mono",monospace;
+  --bc-ease:cubic-bezier(.2,.6,.2,1); --bc-dur:.25s;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bc-bg);color:var(--bc-chalk);font-family:var(--bc-font-body);line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--bc-signal);color:var(--bc-chalk)}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 32px;position:relative;z-index:2}
+section{padding:104px 0;position:relative}
+
+/* ---------- type ---------- */
+.bc-display{font-family:var(--bc-font-display);text-transform:uppercase;letter-spacing:.02em;line-height:1.05;font-weight:400}
+.bc-kicker{font-family:var(--bc-font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--bc-muted);display:inline-flex;align-items:center;gap:12px;margin-bottom:20px}
+.bc-kicker i{font-style:normal;color:var(--bc-signal)}
+.bc-mono{font-family:var(--bc-font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.sec-no{font-family:var(--bc-font-display);font-size:15px;color:var(--bc-signal);letter-spacing:.1em;margin-right:14px}
+.sec-title{font-family:var(--bc-font-display);font-size:clamp(34px,4.6vw,60px);text-transform:uppercase;letter-spacing:.02em;line-height:1.08;margin-bottom:18px}
+.sec-desc{color:var(--bc-muted);max-width:680px;font-size:15px}
+
+/* ---------- background ---------- */
+.court-bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.05;background-image:radial-gradient(rgba(245,242,236,.6) .5px,transparent .6px);background-size:3px 3px}
+
+/* ---------- nav ---------- */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(11,11,12,.86);backdrop-filter:blur(8px);border-bottom:1px solid transparent;transition:border-color var(--bc-dur) var(--bc-ease)}
+.nav.is-scrolled{border-bottom-color:var(--bc-line)}
+.nav-inner{max-width:1180px;margin:0 auto;padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between}
+.wordmark{font-family:var(--bc-font-display);font-size:18px;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:12px}
+.wordmark .dot{width:8px;height:8px;background:var(--bc-signal);border-radius:50%;animation:bc-pulse 2.4s var(--bc-ease) infinite}
+.nav-links{display:flex;align-items:center;gap:28px}
+.nav-links a{font-family:var(--bc-font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--bc-muted);transition:color var(--bc-dur) var(--bc-ease)}
+.nav-links a:hover{color:var(--bc-signal)}
+@media(max-width:900px){.nav-links{display:none}}
+
+/* ---------- buttons ---------- */
+.bc-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 30px;border-radius:2px;font-family:var(--bc-font-display);font-size:16px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border:1px solid transparent;background:none;color:var(--bc-chalk);transition:transform var(--bc-dur) var(--bc-ease),background var(--bc-dur) var(--bc-ease),color var(--bc-dur) var(--bc-ease),border-color var(--bc-dur) var(--bc-ease)}
+.bc-btn--primary{background:var(--bc-signal)}
+.bc-btn--primary:hover{background:#FF6A24;transform:translateY(-1px)}
+.bc-btn--primary:active{transform:translateY(1px)}
+.bc-btn--ghost{border-color:var(--bc-line)}
+.bc-btn--ghost:hover{border-color:var(--bc-signal);color:var(--bc-signal)}
+.bc-btn--dashed{color:var(--bc-signal);border:1.5px dashed var(--bc-signal)}
+.bc-btn--dashed:hover{background:rgba(249,83,12,.08)}
+.bc-btn:focus-visible{outline:2px solid var(--bc-signal);outline-offset:2px}
+.bc-btn[disabled]{opacity:.35;pointer-events:none}
+.bc-btn--sm{padding:9px 20px;font-size:13px}
+
+/* ---------- pill / marquee / tele / leather ---------- */
+.bc-pill{display:inline-block;background:var(--bc-signal);color:var(--bc-chalk);font-family:var(--bc-font-mono);font-weight:700;font-size:13px;letter-spacing:.08em;padding:4px 14px;border-radius:999px;white-space:nowrap}
+.bc-pill--ghost{background:transparent;border:1px solid var(--bc-line);color:var(--bc-muted)}
+.bc-marquee{position:relative;border:1.5px dashed var(--bc-signal);padding:14px 22px;display:inline-block}
+.bc-marquee>b{position:absolute;width:7px;height:7px;background:var(--bc-chalk)}
+.bc-marquee>b:nth-of-type(1){top:-4px;left:-4px}.bc-marquee>b:nth-of-type(2){top:-4px;right:-4px}
+.bc-marquee>b:nth-of-type(3){bottom:-4px;left:-4px}.bc-marquee>b:nth-of-type(4){bottom:-4px;right:-4px}
+.bc-tele{position:absolute;border:2px solid var(--bc-signal);border-radius:50%;pointer-events:none}
+.bc-tele::before{content:"";position:absolute;width:1px;height:30%;left:50%;top:-15%;background:var(--bc-signal)}
+.bc-tele::after{content:"";position:absolute;height:1px;width:30%;top:50%;left:-15%;background:var(--bc-signal)}
+.bc-tele--pulse{animation:bc-pulse 2.4s var(--bc-ease) infinite}
+@keyframes bc-pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.07);opacity:.7}}
+.bc-leather{background:radial-gradient(rgba(0,0,0,.35) 1px,transparent 1.4px),linear-gradient(160deg,var(--bc-signal) 0%,var(--bc-signal-deep) 70%);background-size:5px 5px,100% 100%}
+
+/* ---------- hero ---------- */
+.hero{min-height:92vh;display:flex;align-items:center;padding:140px 0 80px}
+.hero-tag{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:26px}
+.hero h1{font-family:var(--bc-font-display);font-size:clamp(52px,8vw,110px);text-transform:uppercase;letter-spacing:.02em;line-height:1.02}
+.hero h1 em{font-style:normal;color:var(--bc-signal)}
+.hero-cn{display:flex;align-items:center;gap:18px;margin:16px 0 22px;font-size:clamp(24px,3.2vw,40px);font-weight:900;letter-spacing:.06em}
+.hero-cn::before{content:"";width:8px;height:1em;background:var(--bc-signal);flex:none}
+.hero-sub{color:var(--bc-muted);max-width:620px;font-size:16px}
+.hero-meta{display:flex;gap:40px;margin-top:44px;flex-wrap:wrap}
+.hero-meta .m b{display:block;font-family:var(--bc-font-display);font-size:34px;color:var(--bc-chalk);line-height:1}
+.hero-meta .m span{font-family:var(--bc-font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--bc-muted)}
+.hero-visual{position:relative}
+@media(min-width:961px){.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center}}
+
+/* ---------- skeleton frame (signature 10) ---------- */
+.frame{position:relative;background:var(--bc-navy);border:1px solid var(--bc-line);border-radius:2px;overflow:hidden}
+.frame-status{position:absolute;top:12px;left:14px;font-family:var(--bc-font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--bc-muted);z-index:3}
+.frame-status em{font-style:normal;color:var(--bc-signal)}
+.frame svg{position:absolute;inset:0;width:100%;height:100%}
+.scanline{position:absolute;left:0;right:0;height:56px;top:-56px;background:linear-gradient(180deg,transparent,rgba(249,83,12,.12),transparent);animation:bc-scan 3.2s linear infinite;z-index:2;pointer-events:none}
+@keyframes bc-scan{to{transform:translateY(calc(100% + 460px))}}
+.dash-run{stroke-dasharray:6 5;animation:bc-dash 1.6s linear infinite}
+@keyframes bc-dash{to{stroke-dashoffset:-22}}
+
+/* ---------- token sections ---------- */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+@media(max-width:960px){.grid-2{grid-template-columns:1fr}}
+.swatch-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:36px}
+.swatch{border:1px solid var(--bc-line);border-radius:2px;overflow:hidden;background:var(--bc-surface);transition:border-color var(--bc-dur) var(--bc-ease),transform var(--bc-dur) var(--bc-ease)}
+.swatch:hover{border-color:#3A3A40;transform:translateY(-2px)}
+.swatch .chip{height:64px}
+.swatch .info{padding:12px 14px}
+.swatch .name{font-family:var(--bc-font-mono);font-size:12px;letter-spacing:.1em;color:var(--bc-chalk)}
+.swatch .hex{font-family:var(--bc-font-mono);font-size:11px;color:var(--bc-muted);margin-top:2px}
+.swatch .use{font-size:12px;color:var(--bc-muted);margin-top:6px}
+.area-bar{display:flex;height:34px;border:1px solid var(--bc-line);border-radius:2px;overflow:hidden;margin-top:16px}
+.area-bar .dark{flex:9;background:var(--bc-surface-2);display:flex;align-items:center;justify-content:center}
+.area-bar .sig{flex:1;background:var(--bc-signal);display:flex;align-items:center;justify-content:center}
+.area-bar span{font-family:var(--bc-font-mono);font-size:11px;letter-spacing:.1em}
+
+.type-row{border-top:1px solid var(--bc-line);padding:26px 0;display:grid;grid-template-columns:200px 1fr;gap:32px;align-items:baseline}
+.type-row .lab{font-family:var(--bc-font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--bc-muted)}
+.type-row .lab b{display:block;color:var(--bc-signal);margin-bottom:4px}
+@media(max-width:760px){.type-row{grid-template-columns:1fr;gap:8px}}
+
+.space-row{display:flex;align-items:center;gap:18px;padding:9px 0;border-bottom:1px solid var(--bc-line)}
+.space-row .bar{height:16px;background:var(--bc-signal);border-radius:1px}
+.space-row .v{font-family:var(--bc-font-mono);font-size:12px;color:var(--bc-muted);width:56px}
+.space-row .n{font-family:var(--bc-font-mono);font-size:12px;color:var(--bc-chalk);width:64px}
+
+/* ---------- signature grid ---------- */
+.sig-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px}
+@media(max-width:960px){.sig-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.sig-grid{grid-template-columns:1fr}}
+.sig-card{background:var(--bc-surface);border:1px solid var(--bc-line);border-radius:2px;padding:24px;min-height:190px;display:flex;flex-direction:column;transition:background var(--bc-dur) var(--bc-ease),border-color var(--bc-dur) var(--bc-ease)}
+.sig-card:hover{background:var(--bc-surface-2);border-color:#3A3A40}
+.sig-card .no{font-family:var(--bc-font-display);font-size:15px;color:var(--bc-signal);letter-spacing:.08em}
+.sig-card h3{font-size:15px;font-weight:700;margin:8px 0 4px}
+.sig-card .en{font-family:var(--bc-font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--bc-muted)}
+.sig-card .demo{flex:1;display:flex;align-items:center;justify-content:center;margin-top:18px;position:relative;min-height:84px}
+
+/* ---------- components ---------- */
+.comp-block{border-top:1px solid var(--bc-line);padding:44px 0}
+.comp-block .head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:26px}
+.comp-block h3{font-family:var(--bc-font-display);font-size:24px;text-transform:uppercase;letter-spacing:.04em}
+.comp-block .head span{font-family:var(--bc-font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--bc-muted)}
+.state-note{font-family:var(--bc-font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--bc-muted);margin-top:10px}
+.state-note i{font-style:normal;color:var(--bc-signal)}
+
+.bc-card{background:var(--bc-surface);border:1px solid var(--bc-line);border-radius:2px;padding:26px;transition:background var(--bc-dur) var(--bc-ease),border-color var(--bc-dur) var(--bc-ease),transform var(--bc-dur) var(--bc-ease)}
+.bc-card:hover{background:var(--bc-surface-2);border-color:#3A3A40;transform:translateY(-2px)}
+.bc-table{width:100%;border-collapse:collapse}
+.bc-table th{font-family:var(--bc-font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--bc-muted);text-align:left;padding:10px 14px;border-bottom:1px solid var(--bc-line)}
+.bc-table td{padding:13px 14px;border-bottom:1px solid var(--bc-line);font-size:14px}
+.bc-table td[data-num]{font-family:var(--bc-font-mono);letter-spacing:.04em}
+.bc-table tbody tr{transition:background var(--bc-dur) var(--bc-ease)}
+.bc-table tbody tr:hover{background:var(--bc-surface-2)}
+.rank-top{color:var(--bc-signal);font-family:var(--bc-font-mono);font-weight:700}
+.bc-input{width:100%;background:var(--bc-surface);border:1px solid var(--bc-line);border-radius:2px;color:var(--bc-chalk);font-family:var(--bc-font-body);font-size:15px;padding:12px 16px;transition:border-color var(--bc-dur) var(--bc-ease),box-shadow var(--bc-dur) var(--bc-ease)}
+.bc-input::placeholder{color:rgba(142,142,150,.5)}
+.bc-input:focus{outline:none;border-color:var(--bc-signal);box-shadow:0 0 0 3px rgba(249,83,12,.15)}
+.field-label{font-family:var(--bc-font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--bc-muted);display:block;margin-bottom:8px}
+
+.tl-mini{position:relative;padding-left:32px}
+.tl-mini::before{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:1px;background:var(--bc-line)}
+.tl-mini .it{position:relative;padding-bottom:22px}
+.tl-mini .it::before{content:"";position:absolute;left:-29px;top:7px;width:8px;height:8px;border-radius:50%;background:var(--bc-signal)}
+.tl-mini .it.now::before{box-shadow:0 0 0 5px rgba(249,83,12,.18);animation:bc-pulse 2.4s var(--bc-ease) infinite}
+.tl-mini .d{font-family:var(--bc-font-mono);font-size:12px;letter-spacing:.1em;color:var(--bc-signal)}
+.tl-mini .t{font-size:14px;font-weight:700}
+.tl-mini .p{font-size:13px;color:var(--bc-muted)}
+
+/* ---------- motion lab ---------- */
+.lab-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:48px}
+@media(max-width:860px){.lab-grid{grid-template-columns:1fr}}
+.lab{background:var(--bc-surface);border:1px solid var(--bc-line);border-radius:2px;padding:26px;min-height:220px;display:flex;flex-direction:column}
+.lab .tag{font-family:var(--bc-font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--bc-signal)}
+.lab h3{font-size:15px;font-weight:700;margin:8px 0 2px}
+.lab .how{font-size:12px;color:var(--bc-muted)}
+.lab .stage{flex:1;display:flex;align-items:center;justify-content:center;margin-top:18px;position:relative;overflow:hidden}
+
+.count-num{font-family:var(--bc-font-display);font-size:88px;line-height:1;color:var(--bc-signal)}
+.ticker{border:1px solid var(--bc-line);border-radius:2px;overflow:hidden;width:100%;padding:12px 0;background:var(--bc-bg)}
+.ticker-inner{display:inline-flex;gap:48px;white-space:nowrap;font-family:var(--bc-font-mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--bc-muted);animation:bc-ticker 18s linear infinite;padding-left:100%}
+.ticker-inner i{font-style:normal;color:var(--bc-signal)}
+@keyframes bc-ticker{to{transform:translateX(-100%)}}
+.draw-circle{stroke-dasharray:502;stroke-dashoffset:502;animation:bc-draw 3s var(--bc-ease) infinite}
+@keyframes bc-draw{0%{stroke-dashoffset:502}55%{stroke-dashoffset:0}85%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+
+/* ---------- usage ---------- */
+.file-tree{background:var(--bc-bg);border:1px solid var(--bc-line);border-radius:2px;padding:24px;font-family:var(--bc-font-mono);font-size:13px;line-height:2;color:var(--bc-muted);overflow-x:auto}
+.file-tree b{color:var(--bc-chalk);font-weight:400}
+.file-tree i{font-style:normal;color:var(--bc-signal)}
+.trigger-chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.use-steps{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:44px;border-top:1px solid var(--bc-line)}
+.use-steps .st{padding:28px 18px 4px;position:relative}
+.use-steps .st::before{content:"";position:absolute;top:-4px;left:18px;width:8px;height:8px;border-radius:50%;background:var(--bc-signal)}
+.use-steps .st+.st{border-left:1px solid var(--bc-line)}
+.use-steps .n{font-family:var(--bc-font-display);font-size:30px;color:var(--bc-chalk)}
+.use-steps .t{font-size:13px;font-weight:700;margin-top:8px}
+.use-steps .p{font-size:12px;color:var(--bc-muted);margin-top:4px;line-height:1.7}
+@media(max-width:960px){.use-steps{grid-template-columns:repeat(2,1fr)}.use-steps .st+.st{border-left:none}}
+
+/* ---------- footer ---------- */
+.footer{background:var(--bc-surface);border-top:1px solid var(--bc-line);padding:44px 0 0}
+.footer .wrap{display:flex;justify-content:space-between;gap:32px;flex-wrap:wrap;padding-bottom:36px}
+.footer-strip{height:8px}
+
+/* ---------- reveal ---------- */
+.reveal{opacity:0;transform:translateY(10px);transition:opacity .55s var(--bc-ease),transform .55s var(--bc-ease)}
+.reveal.is-in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .bc-tele--pulse,.scanline,.dash-run,.ticker-inner,.draw-circle,.wordmark .dot,.tl-mini .it.now::before{animation:none}
+  .reveal{opacity:1;transform:none;transition:none}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body data-page-node-id="vOGAnh6rXvs8XStqIDSP2j">
+
+<!-- 签名元素 01：球场线背景（本页面就铺在它上面） -->
+<svg class="court-bg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true" data-page-node-id="cC8UvXD9SshKdgvLRaSzKY">
+  <g fill="none" stroke="rgba(245,242,236,0.07)" stroke-width="1.5" data-page-node-id="asQNk2t8O0GZtXgCCO5j4q">
+    <circle cx="720" cy="450" r="180" data-page-node-id="kq4ashmzd2DOB9ujYNqPzX"/><circle cx="720" cy="450" r="60" data-page-node-id="zZNcE8QYpOBgZfYrXsSEam"/>
+    <line x1="720" y1="0" x2="720" y2="900" data-page-node-id="qv59Ame90hFl8MfjGHkGN2"/>
+    <path d="M0,180 h240 v540 h-240" data-page-node-id="Fa6OmnUZcjGd3So3ExWFcF"/><path d="M1440,180 h-240 v540 h240" data-page-node-id="jaa3ti3OOR3JVO4EIugVKY"/>
+    <path d="M0,90 a330,330 0 0 1 0,720" data-page-node-id="eNmi7GHYENCwrCsufKf5a4"/><path d="M1440,90 a330,330 0 0 0 0,720" data-page-node-id="DRNp2I381bTnfFt9VbOjeC"/>
+  </g>
+</svg>
+<div class="grain" aria-hidden="true" data-page-node-id="f1lXdwD4lA2halgKRkfDCb"></div>
+
+<header class="nav" id="nav" data-page-node-id="C92OhIIG2CvUKrJl6N7Iej">
+  <div class="nav-inner" data-page-node-id="CoGLBFCcClmph6FcLdhNDp">
+    <a class="wordmark" href="#top" data-page-node-id="PsPxrg33pvR4s6ookBERR6"><span class="dot" data-page-node-id="3p5SPhtDFsroNOstGeKnI8"></span>Broadcast Code <span style="color:var(--bc-signal)" data-page-node-id="xTTT1Wu25INmmjv1RQmuwr">UI</span></a>
+    <nav class="nav-links" data-page-node-id="Ru4iTp6hOFeFwQUnivmN7m">
+      <a href="#tokens" data-page-node-id="5Stu6XzNeL7mvZa0V4K8pc">Tokens</a>
+      <a href="#signature" data-page-node-id="JcL523APdAC5nDDO3PPmeT">签名元素</a>
+      <a href="#components" data-page-node-id="MpqWRceE6VnlPtlBL8vFdF">组件</a>
+      <a href="#motion" data-page-node-id="x0uuBCesJJxyAYxyY0vF8L">动效</a>
+      <a href="#usage" data-page-node-id="bL1yW4tZSBCMDNkvsYqcCW">使用方式</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="top" data-page-node-id="DPf9YaEjtgVHjXHGqgLt3H">
+  <div class="wrap hero-grid" data-page-node-id="fR4eoc1DBmHvHxvunGFoVJ">
+    <div class="reveal" data-page-node-id="iHTWHZxJzZlT3qslqiaB3n">
+      <div class="hero-tag" data-page-node-id="9EpHvnl8RKp6ciYrZi4yRY">
+        <span class="bc-pill" data-page-node-id="MEXGyFDBjZktLkCOKBga0A">SKILL v1.0</span>
+        <span class="bc-pill bc-pill--ghost" data-page-node-id="ZHZ9HNAoWPcllaZY9BZaod">DESIGN PARADIGM</span>
+      </div>
+      <span class="bc-kicker" data-page-node-id="wQYZKco5s9iCuFxVVphPZo">DESIGN SYSTEM <i data-page-node-id="jxQ2oxf01SMTscONNorg3v">/</i> UI PARADIGM <i data-page-node-id="g1P7ntznSStu6q3C4BSd0l">/</i> SHOWCASE</span>
+      <h1 data-page-node-id="fmx5bCCKstjDG4Raik26RI">Broadcast<br data-page-node-id="oCqJBj5AGEp7IZQijtQ6zq">Code <em data-page-node-id="rsEEoajCeRYtoVo3zsuNMX">UI</em></h1>
+      <div class="hero-cn" data-page-node-id="QMhfValDyAWZVawI8KhEGd">赛事转播数据终端风</div>
+      <p class="hero-sub" data-page-node-id="h2ZVree24FIfSTZYqueirm">把「电视转播间 + 球场战术板 + 数据终端」合成一种界面语言。本页面即是范式本身：你看到的每一个像素，都是 Skill 里的一条规则在运行。</p>
+      <div class="hero-meta" data-page-node-id="ihCDeiTfFMYyipxygAlSG8">
+        <div class="m" data-page-node-id="dnxMrZjnBZNo3CkCSb33zi"><b data-count="10" data-page-node-id="co9KsU3anEShb9HutlTYFj">0</b><span data-page-node-id="WndIm9dGvaVrJ66EgYQrwq">设计 Tokens</span></div>
+        <div class="m" data-page-node-id="gJemf8KODoitMBZAFAMlW4"><b data-count="10" data-page-node-id="s6S9ALBtKcYWVotBo5j5sn">0</b><span data-page-node-id="mXIPtoPE3KQiFx1gPBCZ8M">签名元素</span></div>
+        <div class="m" data-page-node-id="aUQmLLB4TbIX1KZh7R0Lry"><b data-count="16" data-page-node-id="ZZCDk37pC7XLkQnacoGmNR">0</b><span data-page-node-id="IEpiHtPxiNFjD7zoN6piAA">组件规范</span></div>
+        <div class="m" data-page-node-id="BWM3aqqfd3F1oBICX0Ymly"><b data-page-node-id="znxrysPckCUeTPZgCswVZs">0.2-0.3s</b><span data-page-node-id="JjVZwPsSIhESG4beqMEkpN">动效纪律</span></div>
+      </div>
+    </div>
+    <div class="hero-visual reveal" data-page-node-id="icDJWY40BjHC6prC63J9e6">
+      <div class="frame" style="aspect-ratio:4/3" data-page-node-id="1qfiVeZ0g7XgSAeFsUQaCX">
+        <div class="frame-status" data-page-node-id="3jWOUmMZCcubOGZifWvuoD">SKILL PREVIEW / paradigm running · <em data-page-node-id="5iQ7GDQbtKK56BLWok7hCZ">live</em></div>
+        <div class="scanline" data-page-node-id="DclIHQQtZJvRRyuWFlqNUf"></div>
+        <svg viewBox="0 0 400 300" aria-hidden="true" data-page-node-id="C2T9PfaoyXq60qP3f0oHCh">
+          <g fill="none" stroke="rgba(245,242,236,0.14)" stroke-width="1" data-page-node-id="o3jB2t9XBGCuqpPwiZSoBy">
+            <path d="M0,240 L400,210" data-page-node-id="RsqYzChGtt3cy3306qMAxy"/><path d="M0,300 L400,255" data-page-node-id="wnVnJ8DDj7uT11wXsCxTRl"/>
+            <path d="M120,300 L150,120" data-page-node-id="fqBZiuzZ9ZEb0931AchcAc"/><path d="M330,300 L310,110" data-page-node-id="WOhMUcjhaYcsoklZcyUNk8"/>
+            <ellipse cx="230" cy="180" rx="120" ry="42" data-page-node-id="tUAcr9hN689n08CXQPssqR"/>
+          </g>
+          <g stroke="#E23B3B" stroke-width="1.5" fill="none" data-page-node-id="A3s9xACKOCj9nnoyUuCqvB">
+            <polyline points="250,96 246,130 232,158 220,196" data-page-node-id="EOYGAlKZNstJcCsxSUhdJp"/>
+            <polyline points="246,130 262,152 276,142" data-page-node-id="6ERQWZxpdU0xyVYhexu0JN"/>
+            <polyline points="250,96 246,130 258,160 264,200" data-page-node-id="uFk68Sxdx9yvJsM81On9Iw"/>
+          </g>
+          <g fill="#E23B3B" data-page-node-id="XAFJF4AYPymrVoIXTfFmva"><circle cx="250" cy="96" r="3.5" data-page-node-id="ASwM7Hn1VdwkSlNhgfME45"/><circle cx="246" cy="130" r="2.5" data-page-node-id="RRHqV7gtxEPmfSC1l6l5K8"/><circle cx="232" cy="158" r="2.5" data-page-node-id="JwCsOL95B0YiQsGScHLoDc"/><circle cx="220" cy="196" r="2.5" data-page-node-id="Lnl9VZZMXpmEclc7JIPEsy"/><circle cx="276" cy="142" r="2.5" data-page-node-id="GVumRJEElQgcM7208IDWBA"/><circle cx="264" cy="200" r="2.5" data-page-node-id="vf0y4otbcXczWqqzjHcdLU"/></g>
+          <g stroke="#F5C518" stroke-width="1.5" fill="none" data-page-node-id="EzVFwFzXVrcCV9oAseEmFw">
+            <polyline points="96,120 104,152 92,184 84,216" data-page-node-id="XPIwt94kA9QiomzCxHCcAl"/>
+            <polyline points="104,152 122,168 138,158" data-page-node-id="Q3E2feE9mFg9CNNbHEAMKx"/>
+            <path class="dash-run" d="M104,152 Q160,190 210,176" data-page-node-id="N6moMeDT3hw6UyAHW7ABP5"/>
+          </g>
+          <g fill="#F5C518" data-page-node-id="Q1AbZHp8HdLR5PIhsoihOJ"><circle cx="96" cy="120" r="3.5" data-page-node-id="CrN73tZr1eprop4Fl2AHgc"/><circle cx="104" cy="152" r="2.5" data-page-node-id="lLINAfrIuBb2ecHbv1mY2p"/><circle cx="84" cy="216" r="2.5" data-page-node-id="nub5auDv7GR89S832sk4FI"/><circle cx="138" cy="158" r="2.5" data-page-node-id="zARNyfRkRWAngb7lycVU4f"/></g>
+          <g stroke="#39C2D7" stroke-width="1.5" fill="none" data-page-node-id="GhJa0zeG73L5UwYf3qlIQD">
+            <polyline points="196,84 202,118 190,150 180,188" data-page-node-id="4l8JKZtbHxmwWrbav2Dumt"/>
+            <polyline points="202,118 222,132 236,124" data-page-node-id="EJTILiTky5PPJM4R6Dg2sA"/>
+          </g>
+          <g fill="#39C2D7" data-page-node-id="YzjWJwyI1PqCVCfeR6dcWw"><circle cx="196" cy="84" r="3.5" data-page-node-id="7sLEColgwk1JTAD9r40R4f"/><circle cx="202" cy="118" r="2.5" data-page-node-id="TmqJCokI658njr1ot2e3dU"/><circle cx="180" cy="188" r="2.5" data-page-node-id="tsTGAUBYbBI1p0est792Uz"/><circle cx="236" cy="124" r="2.5" data-page-node-id="zn8bAiLFm8vlPrTBCEK17m"/></g>
+          <circle cx="290" cy="132" r="7" fill="none" stroke="#F9530C" stroke-width="2" data-page-node-id="gZzILJjyagQ8BG47eA4R3q"/>
+          <circle cx="290" cy="132" r="2.5" fill="#F9530C" data-page-node-id="b6TIrUYQ87WBiLESipVo84"/>
+        </svg>
+        <div class="bc-tele bc-tele--pulse" style="right:8%;bottom:14%;width:88px;height:88px" data-page-node-id="6qIDAExSFtte0QUR1Yf9nw"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 01 TOKENS ============ -->
+<section id="tokens" style="padding-top:0" data-page-node-id="gCOvzCBOtQsS2IgOiW5sjA">
+  <div class="wrap" data-page-node-id="CksBxVAYtNjTaBIxiVyA7n">
+    <span class="bc-kicker" data-page-node-id="pexpolhJw8tWFeUx3ZKQc5"><span class="sec-no" data-page-node-id="uS9EdmlGQ8v5jMH51sWDAL">01</span>DESIGN TOKENS <i data-page-node-id="yCpgWp199JJB2Dfw6OPFPD">/</i> 设计变量</span>
+    <h2 class="sec-title" data-page-node-id="nYlrGzq4LFTIeYBXOsVhSd">先立 Token，<br data-page-node-id="WU63Jrx9B5rBKYR9TjCt2k">再谈页面</h2>
+    <p class="sec-desc" data-page-node-id="fHzUHQt1PasqwY0rHJ0d9g">没有设计系统就不出高保真。以下每个色板、每组字体、每级间距，都是 SKILL.md 中写死的规则。</p>
+
+    <div class="grid-2" style="margin-top:24px" data-page-node-id="fqOOkvDPDxdBY2OpXc2ZtX">
+      <div class="reveal" data-page-node-id="t6cHPlMlPpeLusZjRvRM6x">
+        <h3 class="bc-display" style="font-size:22px;margin-top:36px" data-page-node-id="2gqtZ8S3BGKbR9dse4O65G">COLOR / 配色纪律</h3>
+        <div class="swatch-grid" data-page-node-id="VnMaWGaK3GEFtVWkymoIKf">
+          <div class="swatch" data-page-node-id="6zs48ALhspEhvLAvNziy7v"><div class="chip" style="background:#0B0B0C;border-bottom:1px solid var(--bc-line)" data-page-node-id="Tx1u0tPDoKFTuQlsAOv8Gi"></div><div class="info" data-page-node-id="fl32bnlF8FaBbheBbhHHRB"><div class="name" data-page-node-id="9Tq1SCoHOXaEJxhYCibMAc">--bc-bg</div><div class="hex" data-page-node-id="Nw3WjlTBPWL2HVKX2uKLWU">#0B0B0C · oklch(0.16 0.005 260)</div><div class="use" data-page-node-id="0e7oq3aO0btszYiX70yCTI">转播间黑 · 页面底色</div></div></div>
+          <div class="swatch" data-page-node-id="QMxZChxjaDVBVqqiTj8jAZ"><div class="chip" style="background:#131315" data-page-node-id="Fz1TKMCivYDN9NWXX2ZARH"></div><div class="info" data-page-node-id="9C8jWAtJZ2Y54PiXjh6q3d"><div class="name" data-page-node-id="ZincfxHGWb19mwJKjD3p2w">--bc-surface</div><div class="hex" data-page-node-id="MwFCaQF3cE65rsK8yrUrdj">#131315 · oklch(0.20 0.006 260)</div><div class="use" data-page-node-id="szCJfWzCxt7JlK68J2xRJy">卡片 / 分区底</div></div></div>
+          <div class="swatch" data-page-node-id="olOdTHacH49msVpg8auYvW"><div class="chip" style="background:#1B1B1F" data-page-node-id="Gxo7RyrOsXbHuFAnIYVtRf"></div><div class="info" data-page-node-id="DaDGuqcvbFyhGLxOivZAJl"><div class="name" data-page-node-id="pgHayvwnhkROGY1asS6CDH">--bc-surface-2</div><div class="hex" data-page-node-id="1Flv98OxhvlaoJo7HfoU3J">#1B1B1F · oklch(0.24 0.007 260)</div><div class="use" data-page-node-id="lfMKxxan8Dm2OsFElyGi8B">嵌套层 / hover 底</div></div></div>
+          <div class="swatch" data-page-node-id="eFsrhDLKRYJ6XKYrOPwo6f"><div class="chip" style="background:#F5F2EC" data-page-node-id="a8ct4zoqItFMpUX9Er0EY0"></div><div class="info" data-page-node-id="AkaFnailZQ3tHKnya8NcqE"><div class="name" data-page-node-id="KB5Uz8GEUqxvsPNJeeQjtr">--bc-chalk</div><div class="hex" data-page-node-id="levjGawfhob55VpNEWOgrD">#F5F2EC · oklch(0.95 0.01 90)</div><div class="use" data-page-node-id="rHKgGJEp9luN5WCuEdxwOH">粉笔白 · 主文字</div></div></div>
+          <div class="swatch" data-page-node-id="1aZJwQD2FQbxmhrOGCxRmi"><div class="chip" style="background:#8E8E96" data-page-node-id="YBpFH78W4b3KDUu5g0H1KC"></div><div class="info" data-page-node-id="y4rHk7ZPmILAV3X8SoVXU4"><div class="name" data-page-node-id="SYL0CXyACLdMBHAcgE6Kwa">--bc-muted</div><div class="hex" data-page-node-id="pFjJk16pfV9oqYAt36EzoN">#8E8E96 · oklch(0.63 0.01 260)</div><div class="use" data-page-node-id="bpdhwgBC5ItE7pPV3BW8M2">次要文字 / mono 标签</div></div></div>
+          <div class="swatch" style="border-color:var(--bc-signal)" data-page-node-id="ELFHfDv9hssGkX0DwaS0Bo"><div class="chip" style="background:linear-gradient(135deg,#F9530C,#C43A08)" data-page-node-id="QQ1pHaplEp0IOwNtoULDfD"></div><div class="info" data-page-node-id="NVNhTbZgTTwYGYKsQuuLCp"><div class="name" style="color:var(--bc-signal)" data-page-node-id="cmQcXsSMl3PJZSkNBj1LbG">--bc-signal</div><div class="hex" data-page-node-id="EmDF1jSeUHyxKPYW9dWTB9">#F9530C · oklch(0.65 0.21 40)</div><div class="use" data-page-node-id="EbAzmoIWDhXQIr7lrNWfWT">唯一主强调色 · 信号橙</div></div></div>
+          <div class="swatch" data-page-node-id="m1nYL9gk4e5tXwrVtQf6lN"><div class="chip" style="background:#12183A" data-page-node-id="4xFLBANBTTk82gUVv0G6Os"></div><div class="info" data-page-node-id="SlkrIUy9GbiWzOEoWTIBvE"><div class="name" data-page-node-id="Ib2ZTer3Sm6voExL9C4GPK">--bc-navy</div><div class="hex" data-page-node-id="R5wNvBfgDCDQWR8oPkUL5M">#12183A · oklch(0.26 0.07 265)</div><div class="use" data-page-node-id="bcU5LhO5t5LzZrHMUHgLx4">视频分析帧底</div></div></div>
+          <div class="swatch" data-page-node-id="c5hIDoJyAXcIYKRLJxzrx6"><div class="chip" style="background:linear-gradient(90deg,#E23B3B 0 33%,#F5C518 33% 66%,#39C2D7 66%)" data-page-node-id="Qxt1HH3Cm4T0whEG2J1zf1"></div><div class="info" data-page-node-id="OPKf7M0uUoEUDrV9F1zqEl"><div class="name" data-page-node-id="yOD6LiwQh7IuJ9IvMUPxgV">--bc-key-*</div><div class="hex" data-page-node-id="JegIKctGHbzKCSKoFHjYGO">#E23B3B / #F5C518 / #39C2D7</div><div class="use" data-page-node-id="TcXaE0ZKFfJxzSmb2o3PPk">骨骼关键点三色 · 仅限数据标注</div></div></div>
+        </div>
+        <div class="area-bar" data-page-node-id="AamW9OGDDUe08wuFyqu37J">
+          <div class="dark" data-page-node-id="SiAIGonys0in0XfdgXznAB"><span style="color:var(--bc-muted)" data-page-node-id="RmCyXHDLQ39TplHDvESEMu">底色 + 中性色 ≥ 90%</span></div>
+          <div class="sig" data-page-node-id="4co6cc2AIL7A6aiUaFZ5Ba"><span data-page-node-id="LmH7ABQIdEbQDRpGbubQfE">≤10%</span></div>
+        </div>
+        <p class="state-note" data-page-node-id="ABpOWAyEzQJ5w2rBQCxnGt">面积纪律：信号橙只给 <i data-page-node-id="ebbEb1CD80JN45JIQKTpSL">CTA / 标注 / 关键数字</i>，永远不做大面积铺色</p>
+      </div>
+
+      <div class="reveal" data-page-node-id="iHiqMOp8TGyLrgZSoZkDHr">
+        <h3 class="bc-display" style="font-size:22px;margin-top:36px" data-page-node-id="R0CCg3tD7WcEdmAk0Yh8NN">TYPE / 字体配对</h3>
+        <div class="type-row" data-page-node-id="GKSzo3cAowGZBEQfPk91D9">
+          <div class="lab" data-page-node-id="bqbcsnnSZ5s9z3FT8Y5RCE"><b data-page-node-id="j6ZFcAy1yjMg8zuqcZYy2L">DISPLAY</b>Anton · 标题/大数字</div>
+          <div class="bc-display" style="font-size:44px" data-page-node-id="suOXCDDtP8nCkKPyAw7L0t">BROADCAST 012</div>
+        </div>
+        <div class="type-row" data-page-node-id="e7Moj5M3TEZWygr7DPRBH5">
+          <div class="lab" data-page-node-id="FAerT9juppBasF16ybxVnY"><b data-page-node-id="vxFJo6qaMN5rRCi1HIBzfg">BRUSH · SCOPED</b>Ma Shan Zheng · 限海报式营销页</div>
+          <div style="font-size:14px;color:var(--bc-muted)" data-page-node-id="bXU7AnryMLX1OCn8aGFXzg">书法字体仅用于赛事海报式落地页的中文大标语；手册、工具、规范类页面（含本页）禁用，标题一律 Display + Mono 组合，中文用 Noto Sans SC 900。</div>
+        </div>
+        <div class="type-row" data-page-node-id="ytiqeHnVSZIo4VpOFgONt8">
+          <div class="lab" data-page-node-id="eb4ZrNzkJFnPh5bmQow2Lt"><b data-page-node-id="DhR75Q4EFFTIqnNPhsn9zP">BODY</b>Noto Sans SC · 中文正文</div>
+          <div style="font-size:16px" data-page-node-id="YEfUoAOHdHAYBqNXijHlQ4">正文承担解释：一次跑位、一处空档、一次防守收缩，都要讲得清楚。</div>
+        </div>
+        <div class="type-row" data-page-node-id="68eZC8f090kylFyEDSuHtp">
+          <div class="lab" data-page-node-id="yMnzKlKuYg5rMwdKoIJI4Y"><b data-page-node-id="nSLs64gakIGiKfutYoRvQz">MONO</b>JetBrains Mono · 数据标签</div>
+          <div class="bc-mono" style="font-size:14px" data-page-node-id="IRuJ1DDn3UZDjWCCDcDDWW">POSSESSION #24 <i style="color:var(--bc-signal);font-style:normal" data-page-node-id="3eSmKQNNzaNKpUPjpGKAtf">/</i> Q3 07:41</div>
+        </div>
+
+        <h3 class="bc-display" style="font-size:22px;margin-top:44px" data-page-node-id="OpxQawXzLe1jGZD502rgss">SPACE / 间距标尺</h3>
+        <div style="margin-top:14px" data-page-node-id="ekNaei8tTILbg2f1HGG6o0">
+          <div class="space-row" data-page-node-id="dAQAKVExAuKjq9isd7bIB6"><span class="n" data-page-node-id="JCByHeOZi7hZQW4Ey9pOh1">--s1</span><div class="bar" style="width:4px" data-page-node-id="oZ6bEUaQMObKajmGsrE6RO"></div><span class="v" data-page-node-id="fl6M7ZWJ6BsSSI7mueyjjS">4px</span></div>
+          <div class="space-row" data-page-node-id="xjOpj3AFPnSlD76JNHizE7"><span class="n" data-page-node-id="v4s6CjhAhhZyGYSihr2J7J">--s3</span><div class="bar" style="width:12px" data-page-node-id="kAKUWBImnGNwDI3LvBf9tY"></div><span class="v" data-page-node-id="jfgbBxsdgkHsXkA5xdVmzz">12px</span></div>
+          <div class="space-row" data-page-node-id="1cwZ4WBOyMXRkP8W9Y9rGM"><span class="n" data-page-node-id="CveMZPkhnEbYGZGzyHb05F">--s6</span><div class="bar" style="width:24px" data-page-node-id="1VmojBu0nIMZSsTo6H6hxl"></div><span class="v" data-page-node-id="uMjMrP7LIqyE0Ofvw6Hm8R">24px</span></div>
+          <div class="space-row" data-page-node-id="YoNQFiRG3wGox8R94vPs7x"><span class="n" data-page-node-id="H8Qrlb9YkGzziQBN6NVH3h">--s12</span><div class="bar" style="width:48px" data-page-node-id="j5rV5lHbU9Mc0ldlUFH6AA"></div><span class="v" data-page-node-id="ZAMlGFtTSHwb2iutFSGuH5">48px</span></div>
+          <div class="space-row" style="border-bottom:none" data-page-node-id="OA7FaE32dIn99CmjUPeiQl"><span class="n" data-page-node-id="7GZQmsUx7i8cJFtRftfzkp">--s24</span><div class="bar" style="width:96px" data-page-node-id="1QTUA1SYgADZgj2MGAcnju"></div><span class="v" data-page-node-id="0YdDmqOMJoFtduvYUTfKIT">96px</span></div>
+        </div>
+        <p class="state-note" data-page-node-id="VT5qtrELbJdoUTis9sFzvy">圆角纪律：卡片 <i data-page-node-id="NuOhSfB7c6WWWMBPeoocxH">2-4px</i> 硬边角 · 日期 pill <i data-page-node-id="nCJ2YVDbEebfaLjxwGT3dY">999px</i> · 标注圆 <i data-page-node-id="NoJb0vqdCqvrhanbBvQADp">50%</i>，三者之外无圆角</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 SIGNATURE ============ -->
+<section id="signature" style="padding-top:0" data-page-node-id="cq2csKaF9eCEdrU6b2hT2p">
+  <div class="wrap" data-page-node-id="RVjwQJPXkumYTRZTGzLB8i">
+    <span class="bc-kicker" data-page-node-id="3ER0aWtDnDmAyk7cXAmZHp"><span class="sec-no" data-page-node-id="dP1yLRAD9NH7rup0bcBylB">02</span>SIGNATURE <i data-page-node-id="M2rcogkpFabOrTkHLrLxGV">/</i> 十大签名元素</span>
+    <h2 class="sec-title" data-page-node-id="nLjmVabDVbrMrTGRHNd9Ub">范式的灵魂，<br data-page-node-id="DCa2Azl2qTWHSdBA6ebVKu">至少用四个</h2>
+    <p class="sec-desc" data-page-node-id="gJiiyyTHvd89QQEUD7VsJz">签名元素是把「普通深色页面」和「Broadcast Code」区分开的识别码。每一格都是活的真实例。</p>
+
+    <div class="sig-grid" data-page-node-id="KJvBRFdOjjYWW2fkFSbCmD">
+      <div class="sig-card reveal" data-page-node-id="tIHvkQK1qUenuY0QNdPyjA"><div class="no" data-page-node-id="cNv5G8weQZ4frwysN88uFf">S-01</div><h3 data-page-node-id="8KrjCCw8ypoJsJGhxeC7dq">球场线背景</h3><div class="en" data-page-node-id="uML7yx85JAuQIiyXNjiP9K">COURT LINES</div>
+        <div class="demo" data-page-node-id="13vfneA356nV9hi6ESGdNE"><svg width="180" height="84" viewBox="0 0 180 84" data-page-node-id="y04YwHsbpCSYLfL51ncfvr"><g fill="none" stroke="rgba(245,242,236,.28)" stroke-width="1.2" data-page-node-id="iSl1oeRJDvnlTsx4vBapEI"><circle cx="90" cy="42" r="30" data-page-node-id="U7euZGZlbbKOkNIwrnNzY5"/><line x1="90" y1="0" x2="90" y2="84" data-page-node-id="YkUKEXVIBelDk2oEFfRyeE"/><path d="M0,14 h34 v56 h-34" data-page-node-id="jEx43s3lKRhwpOBDADUzfs"/><path d="M180,14 h-34 v56 h34" data-page-node-id="fPTBV8gqrMSYLP1TIfKnlF"/></g></svg></div></div>
+
+      <div class="sig-card reveal" data-page-node-id="5BmWiOnWUVHd8OWGQnGMZA"><div class="no" data-page-node-id="HwwiIENvBEyEXcXnQJApa8">S-02</div><h3 data-page-node-id="mk1zQY7149UCz2VNZ8p3Ze">点阵数据块</h3><div class="en" data-page-node-id="gQcfJ63ppmLpFQv4i9FHnZ">DOT MATRIX</div>
+        <div class="demo" data-page-node-id="pwmBH9WCizZaDdu62utSw6"><svg width="130" height="76" viewBox="0 0 130 76" data-page-node-id="5AKtBXLWvJsNhDuATctQr5"><g id="demoDots" data-page-node-id="NrUrI7BXWBg64m5qtqSlDs"></g></svg></div></div>
+
+      <div class="sig-card reveal" data-page-node-id="74Bh2kAg764tVFkvygkDMR"><div class="no" data-page-node-id="Oef6UMCwuAQ5JZYU5y0H7I">S-03</div><h3 data-page-node-id="w5B61VpMbjF9dLeLWvdfYg">Telestrator 标注</h3><div class="en" data-page-node-id="KRx6gYcqcSoQ2uBHxEL7Hi">ANNOTATION RING</div>
+        <div class="demo" data-page-node-id="gtZFYM7PHD31iELjkbviMf"><div style="position:relative;width:84px;height:84px" data-page-node-id="ww3rPKnd9my1RRd8cQjl5O"><div class="bc-tele bc-tele--pulse" style="inset:0" data-page-node-id="eCNgxGTIB5T2uzCANLMmow"></div></div></div></div>
+
+      <div class="sig-card reveal" data-page-node-id="w6PbnnYA1qfxonTpIbwri5"><div class="no" data-page-node-id="tAdoRzFaT3R5g3RXdHRiOo">S-04</div><h3 data-page-node-id="AnZZdQiOY9St3BhYSVE23J">虚线选框</h3><div class="en" data-page-node-id="TMpPA3A3xsBzDAda9bURIS">MARQUEE BOX</div>
+        <div class="demo" data-page-node-id="DkY6HeDfOySzzHQHNVjqeE"><span class="bc-marquee" style="font-weight:700;font-size:14px" data-page-node-id="Ea0C1Fg9lbG9xqploj0ICN"><b data-page-node-id="XSaBiAd3pfm91fVMP6m8LT"></b><b data-page-node-id="ekxREbFh0zy3LlGpLNgFbu"></b><b data-page-node-id="ohpnhcO42KzZ7PYh1SgR6u"></b><b data-page-node-id="2mqd4BiZvJKEbtk87qvU8H"></b>被选中的标语</span></div></div>
+
+      <div class="sig-card reveal" data-page-node-id="MMaRuGoTkgYATXlHL2eCpr"><div class="no" data-page-node-id="aGVsoP6X6bAAwRIBbRpeYh">S-05</div><h3 data-page-node-id="W21RWt7SG4nJ2aCajiCXza">日期 Pill</h3><div class="en" data-page-node-id="umzrsJ15qEOrpoY5TRi8vd">DATE PILL</div>
+        <div class="demo" style="gap:10px;flex-direction:column" data-page-node-id="XnDKESffSxLaZbVcd2zmTM"><span class="bc-pill" data-page-node-id="MepspgjuFybxWBFqBZXORl">10/10 - 10/11</span><span class="bc-pill bc-pill--ghost" data-page-node-id="4420VZvlRvaLGiwyjbJbOV">GHOST 变体</span></div></div>
+
+      <div class="sig-card reveal" data-page-node-id="oFQiLXpQ5jWR1X78jXvbxw"><div class="no" data-page-node-id="eI2jlUsQz6qbrgzSly8nhR">S-06</div><h3 data-page-node-id="iZ5L2lXVFUzeXVmi5UTNjt">皮革纹理</h3><div class="en" data-page-node-id="f03Bmf1vc6feJTFbzNG1TG">LEATHER TEXTURE</div>
+        <div class="demo" data-page-node-id="kO83bFLBNXQXGvgic2eo2f"><div class="bc-leather" style="width:150px;height:64px;border-radius:2px" data-page-node-id="ZEwYFjb0RAhHADyLRe4m7x"></div></div></div>
+
+      <div class="sig-card reveal" data-page-node-id="fOssOOo0hZhecE4tKSTVbc"><div class="no" data-page-node-id="MpDuXPTsSflFgfY94Fhp23">S-07</div><h3 data-page-node-id="8bke2376lR4Ac42d6mMnQa">斜杠分区标签</h3><div class="en" data-page-node-id="Ccpt8MYjSm1ZstKdDNf1Pc">SLASH KICKER</div>
+        <div class="demo" data-page-node-id="tay8IeVUswakVzqHyFHRZJ"><span class="bc-kicker" style="margin:0" data-page-node-id="PN9BJA5vQquaGPF2SceBlT">GAME DATA <i data-page-node-id="D4SRCJOekIcbevnZtHLjsf">/</i> AI STORY</span></div></div>
+
+      <div class="sig-card reveal" data-page-node-id="FxGDNu1ya0U35kfVRGBQNg"><div class="no" data-page-node-id="kkxTnCobyFeiyiiFahLURd">S-08</div><h3 data-page-node-id="LqdUjk2uNJqdb97GN8vjAd">编号管线</h3><div class="en" data-page-node-id="TdrNEpAKmwEop8thOQHpFT">NUMBERED PIPELINE</div>
+        <div class="demo" style="gap:22px" data-page-node-id="kAE1Mjdi7geutFp1d0J5gE"><span class="bc-display" style="font-size:30px" data-page-node-id="D0fC4NbWIxsIGoOfzc4cOQ">01<i style="font-style:normal;font-family:var(--bc-font-mono);font-size:11px;color:var(--bc-signal)" data-page-node-id="Rn0oGqREgszbuG2zR5h698"> input</i></span><span style="color:var(--bc-muted)" data-page-node-id="huVmaox5j6EZA6MUwPESIJ">→</span><span class="bc-display" style="font-size:30px;color:var(--bc-muted)" data-page-node-id="09TirJsBSVvyjogIbodkRI">02<i style="font-style:normal;font-family:var(--bc-font-mono);font-size:11px;color:var(--bc-signal)" data-page-node-id="UN4MfBhKXyrM61zFyHgCT3"> analyze</i></span></div></div>
+
+      <div class="sig-card reveal" data-page-node-id="e2Uf4bMtQSTAD7qPoC7zbK"><div class="no" data-page-node-id="etealJxjuHDVAWvGgKhGli">S-09</div><h3 data-page-node-id="yuc0R9EMcEryUVArTymCni">大数字统计</h3><div class="en" data-page-node-id="JSgVw9DwOhHVW17HAboq3y">BIG STAT</div>
+        <div class="demo" data-page-node-id="RDFpclpjX11hNMffxEoqxj"><span class="bc-display" style="font-size:56px;color:var(--bc-signal)" data-page-node-id="hydERWc2n5gpNsZqalizMk">TOP 8</span></div></div>
+
+      <div class="sig-card reveal" data-page-node-id="gJH9wxdbDjnZuTfjfseBmC"><div class="no" data-page-node-id="wl1lsJheuhOSRRPDK5t68j">S-10</div><h3 data-page-node-id="vEIV5wbz8J1jcwG8U5mQ6o">骨骼追踪帧</h3><div class="en" data-page-node-id="Rf0p1wjHMBCYI7acR5l6OG">SKELETON FRAME</div>
+        <div class="demo" data-page-node-id="9qV1J0yt4ANDZDIeLMZMCt"><div class="frame" style="width:170px;height:96px" data-page-node-id="9HyGqOkfVQA8HgJ61xaAMo"><svg viewBox="0 0 170 96" data-page-node-id="DRHyHSzJ6CpUtFu5n9L0r1"><g stroke="#E23B3B" stroke-width="1.2" fill="none" data-page-node-id="DHFFWIrh8nNL9zj6oeK3Hn"><polyline points="80,20 78,40 70,58 64,80" data-page-node-id="CrkWRTIxBL4rYVuxIm3CXa"/><polyline points="78,40 90,52 100,46" data-page-node-id="JQ3LRWXBE9qk4YzVFOMrjv"/></g><g fill="#E23B3B" data-page-node-id="7OuzGFUdtDYPA6DbpykSX6"><circle cx="80" cy="20" r="2.6" data-page-node-id="FC7X1xyQ0oWpgN4WumDvL2"/><circle cx="78" cy="40" r="2" data-page-node-id="XFkwdmREsIEBEkDOCl9huH"/><circle cx="64" cy="80" r="2" data-page-node-id="HYg5RE3UoPVqBkxVtFr8IJ"/><circle cx="100" cy="46" r="2" data-page-node-id="aW894MEWRDh9GoqDDrC46y"/></g><circle cx="112" cy="40" r="4" fill="none" stroke="#F9530C" stroke-width="1.5" data-page-node-id="z6WyUYftq05q2EpIRcpW8e"/></svg></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 COMPONENTS ============ -->
+<section id="components" style="padding-top:0" data-page-node-id="rZtADr9k8nZ8KkN8ssqnhy">
+  <div class="wrap" data-page-node-id="JLN75YCAqHDthdRtFRNnv7">
+    <span class="bc-kicker" data-page-node-id="avUaOTwVRKrmyQuOk20Q2J"><span class="sec-no" data-page-node-id="UhvDaHEsvqxus3lhySgDUE">03</span>COMPONENTS <i data-page-node-id="xOHNKAv8NoHy1yFyzccHPy">/</i> 组件规范</span>
+    <h2 class="sec-title" data-page-node-id="6qzpVJa54VYSRHzO5IB12n">可交互的组件库</h2>
+    <p class="sec-desc" data-page-node-id="Nax89hwYAvmEoWVue7AKNs">悬停、聚焦、点击试试——所有状态都在 0.25s 内完成反馈。</p>
+
+    <div class="comp-block reveal" data-page-node-id="hA3tnCGBbO8FUB38isFXrn">
+      <div class="head" data-page-node-id="ZmSVHtYLHBEQxiB7sOzCmD"><h3 data-page-node-id="FSkTUxHiPSFUHWDDqnyAUV">C-01 · 按钮 Buttons</h3><span data-page-node-id="UM6xlMXohGNCgXPh2V0EzC">primary / ghost / dashed / disabled</span></div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap" data-page-node-id="NwOEpVUFFLOi3dYxZM6MKu">
+        <button class="bc-btn bc-btn--primary" data-page-node-id="cDy4fiVm5UOpxQ6cbPmEJ3">立即报名</button>
+        <button class="bc-btn bc-btn--ghost" data-page-node-id="XzAtVpWEqWieLBQ1Ii0KCZ">查看赛题</button>
+        <button class="bc-btn bc-btn--dashed" data-page-node-id="nUei9VdNfWrjChZeWs953V">标记回合</button>
+        <button class="bc-btn bc-btn--primary" disabled data-page-node-id="5YzUcBiX4eXsO5sLlsguhE">已截止</button>
+      </div>
+      <p class="state-note" data-page-node-id="7AMptsk45rBYGqbITIugzJ">hover <i data-page-node-id="dP95PxztBMJaQs4GsdNifQ">上移 1px / 描边转橙</i> · active <i data-page-node-id="1A1DXFMGNOoSyfr4EhlOC3">下移 1px</i> · focus <i data-page-node-id="oKwUotBwMiC5Ri6NHBqfiY">2px 橙色 outline</i> · disabled <i data-page-node-id="hFDZNzuFCJpVAOJBTgaY17">透明度 .35</i></p>
+    </div>
+
+    <div class="comp-block reveal" data-page-node-id="Ih2xmuW0zhj4n3IqGLeXcr">
+      <div class="head" data-page-node-id="GmZjbppvTpoSC0kdscV12H"><h3 data-page-node-id="yx1DZA6JrzKAP9aRDuLmbQ">C-02 · 卡片 Cards</h3><span data-page-node-id="3LTflk0UR9HH35G0Vnfhby">硬描边 · 无阴影 · hover 抬升</span></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px" data-page-node-id="yQEHcQOBnNc6IIOQYMN0YX">
+        <div class="bc-card" data-page-node-id="S6VFPVAyLDffFCLjdoCbjt"><div class="bc-mono" style="color:var(--bc-signal)" data-page-node-id="8ihL72N7hvFbIzYtKdEIQ9">CARD / A</div><h4 style="margin:10px 0 6px;font-size:16px" data-page-node-id="6jwsZEFtGCh5u7reaWnQm5">构建 AI Agent</h4><p style="font-size:13px;color:var(--bc-muted)" data-page-node-id="FOR5mKAGcwm935CENdSA41">处理比赛视频与深度赛场数据，建立完整可运行的分析流程。</p></div>
+        <div class="bc-card" data-page-node-id="iZ58ATMyafXmWlTnenoJyU"><div class="bc-mono" style="color:var(--bc-signal)" data-page-node-id="9k5CIM99aIsaeUjkWxzzCS">CARD / B</div><h4 style="margin:10px 0 6px;font-size:16px" data-page-node-id="luqZyRGqoxMViEH4arQ92b">叠加视觉分析</h4><p style="font-size:13px;color:var(--bc-muted)" data-page-node-id="mC7SGL5deEe7017EguSX8E">箭头、色块、球员标注，把分析结果带回比赛画面。</p></div>
+        <div class="bc-card" data-page-node-id="hfYfAncaA1lpW6htiIiLky"><div class="bc-mono" style="color:var(--bc-signal)" data-page-node-id="ExuaEUDsdCoBfInXtWsRP1">CARD / C</div><h4 style="margin:10px 0 6px;font-size:16px" data-page-node-id="IAfKUYkAIGJmyzNQi0YuVO">生成篮球解说</h4><p style="font-size:13px;color:var(--bc-muted)" data-page-node-id="mHNGBFvBVGoMLuMKAHQOAI">解说与画面和官方数据准确对应，懂球不懂球都看得明白。</p></div>
+      </div>
+    </div>
+
+    <div class="comp-block reveal" data-page-node-id="w1oU2SKD3DparX1HMZgi4Y">
+      <div class="head" data-page-node-id="v8QQVQ5C1yWMIif9dAcQiU"><h3 data-page-node-id="0K09W4krmvvgTY54mX0hJN">C-03 · 数据表格 Table</h3><span data-page-node-id="FdaDygGkrC4iHEWecRVzdA">无竖线 · mono 数字列 · 行 hover</span></div>
+      <table class="bc-table" data-page-node-id="b8LVw8Sh7miLbD2mJixsWN">
+        <thead data-page-node-id="gTaUpKW3EGCBCGL6gHwjq5"><tr data-page-node-id="S96YrG3yqFHWtGlEQ0vAAt"><th data-page-node-id="nUMJNmfzo1BkIMbwlPzGrJ">Rank</th><th data-page-node-id="EEQdHM1gFbm6L16nJAZzAJ">Team</th><th data-page-node-id="FfYlhWKTsIJDYHtOOdsDQA">Possessions</th><th data-page-node-id="rcn1mOa4g6HRKa6DWlPixc">Clutch FGM</th><th data-page-node-id="ArItUEIpGmUNtWDmiJzxjN">Rating</th></tr></thead>
+        <tbody data-page-node-id="fy9JIhZVSDVlwTnHa2Tm0V">
+          <tr data-page-node-id="o6KAth6Djn3d6ncGp4GpGZ"><td class="rank-top" data-page-node-id="2xaZQ0dHiIdby1GCZGv7gI">01</td><td data-page-node-id="gYyAOIDfJGWpgdNfm4pIpr">信号 Signal</td><td data-num data-page-node-id="GfpqiyExR3Dm7tfTXsG6xQ">98.4</td><td data-num data-page-node-id="Xf0BKNKZGfcDS9FJgZEl77">12</td><td data-num data-page-node-id="QvTiMAqJaJGNULek3H7cH6">A+</td></tr>
+          <tr data-page-node-id="dNVPipzLr1wvrKFArJHT4g"><td class="rank-top" data-page-node-id="hDKheyhGMpJKneBMArSqJA">02</td><td data-page-node-id="69qAoH7AzPVqIUZN0ph0h8">战术板 Chalkboard</td><td data-num data-page-node-id="fKEIIIaGcVxEzheO8GZZDU">97.1</td><td data-num data-page-node-id="PPBLCeVIrgyvSyJJ426r7A">10</td><td data-num data-page-node-id="DCBfbHSo8PNhllsgspIAAu">A</td></tr>
+          <tr data-page-node-id="zJbyCi2qNaAtK0k5XBXPYK"><td class="rank-top" data-page-node-id="56iUcerWEjIkYfmE7jMSkY">03</td><td data-page-node-id="DnOv52CkDWSq3E7QnP0D7a">终端 Terminal</td><td data-num data-page-node-id="W2Lg7DhpdNnWyYnXlQangP">95.8</td><td data-num data-page-node-id="x2mLlEv49SUUlSHBwuZdVm">9</td><td data-num data-page-node-id="qBtAFbSP4p8ofFkzHsDKWN">A-</td></tr>
+          <tr data-page-node-id="CmvhSDGNsCWsaHOztDGKXC"><td data-num data-page-node-id="Ds3x0S479UodqKjECvY5Nj">04</td><td data-page-node-id="K6oTFX1XpJ6GrjUQpOEznH">转播间 Booth</td><td data-num data-page-node-id="rTrEiFYbvyWgcAmvu0ejHI">93.2</td><td data-num data-page-node-id="CJ1ZnZikU95YKeDCd5R9BU">7</td><td data-num data-page-node-id="c3hP1HTPXW2GDsXraHWdzN">B+</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="comp-block reveal" style="display:grid;grid-template-columns:1fr 1fr;gap:48px" data-page-node-id="NGnEDsuxa5gOMYWxkNrTYw">
+      <div data-page-node-id="qGJM3v9NTK9JelVmwSApDi">
+        <div class="head" data-page-node-id="MHVOKt8BbtvBKZdAth96bC"><h3 data-page-node-id="Oy7hjtSTYABd8rIv4ewCRF">C-04 · 时间线 Timeline</h3></div>
+        <div class="tl-mini" data-page-node-id="D3QQdIej0gqRqUMlu3157Y">
+          <div class="it" data-page-node-id="DBMy7GibDgAkYRF3xHmfrV"><div class="d" data-page-node-id="fa481tKfAzJA1iEnNfDhZS">09/27</div><div class="t" data-page-node-id="EzCyQZwhJTkvAar8PxQZph">报名截止</div><div class="p" data-page-node-id="UsLEfnKOBW314nrY3Maz6m">线上报名及组队完成</div></div>
+          <div class="it now" data-page-node-id="6FDbyHco9Dm9TkO0Wp3WLJ"><div class="d" data-page-node-id="Gu2roHPYGvrUHlC7N1PKRC">10/10 · NOW</div><div class="t" data-page-node-id="bkh8utCkkMk0lrkx4pIIzy">珠海初赛</div><div class="p" data-page-node-id="do61IzOkut51ks7mWkelRV">12 小时极限 Coding，当下节点脉冲发光</div></div>
+          <div class="it" style="padding-bottom:0" data-page-node-id="KU4viuLY4h0tZVuht88NvH"><div class="d" data-page-node-id="mrQrnsaExkw5Y18gqOvHrB">10/11</div><div class="t" data-page-node-id="JkIuP30HWX5tDq8PGDRcCg">澳门决赛</div><div class="p" data-page-node-id="JdbMU2xhPNya5LQyamQAPk">TOP 8 现场路演终评</div></div>
+        </div>
+      </div>
+      <div data-page-node-id="dK2YNr2pHA3by4yCu0QWRF">
+        <div class="head" data-page-node-id="14Z56OGbvA4oN2amNkBbwV"><h3 data-page-node-id="RhObPUFV7F8QoHj8Wm5Tlw">C-05 · 表单 Form</h3></div>
+        <label class="field-label" data-page-node-id="yEIydoomFG9hFpdXyUQHpM">TEAM NAME / 队名</label>
+        <input class="bc-input" placeholder="输入你的队名，聚焦看橙色描边" data-page-node-id="8WQ6pBrC89Ws3Wf8okdJeC">
+        <div style="height:18px" data-page-node-id="CIrUpz2ZDD2aUMJWsrGlFi"></div>
+        <label class="field-label" data-page-node-id="4ktRFNrOKQk0kgURRFSUol">TRACK / 方向</label>
+        <input class="bc-input" placeholder="AI 解说 / 数据可视化 / 战术分析" data-page-node-id="KKVr9q06QxlhO3yx5delKH">
+        <p class="state-note" data-page-node-id="uWhH2MqG4x09NZgclH8ZRm">focus <i data-page-node-id="3nbXoL7xIMzB2RnIsK5GSn">描边转橙 + 3px 光晕</i> · placeholder <i data-page-node-id="OLwSSY8CHvCqsXWlvHafFs">muted 50%</i></p>
+      </div>
+    </div>
+
+    <div class="comp-block reveal" data-page-node-id="V0AReF6KNZ3Xss38ngKUsL">
+      <div class="head" data-page-node-id="HG9gVQDP0tsy3lpgmKEtgh"><h3 data-page-node-id="Rem6lx9FaBgGCSHiHWU0QH">C-06 · 奖项卡 Prize Card</h3><span data-page-node-id="kB7316hAwoErJ9qA57HzKz">marquee 卡头 + 皮革压条</span></div>
+      <div style="max-width:420px" data-page-node-id="Ez8R4rDXzxVeqWGWDgVjVh">
+        <div class="bc-card" style="position:relative;overflow:hidden;padding-top:40px" data-page-node-id="RMv0iTEhV6gFPATuIwCDv9">
+          <div class="bc-leather" style="position:absolute;top:0;left:0;right:0;height:12px" data-page-node-id="MDcd6g8RW7FnEAbivEUCkg"></div>
+          <div class="bc-mono" style="color:var(--bc-signal)" data-page-node-id="ilJUF3JruyY9XYxt8pzPFS">一等奖 / TOP 1</div>
+          <div class="bc-display" style="font-size:26px;margin:10px 0 12px" data-page-node-id="yo7SJAwQaw43IzGh3y9pFz">2026 re:Invent</div>
+          <div style="border-top:1px solid var(--bc-line);padding-top:10px;font-size:13px;color:var(--bc-muted)" data-page-node-id="JjRZi5U2W3BFkNhBTwDl5z">TRAVEL + PASS — 大会门票、往返机票及 4 晚酒店</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 MOTION LAB ============ -->
+<section id="motion" style="padding-top:0" data-page-node-id="dUi24pjNMCgbZqNtL2o5I3">
+  <div class="wrap" data-page-node-id="mt9DdBSc2Ygpbu27nvhlNK">
+    <span class="bc-kicker" data-page-node-id="1oHeFTMbQ1HSF7CDzhfcYX"><span class="sec-no" data-page-node-id="u84OOyPB7nqRxS4PsIDOMv">04</span>MOTION LAB <i data-page-node-id="Qv9sKhB2GP7DIPQNMblryc">/</i> 动效实验室</span>
+    <h2 class="sec-title" data-page-node-id="YFZftTyoALKD1a89Axy77c">动效纪律：<br data-page-node-id="BN4CNFyTc0FEuyYNykH7rK">快、硬、有目的</h2>
+    <p class="sec-desc" data-page-node-id="GBJUftfZihRiHrfzXpfpJl">只用 opacity 与 transform，0.2-0.3s 完成反馈；循环动效只服务「实时数据」语义，且全部尊重 prefers-reduced-motion。</p>
+
+    <div class="lab-grid" data-page-node-id="HWPcyuEAYA6lwytBAhm6PW">
+      <div class="lab reveal" data-page-node-id="x0GzSwPZIi4QbndAHCpGyz"><span class="tag" data-page-node-id="Ix21yCNOzHzLQ4TW6UbV7Y">M-01 / COUNT-UP</span><h3 data-page-node-id="dkJ7gzx9oqOnnFbHwhINin">数字滚动</h3><div class="how" data-page-node-id="XlRfdluFqCndZ4eJb1uVGA">统计数字进入视口时从 0 计数到目标值，0.9s ease-out</div>
+        <div class="stage" data-page-node-id="JHTDoWAbDGSGYEGqDeZQcb"><div style="text-align:center" data-page-node-id="y4CZzSFkekiFJdoWCy0xMO"><div class="count-num" data-count="120" data-page-node-id="tzXnZLTULvSgYRqEayp1cm">0</div><div class="bc-mono" style="color:var(--bc-muted);margin-top:8px" data-page-node-id="3kE9D1DditEHCnk8mpf1Hj">CAPACITY / 参赛上限</div></div></div></div>
+
+      <div class="lab reveal" data-page-node-id="nDf7mIyF4qLYMQ4J0xItUs"><span class="tag" data-page-node-id="Xo9Lck4V7svpjj7Tv1pbrF">M-02 / LIVE DOTS</span><h3 data-page-node-id="gmeOAo4GEUebHMjK3RoRDo">点阵实时刷新</h3><div class="how" data-page-node-id="HWCdzn3PVHFkx9MzXdHVor">模拟数据流入：圆点按序点亮，循环播放</div>
+        <div class="stage" data-page-node-id="hxht7ImzEDfYH7q9g97gJg"><svg width="180" height="110" viewBox="0 0 180 110" data-page-node-id="3UcrbPK89HfnTsxR0i6FZZ"><g id="liveDots" data-page-node-id="t71C2tGqdQKe4jEZTULDuQ"></g></svg></div></div>
+
+      <div class="lab reveal" data-page-node-id="XEoh83Da5xrQIgdRTc3XY6"><span class="tag" data-page-node-id="W1BYxHx5AMgJH1ZATH60YB">M-03 / TELESTRATOR DRAW</span><h3 data-page-node-id="ZCT5poopNvimzR5HMcmg0z">标注描绘</h3><div class="how" data-page-node-id="HuBXze2zQJeYSK9CAe3btv">stroke-dashoffset 描绘圆环，像解说员现场画圈</div>
+        <div class="stage" data-page-node-id="KvGLo3AkVEHUCsCfpvJsII"><svg width="190" height="130" viewBox="0 0 190 130" data-page-node-id="NiOoRRg8zMvUr1uePqabUk"><circle class="draw-circle" cx="95" cy="65" r="48" fill="none" stroke="#F9530C" stroke-width="2.5" data-page-node-id="3ygEWnVOWdDnycLZ6sP9Lk"/><circle cx="95" cy="65" r="4" fill="#F9530C" data-page-node-id="Nh9LgB4tPaW5j0iaOOmJn7"/><text x="95" y="128" fill="#8E8E96" font-family="JetBrains Mono,monospace" font-size="9" text-anchor="middle" letter-spacing="2" data-page-node-id="tOcQKIzNEefPnO3pxHDI3f">POSSESSION #24 · Q3 07:41</text></svg></div></div>
+
+      <div class="lab reveal" data-page-node-id="ZSsmeWlS8Q77QluDHuZWbn"><span class="tag" data-page-node-id="flwdoCAghPxedzA1dDROel">M-04 / DATA TICKER</span><h3 data-page-node-id="ghbRA02yzVQU9TcewTsznG">数据跑马灯</h3><div class="how" data-page-node-id="QrdzItzcqmiHv7WQsXMtfk">mono 字符带匀速滚动，转播底部的实时数据条</div>
+        <div class="stage" data-page-node-id="qZDsFE1Ho830MZOYvLUjvR"><div class="ticker" data-page-node-id="zAtl1ZAPXmHprRqM54nfur"><div class="ticker-inner" data-page-node-id="iakAPMFtnL4be32sImlP0g"><span data-page-node-id="POVSB16waRWbrb1vmz4o2C">HOU 104 <i data-page-node-id="MxOivrcrQFFjLD7lCIMXh4">/</i> DAL 101</span><span data-page-node-id="RRBwsX4QxMIlAhDXgbbg22">Q3 07:41</span><span data-page-node-id="pDliFa8JsLDn8zAcyaVB2C">CLUTCH FG 12/19</span><span data-page-node-id="oWCgWCUE4ZjRn8D14Oe31o">GRAVITY +2.4</span><span data-page-node-id="BWFIVCebp6jBSH8V4RE7Ag">SHOT QUALITY 0.87</span><span data-page-node-id="1DsfIfGZXfZMmY4UDdAg3i">DEF COLLAPSE -0.4s</span></div></div></div></div>
+
+      <div class="lab reveal" data-page-node-id="H3HeW4EppVEP2ikBN7M1Av"><span class="tag" data-page-node-id="3EEPXfdA6CPfpD3QDfD1Xn">M-05 / SCANLINE</span><h3 data-page-node-id="2yZ8JRpT8WGVQHWSWoN01R">扫描线</h3><div class="how" data-page-node-id="jX9P6rdJHk1ovldttsTczB">AI 分析帧上的扫描光带，表达「正在计算」</div>
+        <div class="stage" style="padding:0" data-page-node-id="fV3M8FEOh5ek7zhsMjGELf"><div class="frame" style="width:100%;height:150px;border:none" data-page-node-id="LtXI76kCqXFbkTLWOg2dtK"><div class="scanline" data-page-node-id="biQeguGUVSA6xCJhlqRxsD"></div><svg viewBox="0 0 300 150" data-page-node-id="FOMTfm6ch8ES9XnVWXex0z"><g fill="none" stroke="rgba(245,242,236,.15)" stroke-width="1" data-page-node-id="coQYGKGM4jHGbS5sHzpxg2"><ellipse cx="150" cy="90" rx="100" ry="34" data-page-node-id="nXSltwNPljKkpXszYH9EK8"/><path d="M0,120 L300,100" data-page-node-id="B97Cjxp0CcelfsPyBSVYyX"/></g><g stroke="#39C2D7" stroke-width="1.2" fill="none" data-page-node-id="qEzMGlyYjQrlnpABwSV5eQ"><polyline points="140,40 144,66 134,90 128,116" data-page-node-id="fMPQUK7GdARHZhEggoVeIu"/></g><g fill="#39C2D7" data-page-node-id="SHggSrjdPQLzZuBmy2ot4G"><circle cx="140" cy="40" r="2.6" data-page-node-id="nt3yf828tPDV0Tp4k9B0Fy"/><circle cx="144" cy="66" r="2" data-page-node-id="OcgsyWiZd0sILlRoQ0EEUw"/><circle cx="128" cy="116" r="2" data-page-node-id="W68j0ULKvgO9M5Xi7Qa1eu"/></g></svg></div></div></div>
+
+      <div class="lab reveal" data-page-node-id="dNWfEbHCsirW11yDla07ZU"><span class="tag" data-page-node-id="RFUR6uUGSat4wgdRQPPVyU">M-06 / REVEAL + PULSE</span><h3 data-page-node-id="64SQ2YWmM8OBvvI0A4mYMF">入场与脉冲</h3><div class="how" data-page-node-id="LQiCiqXaUkmL50GK7kKq1A">整页滚动入场（8-10px 上移淡入）+ Telestrator 呼吸脉冲</div>
+        <div class="stage" data-page-node-id="Dz6E6EmBZRMRk0nQPXmdF0"><div style="position:relative;width:96px;height:96px" data-page-node-id="6qWAHJNSxfUcYYbIQISRQT"><div class="bc-tele bc-tele--pulse" style="inset:0" data-page-node-id="HP4GsXKFmR9gCZ8xWE6web"></div><div class="bc-mono" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--bc-muted)" data-page-node-id="LCyEKgxieEc9lRAfbnHo4r">PULSE</div></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 USAGE ============ -->
+<section id="usage" style="padding-top:0" data-page-node-id="7WjxrqJzAKqTPQ0uBy6ngV">
+  <div class="wrap" data-page-node-id="BFymGdsqhXhbRIKni2EbX8">
+    <span class="bc-kicker" data-page-node-id="TI5mX8a59jDBcDMqP63rKe"><span class="sec-no" data-page-node-id="xOnUorXCFG37UCAaKduAso">05</span>USAGE <i data-page-node-id="PJttyKwshL9DAUK8gMz4xv">/</i> 使用方式</span>
+    <h2 class="sec-title" data-page-node-id="YcHcIQxExcBwVHXnviVDrV">一句话触发范式</h2>
+    <p class="sec-desc" data-page-node-id="eoZyE01IrzZ74MNYr0lH0l">Skill 已安装至用户级目录并被索引收录。对 WorkBuddy 说出以下任一触发词，即按本范式产出页面。</p>
+
+    <div class="trigger-chips reveal" data-page-node-id="7he6HzV4mkBuLS06PhQifA">
+      <span class="bc-pill" data-page-node-id="oQAHGwjyV1rYUDiDduDcEb">Broadcast Code</span>
+      <span class="bc-pill bc-pill--ghost" data-page-node-id="bpXhetuBM9CEtoEuhOqEeL">黑客松 UI</span>
+      <span class="bc-pill bc-pill--ghost" data-page-node-id="wg9sR2YpMDuAoVkxTBGyvc">赛事落地页</span>
+      <span class="bc-pill bc-pill--ghost" data-page-node-id="Ws67rbGixUR80hCNHfinv3">NBA 可视化</span>
+      <span class="bc-pill bc-pill--ghost" data-page-node-id="OVZRZaW7BWjGBgBNNfm4xe">转播终端风</span>
+      <span class="bc-pill bc-pill--ghost" data-page-node-id="0rCpWN0iukSKiqfw1TYrif">信号橙深色范式</span>
+    </div>
+
+    <div class="use-steps reveal" data-page-node-id="dFwJJagJHzYpvwaJSTH6hs">
+      <div class="st" data-page-node-id="9XIkUErHc67meRwC5TFZmi"><div class="n" data-page-node-id="VaIBEE1kn9ng1tSD9ThXJ3">1</div><div class="t" data-page-node-id="LOiMzVUj7loNTQCykuTRa5">确认目标</div><div class="p" data-page-node-id="PyFG6BBTM3kDMcQsRMPyQZ">页面唯一目标 + 真实文案，拒绝占位文本</div></div>
+      <div class="st" data-page-node-id="txpRpAJMQwL05jmgdMyCtT"><div class="n" data-page-node-id="fiLRuOYGg73zUHYO88gxjU">2</div><div class="t" data-page-node-id="CwgYjs1hBYJzm5Lfhu8FCI">引入 Token</div><div class="p" data-page-node-id="h1UUPsKJAoLbEvOiJjn6e2">broadcast-code.css + 四字体 CDN</div></div>
+      <div class="st" data-page-node-id="WbFAuw04e2tuOocDwmXoMi"><div class="n" data-page-node-id="kMH5VNC9GUEKAsDicd9OJ0">3</div><div class="t" data-page-node-id="L17LA6Jl4lWq2E1YtGOPr9">铺底组装</div><div class="p" data-page-node-id="datSCcLH7tOEKi0RCvviRP">球场线背景 + kicker，再填组件</div></div>
+      <div class="st" data-page-node-id="W01CtsQ8gc0cNJjiRBoFzi"><div class="n" data-page-node-id="fPwfbALvC20sJcbK1dkKEj">4</div><div class="t" data-page-node-id="8MSsgWW05dAHU3XVfNMQYd">落签名</div><div class="p" data-page-node-id="6a0NEfOBdt1QwOBhpgaAgf">≥4 个签名元素，信号橙 ≤10%</div></div>
+      <div class="st" data-page-node-id="ECAafa3Qdw2fxmNMCZprO3"><div class="n" data-page-node-id="ZbmluGlR5ZaXX9bSFGTP1Z">5</div><div class="t" data-page-node-id="z7dxn4VwkSilWhLRaQFabS">过禁令</div><div class="p" data-page-node-id="0lFNTrI3sGyJIp1uMPIEMY">禁令清单 + 对比度 + reduced-motion 自检</div></div>
+    </div>
+
+    <div class="grid-2" style="margin-top:56px" data-page-node-id="B3bXl3R9U7fg2HAlfeyQk7">
+      <div class="reveal" data-page-node-id="5wXc63vmwbBKHEXc2U2HAp">
+        <h3 class="bc-display" style="font-size:20px;margin-bottom:16px" data-page-node-id="fLKcVexhaDTeimmH8pXAj2">FILE TREE / 结构</h3>
+        <div class="file-tree" data-page-node-id="pEmN2fBTCT4MVoRSDHCw4f"><b data-page-node-id="i4mNCpO5ae2rKJOFlJRmsn">broadcast-code-ui/</b>
+├── <b data-page-node-id="PbTt1DLra89dgDhMXgh0RX">SKILL.md</b>              <i data-page-node-id="LP5CbeoryBjAsDR9UtXaqP"># 范式核心：Token + 签名元素 + 禁令</i>
+├── <b data-page-node-id="J1DCDKgSnkwL8PgDcnZXg7">references/</b>
+│   └── <b data-page-node-id="1UrlRUUjrWxAoIppd8z27C">components.md</b>     <i data-page-node-id="FqebvIQkxdJZIeAqZHCmZm"># 16 个组件规范（含全部状态）</i>
+└── <b data-page-node-id="AsXmPyhXzaGhY1FkiaWm7K">assets/</b>
+    └── <b data-page-node-id="x6QlEEgznIXaD7x1fddSjW">broadcast-code.css</b> <i data-page-node-id="AwDq71xDo5s4TGznFI46Zu"># CSS 变量 + 工具类，可直接引入</i></div>
+      </div>
+      <div class="reveal" data-page-node-id="t2tL0sTHqaTaDiCgNCYFHf">
+        <h3 class="bc-display" style="font-size:20px;margin-bottom:16px" data-page-node-id="d4B5OGtHX3yEDE4UZiX6EO">HARD BANS / 强禁止</h3>
+        <table class="bc-table" data-page-node-id="wCwHeMJzy4dcPZhZ4GPSoJ">
+          <tbody data-page-node-id="5mUsg5jwU5g5VP55KKp0xC">
+            <tr data-page-node-id="piI6Lj0IyFaXqQwK1tJPJp"><td data-num data-page-node-id="QrYjHqGFiVEmMdfNJouFNL">B-01</td><td data-page-node-id="WWLzdHJdMat1dbjQ0H5tkl">禁止 emoji 当 icon 或装饰元素</td></tr>
+            <tr data-page-node-id="9GsUgDlWMyfLVKcEUTtHzZ"><td data-num data-page-node-id="oHiDbnX1Bk8WyMrDz1Gv6h">B-02</td><td data-page-node-id="1rXcgWfbZrnfLptt6KaRUH">禁止紫色 / 蓝紫渐变、禁止浅色主题</td></tr>
+            <tr data-page-node-id="8QSb5HxyoZbb7b66XBcHUN"><td data-num data-page-node-id="Nhccjvi0pbOSkkj1L5JGRj">B-03</td><td data-page-node-id="0v6hinxrF84AM1RhKB5k7m">禁止圆角气泡卡片、毛玻璃、柔和阴影</td></tr>
+            <tr data-page-node-id="xcva63JpAWXIKytSaY20sj"><td data-num data-page-node-id="W34Mmx9Rnos9wdTOjvjfMJ">B-04</td><td data-page-node-id="migitMqmQqZlIXCjVD0F0Z">禁止三列 icon 卡片式功能介绍</td></tr>
+            <tr data-page-node-id="foZABulWDGSn7fQimDFsEN"><td data-num data-page-node-id="FUXeUN3bQyNEeppX9jAiZs">B-05</td><td data-page-node-id="gJqfjBEKUz1ApzWgtFUKEE">禁止信号橙之外的第二强调色</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer" data-page-node-id="NMe1jHWi5bAIDo1qL5hmAu">
+  <div class="wrap" data-page-node-id="WkfX32ljyvEGGcbtjWUxbt">
+    <div data-page-node-id="Nllj1tK7Iqfg62tzE9TajO">
+      <a class="wordmark" href="#top" data-page-node-id="uYlsjpbSTnhjJa6vclVGYF"><span class="dot" data-page-node-id="LfO05EmLEFNOSRW1yi48lB"></span>Broadcast Code <span style="color:var(--bc-signal)" data-page-node-id="iqlEP5VsbXDx0NKT5ca2HB">UI</span></a>
+      <p style="font-size:13px;color:var(--bc-muted);margin-top:12px" data-page-node-id="YBK7vYD6ed2ln1kh4GP6Jo">赛事转播数据终端风 · 设计范式演示手册<br data-page-node-id="AHPZx7xocEGMiClNQdg5Nb">源自 Broadcast Code 12h 黑客松官方视觉</p>
+    </div>
+    <div class="bc-mono" style="color:var(--bc-muted);align-self:flex-end" data-page-node-id="LGevNmwLEfqNKaaspsJZdG">PAGE ITSELF IS THE DEMO <i style="color:var(--bc-signal);font-style:normal" data-page-node-id="xYLD5Jt6WnvEUjYgyP5WMD">/</i> v1.0</div>
+  </div>
+  <div class="footer-strip bc-leather" data-page-node-id="QpmOALG9fLCuAtLheh23xz"></div>
+</footer>
+
+<script>
+(function(){
+  var NS = "http://www.w3.org/2000/svg";
+
+  /* S-02 静态点阵 */
+  function dots(g, cols, rows, gap, r, fn){
+    if(!g) return;
+    for(var y=0;y<rows;y++) for(var x=0;x<cols;x++){
+      var c=document.createElementNS(NS,"circle");
+      c.setAttribute("cx",x*gap+r); c.setAttribute("cy",y*gap+r); c.setAttribute("r",r);
+      c.setAttribute("fill",fn(x,y)); g.appendChild(c);
+    }
+  }
+  dots(document.getElementById("demoDots"),8,4,16,4.5,function(x,y){
+    if(y===2&&x>1&&x<6) return "rgba(245,242,236,.95)";
+    return (x+y)%3===0 ? "#F9530C" : "rgba(245,242,236,.18)";
+  });
+
+  /* M-02 实时点阵：按序点亮 */
+  var live=document.getElementById("liveDots"), cells=[];
+  if(live){
+    for(var y=0;y<5;y++) for(var x=0;x<9;x++){
+      var c=document.createElementNS(NS,"circle");
+      c.setAttribute("cx",x*20+5); c.setAttribute("cy",y*20+5); c.setAttribute("r",4.5);
+      c.setAttribute("fill","rgba(245,242,236,.10)");
+      live.appendChild(c); cells.push(c);
+    }
+    var order=cells.map(function(_,i){return i}).sort(function(){return Math.random()-.5}), k=0;
+    setInterval(function(){
+      cells.forEach(function(c){c.setAttribute("fill","rgba(245,242,236,.10)")});
+      for(var j=0;j<7;j++){
+        var c=cells[order[(k+j)%order.length]];
+        c.setAttribute("fill", j<4 ? "#F9530C" : "rgba(245,242,236,.9)");
+      }
+      k=(k+1)%order.length;
+    },420);
+  }
+
+  /* M-01 数字滚动 + hero meta 计数 */
+  function countUp(el){
+    var target=+el.getAttribute("data-count"), t0=null, dur=900;
+    function step(t){
+      if(!t0) t0=t;
+      var p=Math.min((t-t0)/dur,1), e=1-Math.pow(1-p,3);
+      el.textContent=Math.round(target*e);
+      if(p<1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  /* 入场揭示 + 计数触发 */
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(!e.isIntersecting) return;
+      e.target.classList.add("is-in");
+      e.target.querySelectorAll("[data-count]").forEach(function(el){
+        if(!el.dataset.done){ el.dataset.done=1; countUp(el); }
+      });
+      if(e.target.hasAttribute("data-count")&&!e.target.dataset.done){ e.target.dataset.done=1; countUp(e.target); }
+      io.unobserve(e.target);
+    });
+  },{threshold:.15});
+  document.querySelectorAll(".reveal").forEach(function(el){ io.observe(el); });
+  document.querySelectorAll(".hero-meta [data-count]").forEach(function(el){ io.observe(el); });
+
+  /* 导航滚动态 */
+  var nav=document.getElementById("nav");
+  addEventListener("scroll",function(){ nav.classList.toggle("is-scrolled",scrollY>40); },{passive:true});
+})();
+</script>
+</body>
+</html>

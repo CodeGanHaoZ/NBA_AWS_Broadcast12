@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Broadcast Code 12 · 战队手册 | NBA 黑客松赛题解析</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;700&family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bc-bg:#0B0B0C; --bc-surface:#131315; --bc-surface-2:#1B1B1F; --bc-line:#2A2A2E;
+  --bc-chalk:#F5F2EC; --bc-muted:#8E8E96; --bc-signal:#F9530C; --bc-signal-deep:#C43A08; --bc-navy:#12183A;
+  --kp-red:#E23B3B; --kp-yellow:#F5C518; --kp-cyan:#39C2D7;
+  --bc-font-display:"Anton","Arial Narrow",sans-serif;
+  --bc-font-brush:"Ma Shan Zheng",cursive;
+  --bc-font-body:"Noto Sans SC",sans-serif;
+  --bc-font-mono:"JetBrains Mono","IBM Plex Mono",monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bc-bg);color:var(--bc-chalk);font-family:var(--bc-font-body);font-size:16px;line-height:1.7;overflow-x:hidden}
+::selection{background:var(--bc-signal);color:var(--bc-chalk)}
+
+/* ---------- 球场线背景 ---------- */
+.court-bg{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:1}
+.court-bg svg{width:100%;height:100%}
+
+.wrap{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:0 24px}
+section{padding:96px 0 64px}
+
+/* ---------- 分区标签 ---------- */
+.sec-label{font-family:var(--bc-font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--bc-muted);margin-bottom:16px}
+.sec-label em{font-style:normal;color:var(--bc-signal)}
+.sec-title{font-family:var(--bc-font-display);font-size:clamp(32px,5vw,56px);text-transform:uppercase;letter-spacing:.02em;line-height:1.1;margin-bottom:8px}
+.sec-sub{color:var(--bc-muted);max-width:720px;margin-bottom:40px}
+
+/* ---------- Hero ---------- */
+.hero{min-height:88vh;display:flex;flex-direction:column;justify-content:center;padding:96px 0 64px;position:relative}
+.date-pill{display:inline-flex;align-items:center;gap:10px;background:var(--bc-signal);color:var(--bc-chalk);font-family:var(--bc-font-mono);font-weight:700;font-size:14px;letter-spacing:.08em;border-radius:999px;padding:8px 20px;width:max-content;margin-bottom:28px}
+.hero h1{font-family:var(--bc-font-display);font-size:clamp(48px,9vw,120px);line-height:.98;text-transform:uppercase;letter-spacing:.01em}
+.hero h1 .orange{color:var(--bc-signal)}
+.hero .brush{font-family:var(--bc-font-brush);font-size:clamp(22px,3.4vw,36px);color:var(--bc-chalk);margin-top:20px;letter-spacing:.06em}
+.hero p.lead{color:var(--bc-muted);max-width:640px;margin-top:24px;font-size:17px}
+.hero p.lead strong{color:var(--bc-chalk)}
+.hero-stats{display:flex;flex-wrap:wrap;gap:48px;margin-top:56px}
+.hstat .num{font-family:var(--bc-font-display);font-size:clamp(44px,6vw,72px);line-height:1;color:var(--bc-chalk)}
+.hstat .num em{font-style:normal;color:var(--bc-signal)}
+.hstat .lbl{font-family:var(--bc-font-mono);font-size:12px;letter-spacing:.14em;color:var(--bc-muted);text-transform:uppercase;margin-top:8px}
+.marquee{position:relative;display:inline-block;border:1.5px dashed var(--bc-signal);padding:14px 22px;margin-top:40px;width:max-content;max-width:100%}
+.marquee .handle{position:absolute;width:6px;height:6px;background:var(--bc-chalk)}
+.marquee .handle.tl{top:-3px;left:-3px}.marquee .handle.tr{top:-3px;right:-3px}
+.marquee .handle.bl{bottom:-3px;left:-3px}.marquee .handle.br{bottom:-3px;right:-3px}
+.marquee span{font-family:var(--bc-font-mono);font-size:14px;letter-spacing:.06em;color:var(--bc-chalk)}
+.marquee span em{font-style:normal;color:var(--bc-signal)}
+
+/* ---------- Telestrator 标注 ---------- */
+.tele{position:absolute;border:2px solid var(--bc-signal);border-radius:50%;pointer-events:none}
+.tele::before,.tele::after{content:"";position:absolute;background:var(--bc-signal)}
+.tele::before{left:50%;top:-14px;bottom:-14px;width:1px;opacity:.5}
+.tele::after{top:50%;left:-14px;right:-14px;height:1px;opacity:.5}
+.tele-tag{position:absolute;top:-26px;left:50%;transform:translateX(-50%);font-family:var(--bc-font-mono);font-size:11px;letter-spacing:.1em;color:var(--bc-signal);white-space:nowrap}
+
+/* ---------- 卡片 ---------- */
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.card{background:var(--bc-surface);border:1px solid var(--bc-line);border-radius:3px;padding:28px;position:relative;transition:transform .25s,border-color .25s}
+.card:hover{transform:translateY(-4px);border-color:var(--bc-signal)}
+.card .idx{font-family:var(--bc-font-mono);font-size:12px;letter-spacing:.14em;color:var(--bc-signal);text-transform:uppercase}
+.card h3{font-size:20px;font-weight:900;margin:8px 0 2px}
+.card .en{font-family:var(--bc-font-mono);font-size:12px;color:var(--bc-muted);letter-spacing:.06em;margin-bottom:14px}
+.card p{color:var(--bc-muted);font-size:14.5px}
+.card p strong{color:var(--bc-chalk)}
+.range-chip{display:inline-block;font-family:var(--bc-font-mono);font-size:12px;color:var(--bc-chalk);border:1px solid var(--bc-line);background:var(--bc-surface-2);border-radius:2px;padding:3px 10px;margin:6px 6px 0 0;letter-spacing:.04em}
+.case-box{margin-top:16px;border-left:2px solid var(--bc-signal);padding:10px 14px;background:var(--bc-surface-2);border-radius:2px}
+.case-box .tag{font-family:var(--bc-font-mono);font-size:11px;letter-spacing:.14em;color:var(--bc-signal);text-transform:uppercase}
+.case-box p{font-size:13.5px;color:var(--bc-chalk);margin-top:4px}
+.viz-hint{margin-top:14px;display:flex;gap:10px;align-items:flex-start}
+.viz-hint svg{flex:none;margin-top:3px}
+.viz-hint p{font-size:13.5px;color:var(--bc-muted)}
+
+/* ---------- 管线 ---------- */
+.pipeline{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0;border:1px solid var(--bc-line);border-radius:3px;overflow:hidden}
+.pipe-step{background:var(--bc-surface);padding:24px 18px;border-right:1px solid var(--bc-line);position:relative}
+.pipe-step:last-child{border-right:none}
+.pipe-step .n{font-family:var(--bc-font-display);font-size:40px;color:var(--bc-chalk);line-height:1}
+.pipe-step .nm{font-family:var(--bc-font-mono);font-size:11px;letter-spacing:.14em;color:var(--bc-signal);text-transform:uppercase;margin:6px 0 8px}
+.pipe-step p{font-size:12.5px;color:var(--bc-muted);line-height:1.55}
+
+/* ---------- 表格 ---------- */
+table{width:100%;border-collapse:collapse;background:var(--bc-surface);border:1px solid var(--bc-line);border-radius:3px;overflow:hidden;font-size:14px}
+th{font-family:var(--bc-font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--bc-muted);text-align:left;padding:14px 16px;border-bottom:1px solid var(--bc-line);background:var(--bc-surface-2)}
+td{padding:14px 16px;border-bottom:1px solid var(--bc-line);vertical-align:top;color:var(--bc-muted)}
+tr:last-child td{border-bottom:none}
+td b{color:var(--bc-chalk);font-weight:700}
+td .mono{font-family:var(--bc-font-mono);font-size:12.5px;color:var(--bc-signal)}
+.table-scroll{overflow-x:auto;border-radius:3px}
+
+/* ---------- 清单 ---------- */
+.checklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.chk{background:var(--bc-surface);border:1px solid var(--bc-line);border-radius:3px;padding:24px}
+.chk h4{font-family:var(--bc-font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px}
+.chk.must h4{color:var(--bc-signal)}
+.chk.opt h4{color:var(--bc-chalk)}
+.chk.ban h4{color:var(--kp-red)}
+.chk ul{list-style:none}
+.chk li{display:flex;gap:10px;padding:7px 0;font-size:14px;color:var(--bc-muted);border-bottom:1px dashed var(--bc-line)}
+.chk li:last-child{border-bottom:none}
+.chk li svg{flex:none;margin-top:5px}
+.chk li b{color:var(--bc-chalk)}
+
+/* ---------- 骨骼追踪帧 ---------- */
+.skel-frame{background:var(--bc-navy);border:1px solid var(--bc-line);border-radius:3px;padding:18px;position:relative}
+.skel-frame .tag{position:absolute;top:12px;left:14px;font-family:var(--bc-font-mono);font-size:11px;letter-spacing:.12em;color:var(--bc-muted)}
+.skel-frame .tag em{font-style:normal;color:var(--bc-signal)}
+
+/* ---------- 点阵 ---------- */
+.dots{display:grid;grid-template-columns:repeat(24,1fr);gap:6px;margin-top:24px}
+.dots i{width:6px;height:6px;border-radius:50%;background:var(--bc-line)}
+.dots i.on{background:var(--bc-signal)}
+.dots i.mid{background:var(--bc-chalk);opacity:.45}
+
+/* ---------- 时间线 ---------- */
+.tline{border-left:2px solid var(--bc-line);margin-left:8px;padding-left:28px;position:relative}
+.tline .ev{position:relative;padding-bottom:28px}
+.tline .ev::before{content:"";position:absolute;left:-36px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--bc-bg);border:2px solid var(--bc-signal)}
+.tline .t{font-family:var(--bc-font-mono);font-size:12px;letter-spacing:.12em;color:var(--bc-signal);text-transform:uppercase}
+.tline .d{color:var(--bc-chalk);font-weight:700;margin-top:2px}
+.tline p{color:var(--bc-muted);font-size:14px}
+
+footer{border-top:1px solid var(--bc-line);padding:40px 0 64px;margin-top:48px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:center}
+footer p{font-family:var(--bc-font-mono);font-size:12px;letter-spacing:.1em;color:var(--bc-muted)}
+footer p em{font-style:normal;color:var(--bc-signal)}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto}}
+@media(max-width:720px){.pipe-step{border-right:none;border-bottom:1px solid var(--bc-line)}.hero-stats{gap:28px}}
+</style>
+</head>
+<body>
+
+<!-- 球场线背景 -->
+<div class="court-bg" aria-hidden="true">
+  <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" fill="none" stroke="rgba(245,242,236,0.07)" stroke-width="1.5">
+    <rect x="-120" y="80" width="1680" height="740"/>
+    <circle cx="720" cy="450" r="180"/>
+    <circle cx="720" cy="450" r="60"/>
+    <line x1="720" y1="80" x2="720" y2="820"/>
+    <rect x="-120" y="260" width="380" height="380"/>
+    <path d="M 260 260 A 220 220 0 0 1 260 640"/>
+    <rect x="1180" y="260" width="380" height="380"/>
+    <path d="M 1180 260 A 220 220 0 0 0 1180 640"/>
+  </svg>
+</div>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="wrap">
+    <div class="date-pill">10/10 — 10/11 · 珠海 × 澳门 · 12H 极限赛</div>
+    <h1>BROADCAST<br>CODE <span class="orange">12</span></h1>
+    <div class="brush">数据进去，能播出去的比赛画面出来。</div>
+    <p class="lead">战队速查手册 —— 基于亚马逊云科技官方推文与赛题说明整理。<strong>深度赛场（NBA Inside the Game）</strong>四大指标 × Agent 交付拆解 × 技术词典，12 小时极限开发的作战地图。</p>
+
+    <div class="hero-stats">
+      <div class="hstat"><div class="num">120</div><div class="lbl">开发者</div></div>
+      <div class="hstat"><div class="num">42</div><div class="lbl">精英战队</div></div>
+      <div class="hstat"><div class="num"><em>04</em></div><div class="lbl">核心指标</div></div>
+      <div class="hstat"><div class="num">60<em>Hz</em></div><div class="lbl">骨骼点采样</div></div>
+      <div class="hstat"><div class="num">29</div><div class="lbl">关键点 / 球员</div></div>
+    </div>
+
+    <div class="marquee">
+      <i class="handle tl"></i><i class="handle tr"></i><i class="handle bl"></i><i class="handle br"></i>
+      <span>冠军直通 <em>re:Invent 2026</em> · 拉斯维加斯 · 决赛路演 10/11 下午 @ NBA HOUSE</span>
+    </div>
+
+    <div class="tele" style="right:8%;top:14%;width:150px;height:150px">
+      <span class="tele-tag">possession #24 · Q4 01:53 · GRAVITY +92</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ============ 赛题 ============ -->
+<section id="brief">
+  <div class="sec-label">THE BRIEF <em>/</em> 赛题拆解</div>
+  <h2 class="sec-title">让数据回到地板上</h2>
+  <p class="sec-sub">不是把表格搬上屏幕，而是让数据回到它诞生的那块地板——回到那次挡拆、那次收缩、那次不该出手却出手了的瞬间。</p>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="idx">INPUT</div>
+      <h3>输入什么</h3>
+      <div class="en">what the agent receives</div>
+      <p>官方<strong>深度赛场数据</strong>（历史/单场）+ 火箭、独行侠各一段<strong>进攻视频</strong>。练习视频签到抽签发放；<strong>考试视频 18:00 统一发布</strong>——Agent 必须泛化，不能过拟合练习素材。</p>
+    </div>
+    <div class="card">
+      <div class="idx">OUTPUT</div>
+      <h3>交付什么</h3>
+      <div class="en">what the agent ships</div>
+      <p>一个 <strong>AI Agent</strong>：把深度数据可视化<strong>叠加进真实比赛视频</strong>（必须项）；生成解说——AI 或人工均可（可选项，拉开差距的加分项）。</p>
+    </div>
+    <div class="card">
+      <div class="idx">KEY CONSTRAINT</div>
+      <h3>最硬的约束</h3>
+      <div class="en">the real bottleneck</div>
+      <p>深度数据<strong>只有出手瞬间点位，没有逐帧轨迹</strong>。Agent 要自己完成「连续视频帧 ↔ 离散数据点」的时间对齐与空间对齐——这是本赛题最核心的工程难点。</p>
+    </div>
+    <div class="card">
+      <div class="idx">JUDGING</div>
+      <h3>评分导向</h3>
+      <div class="en">how to win the room</div>
+      <p>看得懂 &gt; 算得准；<strong>叙事性</strong>（数据讲出战术故事）；转播质感（overlay 融入画面而非贴 PPT）；泛化能力（考试视频即插即出片）；<strong>12 小时先跑通端到端，再打磨亮点</strong>。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 四大指标 ============ -->
+<section id="metrics">
+  <div class="sec-label">GAME DATA <em>/</em> 四大核心指标</div>
+  <h2 class="sec-title">比分不说的，它们说</h2>
+  <p class="sec-sub">源自高精度光学追踪：3D 姿态识别、60Hz 捕捉 10 名球员各 29 个骨骼关键点与篮球三维坐标，经云端 AI 清洗与特征工程驱动四项高阶指标。</p>
+
+  <div class="grid2">
+    <!-- xFG -->
+    <div class="card">
+      <div class="idx">METRIC 01</div>
+      <h3>投篮难度 &amp; 预期命中率</h3>
+      <div class="en">Shot Difficulty &amp; xFG%</div>
+      <p><strong>xFG%</strong> 不看投篮的人是谁——把联盟平均水准球员放到这个位置、面对这种扑防，这球理论命中率几成。<strong>投篮难度 = 1 − xFG%</strong>。模型取出手前 1 秒（60 帧）时序，进攻端 10 项几何/运动学特征 + 防守端 10 项干扰特征，双分类器输出概率。</p>
+      <span class="range-chip">RANGE 0 — 1</span><span class="range-chip">FEATURES 10 + 10</span>
+      <div class="case-box"><span class="tag">CASE · 总决赛 G1</span><p>文班 26 分却 21 投 6 中。尼克斯唐斯顶防 + 阿奴诺比协防 + 罗宾逊补位的三人车轮阵，把他每次出手的 xFG% 压到物理极限——不是手感差，是整晚都在做"送命题"。</p></div>
+      <div class="viz-hint">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#F9530C" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
+        <p><b>可视化：</b>出手瞬间头顶弹出 xFG% 数值条；高难度命中 / 低难度投失用色彩区分，天然就是解说素材。</p>
+      </div>
+    </div>
+
+    <!-- DPS -->
+    <div class="card">
+      <div class="idx">METRIC 02</div>
+      <h3>防守对位 &amp; 防守压力分数</h3>
+      <div class="en">Defensive Matchups &amp; DPS</div>
+      <p><strong>DPS</strong> 量化防守者每一瞬间的限制程度：0 = 无人防守，1 = 完全封死。每秒 25 组对位关系，7 项加权分项（绝对/相对距离、传球线截断、篮筐连线、掩护惩罚、速度差、方向矢量差）+ 时序平滑，再用<strong>二分图最优匹配</strong>裁定谁防谁、谁漏人。</p>
+      <span class="range-chip">RANGE 0 — 1</span><span class="range-chip">25 组对位 / 秒</span>
+      <div class="case-box"><span class="tag">CASE · 总决赛 G3</span><p>末节文班单回合封弧顶 → 横移断底角传球线 → 回撤钉板大帽，对 3 名球员 DPS 全程 0.8+。数据表只记 1 次盖帽，DPS 记录了 24 秒里每一次窒息压迫。</p></div>
+      <div class="viz-hint">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#F9530C" stroke-width="1.5"><circle cx="8" cy="8" r="3"/><circle cx="8" cy="8" r="6.5" stroke-dasharray="2 2"/></svg>
+        <p><b>可视化：</b>防守人脚下光圈大小编码 DPS；攻防对位细线相连；DPS &gt; 0.8 给高亮脉冲。</p>
+      </div>
+    </div>
+
+    <!-- Gravity -->
+    <div class="card">
+      <div class="idx">METRIC 03</div>
+      <h3>球员引力</h3>
+      <div class="en">Gravity</div>
+      <p>NBA 首个量化球员<strong>持球及无球状态下扭曲防守阵型</strong>能力的指标。模型先推断标准防守下各防守人的理论位置，再把实际压力与理论值逐帧对比取差。标定 <strong>−100 ~ +100</strong>：&gt;80 意味着未触球已引发恐慌性阵型压缩，&gt;90 代表极强空间扭曲力。</p>
+      <span class="range-chip">RANGE −100 — +100</span><span class="range-chip">0 = 联盟平均</span>
+      <div class="case-box"><span class="tag">CASE · 总决赛 G3 最后 1:53</span><p>文班弧顶虚晃掩护，两名防守人退到禁区围剿，卡斯尔被放空 2 米命中三分。文班一分没得，引力值证明他做了 80% 的破坏工作——全场 35 次高位掩护。</p></div>
+      <div class="viz-hint">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#F9530C" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M2 8c2-4 10-4 12 0-2 4-10 4-12 0z"/></svg>
+        <p><b>可视化（最出效果的指标）：</b>画引力场形变区；防守人被吸离位置画回放箭头；空档出现时色块圈出并标注"引力制造"。</p>
+      </div>
+    </div>
+
+    <!-- Leverage -->
+    <div class="card">
+      <div class="idx">METRIC 04 · 2026 NEW</div>
+      <h3>胜率影响力</h3>
+      <div class="en">Leverage Score</div>
+      <p>量化单次事件对胜负走向的实质撬动力。<strong>反事实波动算法</strong>：比对"已发生"与"反向结果"的胜率摆幅（60%→75% vs →55%，摆幅 20%）。<strong>全员功劳分配</strong>：结合 xFG% 与 DPS，挡拆创造者、前序抢断者都能分权重。基准：<strong>1.0 Leverage ≈ 10% 胜率波动</strong>。</p>
+      <span class="range-chip">1.0 ≈ 10% WP 摆动</span><span class="range-chip">单场累加</span>
+      <div class="case-box"><span class="tag">CASE · 总决赛 G4</span><p>尼克斯半场落后 29 分（胜率 1%），终场前 1.2 秒阿奴诺比压哨补篮——一球拉出近 50% 胜率摆幅，3-1 夺冠军点，季后赛历史最大半场逆转。</p></div>
+      <div class="viz-hint">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#F9530C" stroke-width="1.5"><path d="M1 12l4-6 3 3 4-7 3 4"/></svg>
+        <p><b>可视化：</b>画面边缘跑"胜率心电图"；高 Leverage 回合打点标注并触发慢镜回放。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 骨骼追踪帧 + 点阵 -->
+  <div class="grid2" style="margin-top:16px">
+    <div class="skel-frame">
+      <span class="tag">AI FRAME <em>/</em> 3D POSE · 60HZ · 29 KEYPOINTS</span>
+      <svg viewBox="0 0 300 200" width="100%" height="200" fill="none" stroke-width="2" stroke-linecap="round">
+        <circle cx="150" cy="34" r="10" stroke="#E23B3B"/>
+        <path d="M150 44v44" stroke="#E23B3B"/>
+        <path d="M150 56l-34 18M150 56l36-10" stroke="#F5C518"/>
+        <circle cx="116" cy="74" r="4" fill="#F5C518" stroke="none"/>
+        <circle cx="186" cy="46" r="4" fill="#F5C518" stroke="none"/>
+        <path d="M150 88l-24 44M150 88l26 40" stroke="#39C2D7"/>
+        <circle cx="126" cy="132" r="4" fill="#39C2D7" stroke="none"/>
+        <circle cx="176" cy="128" r="4" fill="#39C2D7" stroke="none"/>
+        <path d="M126 132l-4 34M176 128l8 36" stroke="#39C2D7"/>
+        <circle cx="196" cy="38" r="7" stroke="#F9530C"/>
+        <path d="M186 46l10-8" stroke="#F9530C" stroke-dasharray="3 3"/>
+        <text x="212" y="34" fill="#F9530C" font-family="JetBrains Mono" font-size="10" stroke="none">xFG 31%</text>
+        <text x="16" y="186" fill="#8E8E96" font-family="JetBrains Mono" font-size="9" stroke="none">FRAME 1847 · SHOT EVENT · DEF HAND-BALL DIST 0.42m</text>
+      </svg>
+    </div>
+    <div class="card">
+      <div class="idx">WHY IT MATTERS</div>
+      <h3>指标不是装饰</h3>
+      <div class="en">data must explain the play</div>
+      <p>赛题原文要求：这些指标要能<strong>说明球场上正在发生的战术选择</strong>，或成为解读当前形势与阵型的数据支撑。一次收缩被画成它真实的样子，一条箭头标出跑位，一圈色块框住空档——<strong>数据讲故事，画面做证据</strong>。</p>
+      <div class="dots" aria-hidden="true">
+        <i class="on"></i><i></i><i class="mid"></i><i></i><i></i><i class="on"></i><i></i><i></i><i class="mid"></i><i></i><i></i><i></i><i class="on"></i><i></i><i></i><i class="mid"></i><i></i><i></i><i></i><i class="on"></i><i></i><i></i><i class="mid"></i><i></i>
+        <i></i><i class="mid"></i><i></i><i class="on"></i><i></i><i></i><i class="mid"></i><i></i><i></i><i class="on"></i><i></i><i></i><i class="mid"></i><i></i><i></i><i class="on"></i><i></i><i class="mid"></i><i></i><i></i><i class="on"></i><i></i><i></i><i class="mid"></i>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 管线 ============ -->
+<section id="pipeline">
+  <div class="sec-label">THE PIPELINE <em>/</em> Agent 落地管线</div>
+  <h2 class="sec-title">12 小时作战地图</h2>
+  <p class="sec-sub">先跑通端到端，再打磨亮点。每一步都有明确产物，卡壳即降级，不停摆。</p>
+
+  <div class="pipeline">
+    <div class="pipe-step"><div class="n">01</div><div class="nm">input</div><p>深度赛场数据 + 比赛视频读入，解析回合结构</p></div>
+    <div class="pipe-step"><div class="n">02</div><div class="nm">align</div><p>时间对齐（时间戳↔视频轴）+ 空间对齐（Homography 球场标定）</p></div>
+    <div class="pipe-step"><div class="n">03</div><div class="nm">detect</div><p>球员检测 + 跨帧跟踪 + 身份绑定（名字→画面中的人）</p></div>
+    <div class="pipe-step"><div class="n">04</div><div class="nm">analyze</div><p>按回合挂载 xFG% · DPS · Gravity · Leverage</p></div>
+    <div class="pipe-step"><div class="n">05</div><div class="nm">visualize</div><p>头顶名牌 / 压力光圈 / 引力场 / 胜率曲线 / 战术箭头</p></div>
+    <div class="pipe-step"><div class="n">06</div><div class="nm">narrate</div><p>回合 JSON → LLM 解说文案 →（可选）TTS 音轨</p></div>
+    <div class="pipe-step"><div class="n">07</div><div class="nm">output</div><p>合成可播出的比赛视频，披露数据来源</p></div>
+  </div>
+
+  <div class="grid2" style="margin-top:16px">
+    <div class="card">
+      <div class="idx">STACK HINT</div>
+      <h3>建议工具链</h3>
+      <div class="en">reference stack, not mandatory</div>
+      <p>OpenCV（Homography / 绘制）· YOLO + ByteTrack（检测跟踪）· FFmpeg（合成）· LLM（解说生成）。<strong>数值必须时序平滑</strong>，否则 overlay 会闪烁；机位切换要分段标定；扎堆遮挡用阵容先验兜底 ID。</p>
+    </div>
+    <div class="card">
+      <div class="idx">PRIORITY</div>
+      <h3>优先级取舍</h3>
+      <div class="en">what to build first</div>
+      <p>时间有限，指标优先做 <strong>xFG% 与 Gravity</strong>——一个出手即有反馈，一个视觉效果最炸。DPS 做对位连线即可，Leverage 用简版胜率曲线。解说控制密度，<strong>只在高 Leverage 回合开口</strong>。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 交付清单 ============ -->
+<section id="checklist">
+  <div class="sec-label">DELIVERABLE <em>/</em> 交付清单</div>
+  <h2 class="sec-title">必须项 · 加分项 · 红线</h2>
+  <p class="sec-sub">路演前逐条自查。红线踩一条，前功尽弃。</p>
+
+  <div class="checklist">
+    <div class="chk must">
+      <h4>MUST · 必须项</h4>
+      <ul>
+        <li><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#F9530C" stroke-width="2"><path d="M2 7.5l3.5 3.5L12 3.5"/></svg><span><b>数据叠加进真实比赛视频</b>，不是数据看板</span></li>
+        <li><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#F9530C" stroke-width="2"><path d="M2 7.5l3.5 3.5L12 3.5"/></svg><span><b>球员名字</b>浮在他该在的画面位置上</span></li>
+        <li><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#F9530C" stroke-width="2"><path d="M2 7.5l3.5 3.5L12 3.5"/></svg><span><b>投篮率、引力等深度指标</b>随回合推进出现在画面中</span></li>
+        <li><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#F9530C" stroke-width="2"><path d="M2 7.5l3.5 3.5L12 3.5"/></svg><span>指标能<b>解释战术选择</b>，路演讲得出"这波数据说明了什么"</span></li>
+      </ul>
+    </div>
+    <div class="chk opt">
+      <h4>PLUS · 加分项</h4>
+      <ul>
+        <li><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#F5F2EC" stroke-width="2"><path d="M2 7h10M7 2v10"/></svg><span><b>AI 解说 / 人工解说</b>音轨</span></li>
+        <li><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#F5F2EC" stroke-width="2"><path d="M2 7h10M7 2v10"/></svg><span><b>Telestrator 战术标注</b>：箭头标跑位、色块框空档、画出防守收缩</span></li>
+        <li><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#F5F2EC" stroke-width="2"><path d="M2 7h10M7 2v10"/></svg><span>考试视频（18:00 发布）<b>不重训即出片</b>的泛化能力</span></li>
+        <li><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#F5F2EC" stroke-width="2"><path d="M2 7h10M7 2v10"/></svg><span>胜率心电图 + 高 Leverage 回合慢镜回放</span></li>
+      </ul>
+    </div>
+    <div class="chk ban">
+      <h4>RED LINE · 红线与边界</h4>
+      <ul>
+        <li><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#E23B3B" stroke-width="2"><path d="M3 3l8 8M11 3l-8 8"/></svg><span>交付物<b>不得含未授权录像</b>，数据来源必须披露</span></li>
+        <li><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#E23B3B" stroke-width="2"><path d="M3 3l8 8M11 3l-8 8"/></svg><span>不做<b>实时信号接入 / 数字孪生 / 轨迹复原</b></span></li>
+        <li><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#E23B3B" stroke-width="2"><path d="M3 3l8 8M11 3l-8 8"/></svg><span>不做<b>判罚认定 / 博彩预测</b></span></li>
+        <li><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#E23B3B" stroke-width="2"><path d="M3 3l8 8M11 3l-8 8"/></svg><span>别把 overlay 做成<b>贴上去的表格</b>——那是数据看板，直接出局</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 时间线 -->
+  <div style="margin-top:56px" class="grid2">
+    <div>
+      <div class="sec-label">RACE DAY <em>/</em> 比赛日时间线</div>
+      <div class="tline">
+        <div class="ev"><div class="t">Day 1 · 早上签到</div><div class="d">抽签发放练习视频</div><p>拿到素材立刻跑通管线，标定机位参数，建立回合解析器。</p></div>
+        <div class="ev"><div class="t">Day 1 · 18:00</div><div class="d">考试视频统一发布</div><p>不提前提供。Agent 泛化能力的终考——练习阶段的硬编码此刻全部失效。</p></div>
+        <div class="ev"><div class="t">10/11 · 下午</div><div class="d">决赛路演 @ NBA House</div><p>面向评委与现场观众：看得懂、讲得燃、跑得稳。全球 CTO Dr. Werner Vogels 出席。</p></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="idx">CONTEXT</div>
+      <h3>同场大事件</h3>
+      <div class="en">nba china games 2026 · macao</div>
+      <p><strong>10/09 与 10/11</strong>：NBA 中国赛澳门站，火箭 vs 独行侠。Game 2 赛前大屏将展示两队核心球员的深度赛场高阶数据；NBA House 设 360° Digital Court 数智球场互动；<strong>10/10</strong> Agentic AI 领袖论坛并将宣布与姚基金合作。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 词典 ============ -->
+<section id="glossary">
+  <div class="sec-label">DICTIONARY <em>/</em> 技术名词速查词典</div>
+  <h2 class="sec-title">队员共用语言</h2>
+  <p class="sec-sub">讨论方案时统一口径：一个词，一个定义，一个用途。</p>
+
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th style="width:16%">术语</th><th style="width:26%">英文</th><th>速查定义 / 用途</th></tr></thead>
+      <tbody>
+        <tr><td><b>深度赛场</b></td><td class="mono">NBA Inside the Game</td><td>NBA × 亚马逊云科技高阶数据体系，本赛题全部数据的来源。</td></tr>
+        <tr><td><b>光学球员追踪</b></td><td class="mono">Optical Player Tracking</td><td>全场摄像头 + CV，无需可穿戴设备即捕捉全场位置。</td></tr>
+        <tr><td><b>3D 姿态识别</b></td><td class="mono">3D Pose Estimation</td><td>从画面推算人体 29 个骨骼关键点三维坐标，60Hz 采样。</td></tr>
+        <tr><td><b>预期命中率</b></td><td class="mono">xFG%</td><td>排除球员能力后的理论进球概率；投篮难度 = 1 − xFG%。</td></tr>
+        <tr><td><b>防守压力分数</b></td><td class="mono">DPS</td><td>0-1 量化瞬时防守限制程度；7 项加权 + 二分图匹配定对位。</td></tr>
+        <tr><td><b>球员引力</b></td><td class="mono">Gravity</td><td>−100~+100 量化扭曲防守阵型的能力；实际防守 vs 理论防守的差值。</td></tr>
+        <tr><td><b>胜率影响力</b></td><td class="mono">Leverage Score</td><td>单事件对胜负的撬动力；1.0 ≈ 10% 胜率波动，反事实摆幅计算。</td></tr>
+        <tr><td><b>二分图最优匹配</b></td><td class="mono">Hungarian Algorithm</td><td>5 攻 5 防配 5 对使总压力最大，O(n³) 可解，判定"谁防谁"。</td></tr>
+        <tr><td><b>反事实分析</b></td><td class="mono">Counterfactual Analysis</td><td>"这球没进会怎样"的概率对比，Leverage 的核心思想。</td></tr>
+        <tr><td><b>单应性变换</b></td><td class="mono">Homography</td><td>3×3 矩阵把球场坐标映射到视频像素——点位画对位置的数学核心。</td></tr>
+        <tr><td><b>球场标定</b></td><td class="mono">Court Calibration</td><td>识别边线/三分线/篮筐等已知尺寸参照物，求解 Homography。</td></tr>
+        <tr><td><b>检测与跟踪</b></td><td class="mono">Detection &amp; Tracking</td><td>YOLO 检测 + ByteTrack 跨帧维持球员 ID，名牌才跟得对人。</td></tr>
+        <tr><td><b>时序平滑</b></td><td class="mono">Temporal Smoothing</td><td>滑动平均 / 卡尔曼滤波，防止 overlay 数值跳动闪烁。</td></tr>
+        <tr><td><b>战术画板</b></td><td class="mono">Telestrator</td><td>转播标注风格：箭头标跑位、色块框空档，赛题点名要的效果。</td></tr>
+        <tr><td><b>视频叠加层</b></td><td class="mono">Video Overlay</td><td>OpenCV 绘制或 Canvas/CSS 层，把图形文字画进视频帧。</td></tr>
+        <tr><td><b>解说生成</b></td><td class="mono">AI Commentary / TTS</td><td>LLM 按回合数据写解说文案，TTS 合成音轨（可选加分项）。</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>BROADCAST CODE 12 <em>/</em> TEAM HANDBOOK v1.0 <em>/</em> 2026-10-10</p>
+    <p>SRC: 亚马逊云科技官方推文 ×2 + 官方赛题说明 <em>/</em> 数据来源须披露 · 未授权录像禁入交付物</p>
+  </div>
+</footer>
+
+</body>
+</html>
