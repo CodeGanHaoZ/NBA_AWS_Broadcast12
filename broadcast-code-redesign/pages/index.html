@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Broadcast Code 改版提案</title>
+    <style id="theme-vars">
+:root {
+  --bc26-background: #06090f;
+  --bc26-foreground: #f5f0e8;
+  --bc26-card: #0d131d;
+  --bc26-card-foreground: #f5f0e8;
+  --bc26-popover: #0d131d;
+  --bc26-popover-foreground: #f5f0e8;
+  --bc26-primary: #ff5a1f;
+  --bc26-primary-foreground: #fff7f0;
+  --bc26-muted: #121b27;
+  --bc26-muted-foreground: #93a0b6;
+  --bc26-border: rgba(255, 255, 255, 0.12);
+  --bc26-input: rgba(255, 255, 255, 0.14);
+  --bc26-ring: rgba(255, 90, 31, 0.45);
+
+  --bc26-surface-strong: #0b1019;
+  --bc26-surface-soft: rgba(12, 19, 29, 0.78);
+  --bc26-surface-elevated: rgba(17, 25, 38, 0.88);
+  --bc26-navy: #111b31;
+  --bc26-line-soft: rgba(255, 255, 255, 0.08);
+  --bc26-grid-line: rgba(255, 255, 255, 0.11);
+  --bc26-orange-soft: rgba(255, 90, 31, 0.16);
+  --bc26-orange-strong: #ff5a1f;
+  --bc26-orange-deep: #cc3a08;
+  --bc26-cyan: #62d8e5;
+  --bc26-success: #81d884;
+  --bc26-warning: #f6c65b;
+  --bc26-danger: #ff7a72;
+
+  --bc26-font-display: "Anton", "Arial Narrow", sans-serif;
+  --bc26-font-body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --bc26-font-mono: "JetBrains Mono", "IBM Plex Mono", monospace;
+
+  --bc26-radius-sm: 6px;
+  --bc26-radius-md: 12px;
+  --bc26-radius-lg: 20px;
+  --bc26-shadow-float: 0 20px 50px rgba(0, 0, 0, 0.28);
+  --bc26-shadow-glow: 0 0 0 1px rgba(255, 90, 31, 0.12), 0 12px 40px rgba(255, 90, 31, 0.08);
+}
+
+:root {
+  --background: var(--bc26-background);
+  --foreground: var(--bc26-foreground);
+  --card: var(--bc26-card);
+  --card-foreground: var(--bc26-card-foreground);
+  --popover: var(--bc26-popover);
+  --popover-foreground: var(--bc26-popover-foreground);
+  --primary: var(--bc26-primary);
+  --primary-foreground: var(--bc26-primary-foreground);
+  --muted: var(--bc26-muted);
+  --muted-foreground: var(--bc26-muted-foreground);
+  --border: var(--bc26-border);
+  --input: var(--bc26-input);
+  --ring: var(--bc26-ring);
+  --radius-sm: var(--bc26-radius-sm);
+  --radius-md: var(--bc26-radius-md);
+  --radius-lg: var(--bc26-radius-lg);
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bc26-background);
+  color: var(--bc26-foreground);
+  font-family: var(--bc26-font-body);
+}
+
+body {
+  min-height: 100vh;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-background: var(--bc26-background);
+    --color-foreground: var(--bc26-foreground);
+    --color-card: var(--bc26-card);
+    --color-card-foreground: var(--bc26-card-foreground);
+    --color-popover: var(--bc26-popover);
+    --color-popover-foreground: var(--bc26-popover-foreground);
+    --color-primary: var(--bc26-primary);
+    --color-primary-foreground: var(--bc26-primary-foreground);
+    --color-muted: var(--bc26-muted);
+    --color-muted-foreground: var(--bc26-muted-foreground);
+    --color-border: var(--bc26-border);
+    --color-input: var(--bc26-input);
+    --color-ring: var(--bc26-ring);
+    --radius-sm: var(--bc26-radius-sm);
+    --radius-md: var(--bc26-radius-md);
+    --radius-lg: var(--bc26-radius-lg);
+  }
+  @layer base {
+    body { background: var(--bc26-background); color: var(--bc26-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style id="semantic-token-fallback">
+      .bg-background { background-color: var(--bc26-background); }
+      .text-background { color: var(--bc26-background); }
+      .border-background { border-color: var(--bc26-background); }
+      .ring-background { --tw-ring-color: var(--bc26-background); }
+      .bg-foreground { background-color: var(--bc26-foreground); }
+      .text-foreground { color: var(--bc26-foreground); }
+      .border-foreground { border-color: var(--bc26-foreground); }
+      .ring-foreground { --tw-ring-color: var(--bc26-foreground); }
+      .bg-card { background-color: var(--bc26-card); }
+      .text-card { color: var(--bc26-card); }
+      .border-card { border-color: var(--bc26-card); }
+      .ring-card { --tw-ring-color: var(--bc26-card); }
+      .bg-card-foreground { background-color: var(--bc26-card-foreground); }
+      .text-card-foreground { color: var(--bc26-card-foreground); }
+      .border-card-foreground { border-color: var(--bc26-card-foreground); }
+      .ring-card-foreground { --tw-ring-color: var(--bc26-card-foreground); }
+      .bg-popover { background-color: var(--bc26-popover); }
+      .text-popover { color: var(--bc26-popover); }
+      .border-popover { border-color: var(--bc26-popover); }
+      .ring-popover { --tw-ring-color: var(--bc26-popover); }
+      .bg-popover-foreground { background-color: var(--bc26-popover-foreground); }
+      .text-popover-foreground { color: var(--bc26-popover-foreground); }
+      .border-popover-foreground { border-color: var(--bc26-popover-foreground); }
+      .ring-popover-foreground { --tw-ring-color: var(--bc26-popover-foreground); }
+      .bg-primary { background-color: var(--bc26-primary); }
+      .text-primary { color: var(--bc26-primary); }
+      .border-primary { border-color: var(--bc26-primary); }
+      .ring-primary { --tw-ring-color: var(--bc26-primary); }
+      .bg-primary-foreground { background-color: var(--bc26-primary-foreground); }
+      .text-primary-foreground { color: var(--bc26-primary-foreground); }
+      .border-primary-foreground { border-color: var(--bc26-primary-foreground); }
+      .ring-primary-foreground { --tw-ring-color: var(--bc26-primary-foreground); }
+      .bg-muted { background-color: var(--bc26-muted); }
+      .text-muted { color: var(--bc26-muted); }
+      .border-muted { border-color: var(--bc26-muted); }
+      .ring-muted { --tw-ring-color: var(--bc26-muted); }
+      .bg-muted-foreground { background-color: var(--bc26-muted-foreground); }
+      .text-muted-foreground { color: var(--bc26-muted-foreground); }
+      .border-muted-foreground { border-color: var(--bc26-muted-foreground); }
+      .ring-muted-foreground { --tw-ring-color: var(--bc26-muted-foreground); }
+      .bg-border { background-color: var(--bc26-border); }
+      .text-border { color: var(--bc26-border); }
+      .border-border { border-color: var(--bc26-border); }
+      .ring-border { --tw-ring-color: var(--bc26-border); }
+      .bg-input { background-color: var(--bc26-input); }
+      .text-input { color: var(--bc26-input); }
+      .border-input { border-color: var(--bc26-input); }
+      .ring-input { --tw-ring-color: var(--bc26-input); }
+      .bg-ring { background-color: var(--bc26-ring); }
+      .text-ring { color: var(--bc26-ring); }
+      .border-ring { border-color: var(--bc26-ring); }
+      .ring-ring { --tw-ring-color: var(--bc26-ring); }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+    <main class="bc-page">
+      <div class="bc-grid-bg" aria-hidden="true"></div>
+      <div class="bc-orb bc-orb--left" aria-hidden="true"></div>
+      <div class="bc-orb bc-orb--right" aria-hidden="true"></div>
+
+      <header class="bc-nav" id="site-nav">
+        <div class="bc-shell bc-nav__inner">
+          <a href="#top" class="bc-mark">
+            <span class="bc-mark__dot"></span>
+            <span>Broadcast Code 12</span>
+          </a>
+          <nav class="bc-nav__links" aria-label="主导航">
+            <a href="#vision">赛题方向</a>
+            <a href="#portal">Portal 入口</a>
+            <a href="#pipeline">Agent 流程</a>
+            <a href="#schedule">双城赛程</a>
+            <a href="#cta">立即组队</a>
+          </nav>
+        </div>
+      </header>
+
+      <section class="bc-hero" id="top">
+        <div class="bc-shell bc-hero__grid">
+          <div class="bc-hero__copy">
+            <div class="bc-kicker">
+              <span>NBA × AWS × CSDN BuilderX</span>
+              <span class="bc-kicker__divider"></span>
+              <span>赛事入口改版提案</span>
+            </div>
+            <div class="bc-pill-row">
+              <span class="bc-pill">10/10 珠海初赛</span>
+              <span class="bc-pill bc-pill--ghost">10/11 澳门决赛</span>
+            </div>
+            <p class="bc-overline">Broadcast Code 12</p>
+            <h1 class="bc-hero__title">让 AI 进入球场</h1>
+            <p class="bc-hero__lead">
+              把原有赛事落地页升级为更像“正式比赛入口”的首页：保留篮球数据叙事、强化赛事节奏，并把 Team Portal 的登录入口前置到首屏。
+            </p>
+            <div class="bc-hero__meta">
+              <div class="bc-stat">
+                <span class="bc-stat__label">参赛规模</span>
+                <strong>120</strong>
+              </div>
+              <div class="bc-stat">
+                <span class="bc-stat__label">组队人数</span>
+                <strong>2-3 人</strong>
+              </div>
+              <div class="bc-stat">
+                <span class="bc-stat__label">报名节点</span>
+                <strong>09/27 截止</strong>
+              </div>
+            </div>
+            <div class="bc-hero__actions">
+              <a class="bc-btn bc-btn--primary" href="#portal" data-dom-id="cta-portal">
+                <span>进入 Portal</span>
+                <i data-lucide="arrow-up-right"></i>
+              </a>
+              <a class="bc-btn bc-btn--secondary" href="#vision" data-dom-id="cta-vision">
+                <span>查看赛题</span>
+                <i data-lucide="chevron-down"></i>
+              </a>
+            </div>
+          </div>
+
+          <div class="bc-hero__visual">
+            <div class="bc-visual-card">
+              <div class="bc-visual-card__image">
+                <img src="../assets/tactical-grid-background.png" alt="篮球战术网格背景" />
+                <div class="bc-visual-card__wash"></div>
+                <div class="bc-trace bc-trace--one"></div>
+                <div class="bc-trace bc-trace--two"></div>
+              </div>
+
+              <aside class="bc-portal-card">
+                <div class="bc-portal-card__scan"></div>
+                <p class="bc-card-kicker">Participant Login</p>
+                <h2>Team Portal</h2>
+                <p class="bc-card-copy">
+                  参考登录页的极简结构，把核心入口压缩为一张高聚焦卡片，减少用户在首屏的决策成本。
+                </p>
+                <div class="bc-card-panel">
+                  <div class="bc-card-row">
+                    <span>Access</span>
+                    <strong>AWS SSO</strong>
+                  </div>
+                  <div class="bc-card-row">
+                    <span>Teams</span>
+                    <strong>Team01 - Team70</strong>
+                  </div>
+                  <div class="bc-card-row">
+                    <span>Status</span>
+                    <strong class="bc-signal">Ready</strong>
+                  </div>
+                </div>
+                <a class="bc-btn bc-btn--primary bc-btn--full" href="https://du5imhgxabl0d.cloudfront.net/portal">
+                  <span>SSO 登录</span>
+                  <i data-lucide="log-in"></i>
+                </a>
+                <p class="bc-card-note">无需单独密码，统一通过赛事账号进入。</p>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bc-band">
+        <div class="bc-shell bc-band__grid">
+          <article class="bc-band__item">
+            <span class="bc-item-label">Visual Signature</span>
+            <p>深色场馆基底 + 单一信号橙主强调 + 战术网格背景</p>
+          </article>
+          <article class="bc-band__item">
+            <span class="bc-item-label">Portal Layer</span>
+            <p>把报名后入口从“次级功能”升级为“首屏主任务”</p>
+          </article>
+          <article class="bc-band__item">
+            <span class="bc-item-label">Narrative Flow</span>
+            <p>从赛题理解、Agent 流程到赛程与奖励，信息顺序更线性</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="bc-section" id="vision">
+        <div class="bc-shell bc-split">
+          <div>
+            <p class="bc-section-kicker">Game Data / AI Storytelling</p>
+            <h2 class="bc-section-title">赛题方向</h2>
+            <p class="bc-section-desc">
+              改版后不再让首屏只承担“宣传”角色，而是把“这场比赛到底要做什么”说得更直接。页面延续 BuilderX 站点的深色数据叙事，但层级更克制、阅读路径更清晰。
+            </p>
+          </div>
+          <div class="bc-story-card">
+            <div class="bc-story-card__head">
+              <span>Live Signal</span>
+              <strong>Court Vision</strong>
+            </div>
+            <ul class="bc-checklist">
+              <li><span>01</span>关键回合自动识别</li>
+              <li><span>02</span>跑位与空档叠加回原视频</li>
+              <li><span>03</span>防守收缩时机量化解读</li>
+              <li><span>04</span>同步生成可播报的篮球解说</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="bc-section bc-section--portal" id="portal">
+        <div class="bc-shell bc-portal-layout">
+          <div class="bc-portal-copy">
+            <p class="bc-section-kicker">Portal Entry</p>
+            <h2 class="bc-section-title">入口前置</h2>
+            <p class="bc-section-desc">
+              第二个参考站点最有价值的不是装饰，而是“唯一任务极其明确”。我把这个特征转成首页中的入口模块，让用户能迅速完成下一步动作。
+            </p>
+          </div>
+          <div class="bc-portal-grid">
+            <article class="bc-mini-card">
+              <span class="bc-item-label">Why</span>
+              <h3>减少跳转损耗</h3>
+              <p>从活动页到登录页的心理落差被压缩成同一屏内的连续动作。</p>
+            </article>
+            <article class="bc-mini-card">
+              <span class="bc-item-label">How</span>
+              <h3>用高对比卡片托起主任务</h3>
+              <p>通过弱化背景层次、提升登录卡片亮度和边界，让入口更有正式赛事系统感。</p>
+            </article>
+            <article class="bc-mini-card">
+              <span class="bc-item-label">Result</span>
+              <h3>宣传与操作合一</h3>
+              <p>保留情绪张力，同时兼顾报名者、入围队伍和评审视角的实际使用效率。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="bc-section" id="pipeline">
+        <div class="bc-shell">
+          <p class="bc-section-kicker">Agent Pipeline</p>
+          <h2 class="bc-section-title">Agent 流程</h2>
+          <div class="bc-pipeline">
+            <article class="bc-step-card">
+              <span class="bc-step-index">01</span>
+              <h3>Input</h3>
+              <p>比赛视频、深度赛场数据和回合上下文统一进入分析流程。</p>
+            </article>
+            <article class="bc-step-card">
+              <span class="bc-step-index">02</span>
+              <h3>Analyze</h3>
+              <p>识别关键回合，计算投篮难度、引力变化和防守轮转延迟。</p>
+            </article>
+            <article class="bc-step-card">
+              <span class="bc-step-index">03</span>
+              <h3>Visualize</h3>
+              <p>把箭头、热区、追踪点重新叠加到原始比赛画面。</p>
+            </article>
+            <article class="bc-step-card">
+              <span class="bc-step-index">04</span>
+              <h3>Narrate</h3>
+              <p>生成与画面同步、对懂球与不懂球观众都友好的解说表达。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="bc-section" id="schedule">
+        <div class="bc-shell bc-twin-layout">
+          <div>
+            <p class="bc-section-kicker">Road To Macau</p>
+            <h2 class="bc-section-title">双城赛程</h2>
+            <div class="bc-timeline">
+              <article>
+                <span>09/27</span>
+                <h3>报名截止</h3>
+                <p>完成组队与资料提交，确认是否进入入围名单。</p>
+              </article>
+              <article>
+                <span>09/28</span>
+                <h3>名单公布</h3>
+                <p>发布参赛资格和后续培训、出行安排通知。</p>
+              </article>
+              <article>
+                <span>10/10</span>
+                <h3>珠海初赛</h3>
+                <p>12 小时开发与提交，当晚公布晋级澳门的 TOP 8。</p>
+              </article>
+              <article>
+                <span>10/11</span>
+                <h3>澳门决赛</h3>
+                <p>现场路演终评、颁奖与合影，完成最终对外展示。</p>
+              </article>
+            </div>
+          </div>
+          <div class="bc-prize-panel">
+            <p class="bc-section-kicker">Prize / Recognition</p>
+            <h2 class="bc-section-title">奖励梯度</h2>
+            <div class="bc-prize-list">
+              <article>
+                <span>TOP 1</span>
+                <strong>re:Invent 大奖</strong>
+                <p>大会门票、机酒支持与冠军球衣奖励。</p>
+              </article>
+              <article>
+                <span>TOP 2-4</span>
+                <strong>电子产品</strong>
+                <p>每人一台设备，并可选篮球或 NBA 周边服饰。</p>
+              </article>
+              <article>
+                <span>TOP 5-8</span>
+                <strong>装备包</strong>
+                <p>电子产品叠加双肩包，形成完整决赛纪念层级。</p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bc-section bc-section--final" id="cta">
+        <div class="bc-shell bc-final">
+          <p class="bc-section-kicker">Final Call</p>
+          <h2 class="bc-section-title">立即组队</h2>
+          <p class="bc-section-desc bc-final__desc">
+            这一版首页把赛事叙事、主任务入口和视觉记忆点合到一起，让 Broadcast Code 更像一个真实可进入的比赛系统。
+          </p>
+          <div class="bc-hero__actions bc-hero__actions--center">
+            <a class="bc-btn bc-btn--primary" href="https://builderx.csdn.net/bcast-code">
+              <span>查看原站</span>
+              <i data-lucide="external-link"></i>
+            </a>
+            <a class="bc-btn bc-btn--secondary" href="https://du5imhgxabl0d.cloudfront.net/portal">
+              <span>打开 Portal</span>
+              <i data-lucide="shield-check"></i>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background:
+          radial-gradient(circle at 20% 18%, rgba(255, 90, 31, 0.14), transparent 24rem),
+          radial-gradient(circle at 80% 22%, rgba(98, 216, 229, 0.08), transparent 20rem),
+          linear-gradient(180deg, #06090f 0%, #07111b 48%, #06090f 100%);
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      img {
+        display: block;
+        max-width: 100%;
+      }
+
+      .bc-page {
+        position: relative;
+        overflow: clip;
+      }
+
+      .bc-page > *:not(.bc-grid-bg):not(.bc-orb) {
+        position: relative;
+        z-index: 1;
+      }
+
+      .bc-shell {
+        width: min(1180px, calc(100% - 48px));
+        margin: 0 auto;
+      }
+
+      .bc-grid-bg {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: -1;
+        background-color: #06090f;
+        background-image:
+          linear-gradient(rgba(6, 9, 15, 0.72), rgba(6, 9, 15, 0.86)),
+          url("../assets/tactical-grid-background.png");
+        background-size: cover;
+        background-position: center top;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+      }
+
+      .bc-orb {
+        position: fixed;
+        width: 34rem;
+        height: 34rem;
+        border-radius: 999px;
+        filter: blur(80px);
+        opacity: 0.22;
+        pointer-events: none;
+      }
+
+      .bc-orb--left {
+        top: -8rem;
+        left: -10rem;
+        background: rgba(255, 90, 31, 0.26);
+      }
+
+      .bc-orb--right {
+        top: 10rem;
+        right: -12rem;
+        background: rgba(98, 216, 229, 0.18);
+      }
+
+      .bc-nav {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        backdrop-filter: blur(18px);
+        background: rgba(6, 9, 15, 0.72);
+        border-bottom: 1px solid transparent;
+        transition: border-color 160ms ease, background 160ms ease;
+      }
+
+      .bc-nav.is-scrolled {
+        border-color: var(--bc26-border);
+        background: rgba(6, 9, 15, 0.9);
+      }
+
+      .bc-nav__inner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        min-height: 72px;
+        gap: 24px;
+      }
+
+      .bc-mark {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        font-family: var(--bc26-font-mono);
+        font-size: 14px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .bc-mark__dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: var(--bc26-primary);
+        box-shadow: 0 0 16px rgba(255, 90, 31, 0.55);
+      }
+
+      .bc-nav__links {
+        display: flex;
+        gap: 28px;
+        flex-wrap: wrap;
+      }
+
+      .bc-nav__links a {
+        color: var(--bc26-muted-foreground);
+        font-size: 14px;
+        transition: color 160ms ease, transform 160ms ease;
+      }
+
+      .bc-nav__links a:hover,
+      .bc-nav__links a:focus-visible {
+        color: var(--bc26-foreground);
+        transform: translateY(-1px);
+      }
+
+      .bc-hero,
+      .bc-section {
+        position: relative;
+        padding: 108px 0;
+      }
+
+      .bc-hero {
+        padding-top: 84px;
+      }
+
+      .bc-hero__grid,
+      .bc-split,
+      .bc-portal-layout,
+      .bc-twin-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(340px, 0.9fr);
+        gap: 36px;
+        align-items: center;
+      }
+
+      .bc-kicker,
+      .bc-section-kicker,
+      .bc-card-kicker,
+      .bc-item-label,
+      .bc-overline,
+      .bc-stat__label,
+      .bc-step-index,
+      .bc-timeline article span,
+      .bc-prize-list article span {
+        font-family: var(--bc26-font-mono);
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .bc-kicker,
+      .bc-pill-row,
+      .bc-hero__meta,
+      .bc-hero__actions,
+      .bc-band__grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+      }
+
+      .bc-kicker {
+        align-items: center;
+        color: var(--bc26-muted-foreground);
+        font-size: 12px;
+      }
+
+      .bc-kicker__divider {
+        width: 18px;
+        height: 1px;
+        background: var(--bc26-primary);
+      }
+
+      .bc-pill-row {
+        margin-top: 22px;
+      }
+
+      .bc-pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 36px;
+        padding: 0 16px;
+        border-radius: 999px;
+        background: var(--bc26-primary);
+        color: var(--bc26-primary-foreground);
+        font-size: 13px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        font-family: var(--bc26-font-mono);
+      }
+
+      .bc-pill--ghost {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--bc26-foreground);
+        border: 1px solid var(--bc26-border);
+      }
+
+      .bc-overline {
+        margin: 28px 0 0;
+        color: var(--bc26-primary);
+        font-size: 14px;
+      }
+
+      .bc-hero__title,
+      .bc-section-title {
+        margin: 14px 0 0;
+        color: var(--bc26-foreground);
+        text-wrap: balance;
+      }
+
+      .bc-hero__title {
+        font-family: var(--bc26-font-display);
+        font-size: clamp(44px, 7vw, 88px);
+        line-height: 0.95;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+
+      .bc-section-title {
+        font-size: clamp(30px, 4vw, 48px);
+        line-height: 1.08;
+      }
+
+      .bc-hero__lead,
+      .bc-section-desc,
+      .bc-card-copy,
+      .bc-mini-card p,
+      .bc-step-card p,
+      .bc-timeline article p,
+      .bc-prize-list article p,
+      .bc-final__desc,
+      .bc-band__item p {
+        margin: 24px 0 0;
+        color: var(--bc26-muted-foreground);
+        line-height: 1.7;
+        font-size: 16px;
+      }
+
+      .bc-hero__meta {
+        margin-top: 28px;
+      }
+
+      .bc-stat {
+        min-width: 148px;
+        padding: 16px 18px;
+        border-radius: 18px;
+        border: 1px solid var(--bc26-border);
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .bc-stat__label {
+        display: block;
+        color: var(--bc26-muted-foreground);
+        font-size: 11px;
+      }
+
+      .bc-stat strong {
+        display: block;
+        margin-top: 10px;
+        font-size: 22px;
+        color: var(--bc26-foreground);
+      }
+
+      .bc-hero__actions {
+        margin-top: 34px;
+      }
+
+      .bc-hero__actions--center {
+        justify-content: center;
+      }
+
+      .bc-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 52px;
+        padding: 0 22px;
+        border-radius: 16px;
+        font-weight: 600;
+        border: 1px solid transparent;
+        transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease;
+      }
+
+      .bc-btn i {
+        width: 18px;
+        height: 18px;
+        transition: transform 160ms ease;
+      }
+
+      .bc-btn:hover,
+      .bc-btn:focus-visible {
+        transform: translateY(-1px);
+      }
+
+      .bc-btn:hover i,
+      .bc-btn:focus-visible i {
+        transform: translateX(2px);
+      }
+
+      .bc-btn--primary {
+        background: linear-gradient(180deg, var(--bc26-orange-strong) 0%, var(--bc26-orange-deep) 100%);
+        color: var(--bc26-primary-foreground);
+        box-shadow: var(--bc26-shadow-glow);
+      }
+
+      .bc-btn--secondary {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: var(--bc26-border);
+        color: var(--bc26-foreground);
+      }
+
+      .bc-btn--full {
+        width: 100%;
+        margin-top: 22px;
+      }
+
+      .bc-visual-card {
+        position: relative;
+        border-radius: 28px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(12, 19, 29, 0.66);
+        box-shadow: var(--bc26-shadow-float);
+        overflow: hidden;
+        min-height: 620px;
+      }
+
+      .bc-visual-card__image {
+        position: absolute;
+        inset: 0;
+      }
+
+      .bc-visual-card__image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        mix-blend-mode: screen;
+        opacity: 0.62;
+      }
+
+      .bc-visual-card__wash {
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(140deg, rgba(6, 9, 15, 0.24) 0%, rgba(6, 9, 15, 0.76) 62%),
+          linear-gradient(180deg, rgba(255, 90, 31, 0.06), transparent 30%);
+      }
+
+      .bc-trace {
+        position: absolute;
+        border: 1px dashed rgba(255, 255, 255, 0.34);
+        border-radius: 999px;
+      }
+
+      .bc-trace--one {
+        width: 240px;
+        height: 240px;
+        top: 26px;
+        left: -88px;
+      }
+
+      .bc-trace--two {
+        width: 180px;
+        height: 180px;
+        bottom: 78px;
+        right: -34px;
+      }
+
+      .bc-portal-card {
+        position: absolute;
+        right: 28px;
+        top: 28px;
+        width: min(360px, calc(100% - 56px));
+        padding: 28px;
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(10, 16, 25, 0.88);
+        backdrop-filter: blur(24px);
+        overflow: hidden;
+      }
+
+      .bc-portal-card__scan {
+        position: absolute;
+        inset: 0 auto auto 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, transparent, rgba(255, 90, 31, 0.8), transparent);
+        animation: bc-scan 3.2s linear infinite;
+      }
+
+      .bc-card-kicker,
+      .bc-item-label,
+      .bc-section-kicker {
+        color: var(--bc26-primary);
+        font-size: 12px;
+      }
+
+      .bc-portal-card h2,
+      .bc-mini-card h3,
+      .bc-step-card h3,
+      .bc-timeline article h3,
+      .bc-prize-list article strong,
+      .bc-story-card__head strong {
+        margin: 14px 0 0;
+        font-size: 28px;
+        line-height: 1.1;
+        color: var(--bc26-foreground);
+      }
+
+      .bc-card-panel,
+      .bc-story-card,
+      .bc-mini-card,
+      .bc-step-card,
+      .bc-prize-panel,
+      .bc-band__item {
+        border-radius: 22px;
+        border: 1px solid var(--bc26-border);
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .bc-card-panel {
+        margin-top: 20px;
+        padding: 16px;
+      }
+
+      .bc-card-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .bc-card-row:last-child {
+        border-bottom: none;
+      }
+
+      .bc-card-row span,
+      .bc-card-note {
+        color: var(--bc26-muted-foreground);
+        font-size: 14px;
+      }
+
+      .bc-card-row strong {
+        color: var(--bc26-foreground);
+      }
+
+      .bc-signal {
+        color: var(--bc26-primary);
+      }
+
+      .bc-card-note {
+        margin: 14px 0 0;
+      }
+
+      .bc-band {
+        padding: 0 0 40px;
+      }
+
+      .bc-band__grid {
+        gap: 18px;
+      }
+
+      .bc-band__item {
+        flex: 1 1 220px;
+        padding: 20px 22px;
+      }
+
+      .bc-split,
+      .bc-portal-layout,
+      .bc-twin-layout {
+        align-items: start;
+      }
+
+      .bc-story-card {
+        padding: 28px;
+      }
+
+      .bc-story-card__head {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: center;
+        padding-bottom: 18px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .bc-story-card__head strong {
+        margin: 0;
+        font-size: 20px;
+      }
+
+      .bc-checklist {
+        list-style: none;
+        margin: 18px 0 0;
+        padding: 0;
+      }
+
+      .bc-checklist li {
+        display: flex;
+        gap: 14px;
+        padding: 14px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        color: var(--bc26-foreground);
+      }
+
+      .bc-checklist li:last-child {
+        border-bottom: none;
+      }
+
+      .bc-checklist span {
+        color: var(--bc26-primary);
+        font-family: var(--bc26-font-mono);
+      }
+
+      .bc-portal-grid,
+      .bc-pipeline,
+      .bc-prize-list {
+        display: grid;
+        gap: 18px;
+      }
+
+      .bc-portal-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .bc-mini-card,
+      .bc-step-card,
+      .bc-prize-list article,
+      .bc-timeline article {
+        padding: 24px;
+        transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+      }
+
+      .bc-mini-card:hover,
+      .bc-step-card:hover,
+      .bc-prize-list article:hover,
+      .bc-timeline article:hover {
+        transform: translateY(-3px);
+        border-color: rgba(255, 90, 31, 0.28);
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .bc-mini-card h3,
+      .bc-step-card h3,
+      .bc-timeline article h3 {
+        font-size: 24px;
+      }
+
+      .bc-pipeline {
+        margin-top: 32px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .bc-step-index {
+        color: var(--bc26-primary);
+        font-size: 12px;
+      }
+
+      .bc-timeline {
+        display: grid;
+        gap: 16px;
+        margin-top: 26px;
+      }
+
+      .bc-timeline article span,
+      .bc-prize-list article span {
+        color: var(--bc26-primary);
+        font-size: 12px;
+      }
+
+      .bc-prize-panel {
+        padding: 28px;
+      }
+
+      .bc-prize-list {
+        margin-top: 24px;
+      }
+
+      .bc-prize-list article strong {
+        display: block;
+        font-size: 24px;
+      }
+
+      .bc-final {
+        text-align: center;
+      }
+
+      .bc-final__desc {
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      @keyframes bc-scan {
+        0% {
+          transform: translateY(0);
+          opacity: 0;
+        }
+        10%,
+        90% {
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(460px);
+          opacity: 0;
+        }
+      }
+
+      @media (max-width: 1100px) {
+        .bc-hero__grid,
+        .bc-split,
+        .bc-portal-layout,
+        .bc-twin-layout,
+        .bc-portal-grid,
+        .bc-pipeline {
+          grid-template-columns: 1fr;
+        }
+
+        .bc-hero {
+          padding-top: 56px;
+        }
+
+        .bc-visual-card {
+          min-height: 720px;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .bc-shell {
+          width: min(100% - 32px, 1180px);
+        }
+
+        .bc-nav__inner {
+          padding: 14px 0;
+          align-items: start;
+          flex-direction: column;
+        }
+
+        .bc-nav__links {
+          gap: 14px 18px;
+        }
+
+        .bc-hero,
+        .bc-section {
+          padding: 72px 0;
+        }
+
+        .bc-hero__title {
+          font-size: clamp(42px, 18vw, 64px);
+        }
+
+        .bc-visual-card {
+          min-height: 640px;
+        }
+
+        .bc-portal-card {
+          right: 16px;
+          top: 16px;
+          width: calc(100% - 32px);
+          padding: 20px;
+        }
+
+        .bc-mini-card,
+        .bc-step-card,
+        .bc-prize-list article,
+        .bc-timeline article,
+        .bc-prize-panel,
+        .bc-story-card {
+          padding: 20px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        .bc-btn,
+        .bc-mini-card,
+        .bc-step-card,
+        .bc-prize-list article,
+        .bc-timeline article,
+        .bc-nav {
+          transition: none;
+        }
+
+        .bc-portal-card__scan {
+          animation: none;
+          opacity: 0.6;
+        }
+      }
+    </style>
+    <script>
+      const siteNav = document.getElementById("site-nav");
+      const syncNav = () => {
+        siteNav.classList.toggle("is-scrolled", window.scrollY > 12);
+      };
+      syncNav();
+      window.addEventListener("scroll", syncNav, { passive: true });
+      lucide.createIcons();
+    </script>
+</body>
+</html>

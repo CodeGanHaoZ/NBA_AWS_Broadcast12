@@ -1,0 +1,72 @@
+# 训练视频解说
+# 视频：官方练习素材
+# 深度数据：api.nba.cn /nba-web/api/web/inside/gpShot
+# 口播：Amazon Polly Neural TTS -> ffmpeg 混音
+# overlay 先不做，等后续接口把名牌和箭头点位送进来。
+
+clips:
+  - id: flagg_20260201
+    file: source/训练_弗拉格2月1日.mp4
+    srt: flagg.srt
+    output_subs: out/flagg_commentary.mp4
+    output_voice: out/flagg_voiceover.mp4
+    title: 库珀·弗拉格 末节关键突破
+    gameId: "0022500701"
+    playerId: "1642843"
+    date: "2026-02-01"
+    matchup: 火箭@独行侠
+    venue: 休斯顿丰田中心
+    game_clock_start: "4Q 1:52"
+    score_start: "DAL 103 - HOU 107"
+    duration_sec: 21.55
+    shot:
+      period: 4
+      eventId: 681
+      desc: 突破上篮
+      xFG: 0.216
+      make: false
+      loc: [89, 45]
+    season_context:
+      gravity: 3.828
+      leverage: 2.11
+      avg_xFG: 0.481
+    result: 弗拉格挤进禁区上篮未中，火箭拿下球权。
+    lines:
+      - {start: 0.0, end: 3.2, text: "第四节 1 分 52 秒。达拉斯 103，休斯顿 107。弗拉格这一球的杠杆，已经比分差更刺眼。"}
+      - {start: 3.2, end: 7.4, text: "32 号拿球，杜兰特贴上来。弗拉格本季场均引力只有 3.8，今天他必须自己把球送进去。"}
+      - {start: 7.4, end: 12.0, text: "申京停在肘区协防，加福德跟进。油漆区正在收口，空档正在消失。"}
+      - {start: 12.0, end: 16.4, text: "弗拉格还是砸进去。伊森回收，三人挤在篮下。出手窗口只剩最后一拍。"}
+      - {start: 16.4, end: 21.5, text: "突破上篮，预期命中率 21.6%。球没进。不是手感，是难度被防守写死了。"}
+
+  - id: amen_20260104
+    file: source/训练_阿门1月4日.mp4
+    srt: amen.srt
+    output_subs: out/amen_commentary.mp4
+    output_voice: out/amen_voiceover.mp4
+    title: 阿门·汤普森 侧翼空档出手
+    gameId: "0022500491"
+    playerId: "1641708"
+    date: "2026-01-04"
+    matchup: 独行侠@火箭
+    venue: 达拉斯美国航空中心
+    game_clock_start: "3Q 7:45"
+    score_start: "HOU 60 - DAL 63"
+    duration_sec: 22.89
+    shot:
+      period: 3
+      eventId: 433
+      desc: 急停跳投
+      xFG: 0.453
+      make: false
+      loc: [21, 67]
+    season_context:
+      gravity: -4.593
+      leverage: 1.98
+      avg_xFG: 0.587
+    result: 阿门侧翼急停跳投未中，独行侠拿下篮板。
+    lines:
+      - {start: 0.0, end: 3.6, text: "第三节 7 分 45 秒。火箭 60，独行侠 63。客队追三分，这一回合要的是空档，不是硬打。"}
+      - {start: 3.6, end: 8.2, text: "杜兰特左侧持球，伊森往油漆区砸。卡佩拉落位，防守开始被吸进去。"}
+      - {start: 8.2, end: 13.8, text: "球倒出来。左侧侧翼出现一拍空档。阿门的无球引力是负数，空档通常不是他自己拉出来的。"}
+      - {start: 13.8, end: 18.4, text: "1 号接球，克里斯蒂 00 号扑出来。空档还在，但补防已经到了。"}
+      - {start: 18.4, end: 22.8, text: "急停跳投，预期命中率 45.3%。没进。独行侠篮板。窗口只有一拍，补防把难度抬回去了。"}

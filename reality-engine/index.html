@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>篮球现实引擎 · Reality5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bc-bg: #0B0B0C;
+  --bc-surface: #131315;
+  --bc-surface-2: #1B1B1F;
+  --bc-line: #2A2A2E;
+  --bc-chalk: #F5F2EC;
+  --bc-muted: #8E8E96;
+  --bc-signal: #F9530C;
+  --bc-signal-deep: #C43A08;
+  --bc-navy: #12183A;
+  --bc-key-red: #E23B3B;
+  --bc-key-yellow: #F5C518;
+  --bc-key-cyan: #39C2D7;
+  --bc-ok: #6FCF8A;
+  --bc-font-display: "Anton", "Arial Narrow", sans-serif;
+  --bc-font-body: "Noto Sans SC", sans-serif;
+  --bc-font-mono: "JetBrains Mono", "IBM Plex Mono", monospace;
+  --bc-ease: cubic-bezier(.2,.6,.2,1);
+  --bc-dur: .25s;
+  --header-h: 56px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: var(--bc-bg); color: var(--bc-chalk); font-family: var(--bc-font-body); }
+body { min-height: 100vh; overflow: hidden; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+::selection { background: var(--bc-signal); color: var(--bc-chalk); }
+:focus-visible { outline: 2px solid var(--bc-signal); outline-offset: 2px; }
+
+.app {
+  height: 100vh;
+  display: grid;
+  grid-template-rows: var(--header-h) 1fr;
+  background:
+    radial-gradient(ellipse 90% 70% at 18% 0%, rgba(18,24,58,.55), transparent 58%),
+    var(--bc-bg);
+}
+
+.court-bg {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  opacity: .55;
+}
+.grain {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  opacity: .045;
+  background-image: radial-gradient(rgba(245,242,236,.7) .55px, transparent .7px);
+  background-size: 3px 3px;
+}
+
+.topbar {
+  position: relative; z-index: 4;
+  display: grid;
+  grid-template-columns: 1.15fr auto 1.15fr;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--bc-line);
+  background: rgba(11,11,12,.86);
+  backdrop-filter: blur(8px);
+}
+.brand {
+  display: flex; align-items: center; gap: 14px; min-width: 0;
+}
+.logo {
+  width: 28px; height: 28px; border-radius: 2px;
+  background: var(--bc-signal);
+  display: grid; place-items: center;
+  font-family: var(--bc-font-display);
+  font-size: 16px; letter-spacing: .04em;
+  flex: 0 0 auto;
+}
+.brand h1 {
+  font-size: 15px; font-weight: 900; letter-spacing: .02em; line-height: 1.1;
+}
+.brand p { color: var(--bc-muted); font-size: 11px; margin-top: 2px; white-space: nowrap; }
+.meta {
+  display: flex; align-items: center; gap: 18px; min-width: 0;
+  color: var(--bc-muted); font-size: 11px;
+}
+.meta-col { min-width: 0; }
+.meta .label {
+  font-family: var(--bc-font-mono);
+  letter-spacing: .14em; text-transform: uppercase; font-size: 10px;
+  color: #6d6d74; margin-bottom: 4px;
+}
+.meta .value { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+.dot-orange { background: var(--bc-signal); }
+.dot-green { background: var(--bc-ok); }
+.center-title { text-align: center; }
+.center-title strong {
+  display: block; font-size: 16px; font-weight: 800; letter-spacing: .04em;
+}
+.center-title span { color: var(--bc-muted); font-size: 11px; }
+.actions { display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
+.lang {
+  display: flex; border: 1px solid var(--bc-line); border-radius: 2px; overflow: hidden;
+}
+.lang button {
+  background: transparent; border: 0; color: var(--bc-muted);
+  padding: 6px 10px; font-size: 12px;
+}
+.lang button.is-on { background: var(--bc-surface-2); color: var(--bc-chalk); }
+.icon-btn, .ghost-btn, .primary-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  border-radius: 2px; border: 1px solid var(--bc-line);
+  background: transparent; color: var(--bc-chalk);
+  padding: 7px 10px; font-size: 12px; white-space: nowrap;
+  transition: border-color var(--bc-dur) var(--bc-ease), background var(--bc-dur) var(--bc-ease), transform var(--bc-dur) var(--bc-ease);
+}
+.icon-btn:hover, .ghost-btn:hover { border-color: var(--bc-signal); color: var(--bc-signal); }
+.primary-btn {
+  background: var(--bc-signal); border-color: var(--bc-signal); color: var(--bc-chalk);
+  font-weight: 700;
+}
+.primary-btn:hover { background: #FF6A24; transform: translateY(-1px); }
+.primary-btn:active { transform: translateY(1px); }
+.icon-btn svg, .ghost-btn svg, .primary-btn svg { width: 13px; height: 13px; }
+
+.workspace {
+  position: relative; z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  min-height: 0;
+}
+.main {
+  min-width: 0; min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(280px, 1.15fr) 168px minmax(210px, .95fr);
+  gap: 10px;
+  padding: 10px 10px 12px 12px;
+}
+.panel {
+  background: var(--bc-surface);
+  border: 1px solid var(--bc-line);
+  border-radius: 2px;
+  min-height: 0;
+}
+.panel-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; padding: 8px 12px 0;
+}
+.tabs { display: flex; gap: 14px; align-items: center; }
+.tabs button {
+  background: none; border: 0; color: var(--bc-muted);
+  font-size: 13px; padding: 8px 0 10px; position: relative;
+}
+.tabs button.is-on { color: var(--bc-chalk); font-weight: 700; }
+.tabs button.is-on::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
+  background: var(--bc-signal);
+}
+.sub { color: var(--bc-muted); font-size: 12px; }
+.chip-row { display: flex; align-items: center; gap: 8px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--bc-line); border-radius: 999px;
+  padding: 4px 10px; font-size: 11px; color: var(--bc-muted);
+  background: rgba(0,0,0,.18);
+}
+.chip b { color: var(--bc-chalk); font-weight: 700; }
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--bc-signal); box-shadow: 0 0 0 4px rgba(249,83,12,.16); }
+
+.court-wrap { display: grid; grid-template-rows: 1fr auto; min-height: 0; }
+.court-stage {
+  margin: 10px 12px 0;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1.35fr) 220px;
+  background:
+    linear-gradient(90deg, rgba(8,8,10,.55), transparent 18%),
+    radial-gradient(ellipse at 70% 50%, rgba(249,83,12,.08), transparent 55%),
+    linear-gradient(180deg, #16120f, #0e0c0b);
+  border: 1px solid #2a2420;
+  position: relative;
+  overflow: hidden;
+}
+.stage-rail {
+  background: repeating-linear-gradient(0deg, transparent 0 18px, rgba(245,242,236,.035) 18px 19px);
+  border-right: 1px solid rgba(245,242,236,.05);
+}
+.court-view {
+  position: relative;
+  min-height: 220px;
+}
+.hud {
+  position: absolute; top: 10px; left: 10px; display: flex; gap: 6px; z-index: 3;
+}
+.hud span, .legend span {
+  background: rgba(8,8,10,.78); border: 1px solid rgba(245,242,236,.12);
+  border-radius: 999px; padding: 4px 9px; font-size: 11px;
+  font-family: var(--bc-font-mono); letter-spacing: .08em;
+}
+.hud .clock { color: var(--bc-chalk); font-weight: 700; }
+.hud .view { color: var(--bc-muted); }
+.hud .src { color: var(--bc-signal); }
+.legend {
+  position: absolute; left: 10px; bottom: 10px; display: flex; gap: 6px; z-index: 3;
+}
+.legend i { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+.court-svg { width: 100%; height: 100%; display: block; }
+.player {
+  position: absolute; width: 18px; height: 18px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 10px; font-weight: 800;
+  border: 1.5px solid rgba(245,242,236,.8); color: #111;
+  transform: translate(-50%, -50%);
+}
+.player.ball { background: var(--bc-signal); color: #fff; box-shadow: 0 0 0 4px rgba(249,83,12,.18); }
+.player.off { background: var(--bc-key-yellow); }
+.player.def { background: var(--bc-key-cyan); }
+.telestrator {
+  position: absolute; width: 42px; height: 42px; border: 2px solid var(--bc-signal);
+  border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%);
+  animation: pulse 2.4s var(--bc-ease) infinite;
+}
+.telestrator::before, .telestrator::after {
+  content: ""; position: absolute; background: var(--bc-signal);
+}
+.telestrator::before { width: 1px; height: 30%; left: 50%; top: -16%; }
+.telestrator::after { height: 1px; width: 30%; top: 50%; left: -16%; }
+@keyframes pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  50% { transform: translate(-50%, -50%) scale(1.06); opacity: .75; }
+}
+
+.possession {
+  padding: 12px; display: flex; flex-direction: column; gap: 8px;
+  background: linear-gradient(180deg, rgba(8,6,5,.2), rgba(8,6,5,.55));
+  border-left: 1px solid rgba(245,242,236,.06);
+}
+.pos-kicker { color: var(--bc-muted); font-size: 11px; }
+.pos-card {
+  background: rgba(11,11,12,.72); border: 1px solid var(--bc-line);
+  border-radius: 2px; padding: 10px 12px; text-align: left;
+}
+.pos-card.is-on { border-color: var(--bc-signal); box-shadow: inset 0 0 0 1px rgba(249,83,12,.25); }
+.pos-card .title { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 13px; }
+.pos-card .meta { color: var(--bc-muted); font-size: 11px; margin-top: 4px; }
+.pos-add {
+  border: 1.5px dashed rgba(249,83,12,.55); color: var(--bc-muted);
+  background: transparent; padding: 10px; border-radius: 2px; font-size: 12px;
+}
+.pos-add:hover { background: rgba(249,83,12,.08); color: var(--bc-signal); }
+
+.transport {
+  display: flex; align-items: center; gap: 8px; padding: 8px 12px 10px;
+}
+.round-btn {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1px solid var(--bc-line); background: var(--bc-surface-2);
+  display: grid; place-items: center;
+}
+.round-btn svg { width: 12px; height: 12px; }
+.time-read { color: var(--bc-muted); font-family: var(--bc-font-mono); font-size: 12px; letter-spacing: .04em; }
+.transport .spacer { flex: 1; }
+.caption { color: var(--bc-muted); font-size: 12px; }
+
+.timeline { padding: 8px 12px 12px; display: grid; grid-template-rows: auto 1fr; }
+.tl-head { display: flex; align-items: center; justify-content: space-between; }
+.focus-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid rgba(91,140,255,.55); color: #9bb6ff;
+  border-radius: 2px; padding: 4px 8px; font-size: 11px;
+  font-family: var(--bc-font-mono);
+}
+.range { color: var(--bc-muted); font-family: var(--bc-font-mono); font-size: 11px; }
+.tl-body { position: relative; margin-top: 18px; }
+.rail {
+  position: absolute; left: 12px; right: 12px; top: 28px; height: 2px;
+  background: #3a3a40;
+}
+.rail .span {
+  position: absolute; left: 18%; width: 34%; height: 4px; top: -1px;
+  background: linear-gradient(90deg, #8d8d96, var(--bc-key-cyan) 70%, var(--bc-ok));
+  border-radius: 2px;
+}
+.marker {
+  position: absolute; top: 0; transform: translateX(-50%); text-align: center; width: 92px;
+}
+.marker .stamp { font-size: 11px; color: var(--bc-muted); }
+.marker .name { font-size: 12px; margin-top: 2px; }
+.marker .node {
+  width: 10px; height: 10px; border-radius: 50%; margin: 8px auto 0;
+  background: var(--bc-surface); border: 2px solid #8d8d96;
+}
+.marker.is-on .node { border-color: var(--bc-signal); box-shadow: 0 0 0 4px rgba(249,83,12,.18); }
+.marker.up { top: -4px; }
+.marker.down { top: 22px; }
+.marker.down .stamp, .marker.down .name { order: 2; }
+.playhead {
+  position: absolute; left: 52%; top: 8px; width: 2px; height: 42px;
+  background: var(--bc-signal);
+}
+.playhead::before {
+  content: ""; position: absolute; left: -4px; top: -4px;
+  border-left: 5px solid transparent; border-right: 5px solid transparent;
+  border-top: 6px solid var(--bc-signal);
+}
+
+.bottom-row {
+  display: grid; grid-template-columns: minmax(0, 1.45fr) 280px; gap: 10px; min-height: 0;
+}
+.narrate, .evidence { padding: 10px 12px 12px; display: grid; grid-template-rows: auto 1fr auto; min-height: 0; }
+.narrate-body {
+  display: grid; place-items: center; text-align: center; color: var(--bc-muted);
+  padding: 8px 28px; font-size: 13px; line-height: 1.8;
+}
+.narrate-cta { display: flex; justify-content: center; padding-bottom: 8px; }
+.evidence-list { overflow: auto; padding-right: 4px; }
+.ev-item {
+  display: grid; grid-template-columns: 3px 1fr auto; gap: 10px; align-items: center;
+  padding: 10px 6px; border-bottom: 1px solid var(--bc-line);
+}
+.ev-item .bar { height: 28px; background: #4a4a52; }
+.ev-item .name { font-size: 13px; font-weight: 700; }
+.ev-item .when { color: var(--bc-muted); font-size: 11px; margin-top: 2px; }
+.ev-item .val { font-family: var(--bc-font-mono); font-size: 13px; }
+.foot-note { color: var(--bc-muted); font-size: 11px; padding-top: 8px; }
+
+.sidebar {
+  min-width: 0; min-height: 0;
+  display: grid; grid-template-rows: 1fr auto;
+  border-left: 1px solid var(--bc-line);
+  background: rgba(11,11,12,.55);
+}
+.causal { min-height: 0; display: grid; grid-template-rows: auto auto 1fr; padding: 8px 10px 0; }
+.causal-head { display: flex; align-items: center; justify-content: space-between; }
+.ok-count { color: var(--bc-ok); font-size: 12px; }
+.question {
+  margin: 10px 0 8px; padding: 12px; border: 1px solid var(--bc-line);
+  background: var(--bc-surface); border-radius: 2px;
+}
+.question h2 { font-size: 14px; font-weight: 800; }
+.question p { color: var(--bc-muted); font-size: 12px; margin-top: 4px; }
+.help {
+  width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--bc-line);
+  background: transparent; color: var(--bc-muted); float: right; font-size: 12px;
+}
+.chain { overflow: auto; padding-right: 4px; padding-bottom: 8px; }
+.event {
+  background: var(--bc-surface); border: 1px solid var(--bc-line);
+  border-radius: 2px; padding: 10px 12px; margin-bottom: 6px;
+}
+.event.is-on { border-color: #3A3A40; }
+.event-top { display: flex; justify-content: space-between; gap: 8px; }
+.idx { color: var(--bc-muted); font-family: var(--bc-font-mono); font-size: 11px; }
+.event h3 { font-size: 14px; font-weight: 800; }
+.event .desc { color: var(--bc-muted); font-size: 12px; margin-top: 4px; }
+.conf { color: var(--bc-muted); font-size: 11px; }
+.link {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--bc-ok); font-size: 11px; padding: 4px 8px 10px 18px;
+}
+.badge {
+  display: inline-flex; align-items: center; border-radius: 2px;
+  padding: 1px 6px; background: rgba(111,207,138,.12); color: var(--bc-ok);
+  border: 1px solid rgba(111,207,138,.28);
+}
+.why { color: var(--bc-muted); }
+.weak { color: var(--bc-muted); }
+
+.sidebar-foot {
+  border-top: 1px solid var(--bc-line);
+  padding: 10px 12px 12px;
+  color: var(--bc-muted); font-size: 11px;
+}
+.sidebar-foot em { font-style: normal; color: var(--bc-ok); }
+
+.toast { position: fixed; right: 16px; bottom: 16px; z-index: 20; display: none; padding: 10px 14px; background: var(--bc-surface-2); border: 1px solid var(--bc-line); border-radius: 2px; font-size: 12px; }
+.toast.is-on { display: block; }
+.why-pop { display: none; margin: 0 0 8px 18px; padding: 8px 10px; border: 1px dashed var(--bc-signal); color: var(--bc-muted); font-size: 12px; }
+.why-pop.is-on { display: block; }
+.narrate-body.is-filled { display: block; text-align: left; color: var(--bc-chalk); overflow: auto; }
+.narrate-body.is-filled p { margin-bottom: 8px; }
+.narrate-body em { font-style: normal; color: var(--bc-signal); }
+.marker { cursor: pointer; background: none; border: 0; color: inherit; }
+.event { cursor: pointer; }
+.video-frame { display: none; position: absolute; inset: 0; background: var(--bc-navy); z-index: 2; }
+.court-view.is-video .video-frame { display: block; }
+.court-view.is-video .court-svg, .court-view.is-video .player, .court-view.is-video .telestrator, .court-view.is-video .legend { display: none; }
+@media (max-width: 1180px) {
+  body { overflow: auto; }
+  .app { height: auto; min-height: 100vh; }
+  .workspace { grid-template-columns: 1fr; }
+  .sidebar { border-left: 0; border-top: 1px solid var(--bc-line); min-height: 720px; }
+  .main { grid-template-rows: 360px 180px 280px; }
+  .court-stage { grid-template-columns: 1fr; }
+  .stage-rail { display: none; }
+  .possession { flex-direction: row; overflow: auto; }
+  .pos-card, .pos-add { min-width: 180px; }
+}
+@media (max-width: 860px) {
+  .topbar { grid-template-columns: 1fr; padding: 10px 12px; height: auto; }
+  .center-title { text-align: left; }
+  .actions { justify-content: flex-start; flex-wrap: wrap; }
+  .bottom-row { grid-template-columns: 1fr; }
+  .main { padding: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .telestrator, .live-dot { animation: none; }
+  .icon-btn, .ghost-btn, .primary-btn { transition: none; }
+}
+</style>
+</head>
+<body>
+<svg class="court-bg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <ellipse cx="800" cy="450" rx="210" ry="210" fill="none" stroke="rgba(245,242,236,.07)" stroke-width="1.4"/>
+  <path d="M220 80 H1380 V820 H220 Z" fill="none" stroke="rgba(245,242,236,.05)" stroke-width="1"/>
+  <path d="M220 450 H1380" stroke="rgba(245,242,236,.05)" stroke-width="1"/>
+  <path d="M220 80 Q 430 450 220 820" fill="none" stroke="rgba(245,242,236,.07)" stroke-width="1.4"/>
+  <path d="M1380 80 Q 1170 450 1380 820" fill="none" stroke="rgba(245,242,236,.07)" stroke-width="1.4"/>
+</svg>
+<div class="grain"></div>
+
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">5</div>
+      <div>
+        <h1>Reality5</h1>
+        <p>让 AI 读懂赛场，让数据连接 Reality</p>
+      </div>
+      <div class="meta">
+        <div class="meta-col">
+          <div class="label">数据源</div>
+          <div class="value"><span class="dot dot-orange"></span> SAMPLE TRACKING</div>
+        </div>
+        <div class="meta-col">
+          <div class="label">引擎</div>
+          <div class="value"><span class="dot dot-green"></span> CAUSAL REALITY ENGINE V0.4</div>
+        </div>
+        <div class="meta-col">
+          <div class="label">现实完整性</div>
+          <div class="value"><span class="dot dot-green"></span> 有效</div>
+        </div>
+      </div>
+    </div>
+    <div class="center-title">
+      <strong>篮球现实引擎</strong>
+      <span>不止于数据</span>
+    </div>
+    <div class="actions">
+      <div class="lang" role="group" aria-label="语言">
+        <button type="button" data-lang="zh">中</button>
+        <button type="button" class="is-on" data-lang="en">EN</button>
+      </div>
+      <button class="ghost-btn" id="btn-debug" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.2-3.2"/></svg>
+        现实调试
+      </button>
+      <button class="ghost-btn" id="btn-export" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M5 21h14"/></svg>
+        导出分析
+      </button>
+      <button class="ghost-btn" id="btn-compare" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="7" height="14"/><rect x="13" y="5" width="7" height="14"/></svg>
+        对比现实
+      </button>
+      <button class="primary-btn" id="btn-new" type="button">+ 分析新回合</button>
+    </div>
+  </header>
+
+  <div class="workspace">
+    <main class="main">
+      <section class="panel court-wrap">
+        <div class="panel-head">
+          <div class="tabs">
+            <button class="is-on" id="tab-court" type="button">比赛现实</button>
+            <button id="tab-video" type="button">视频分析</button>
+          </div>
+          <div class="chip-row">
+            <span class="chip"><span class="live-dot"></span> 实时叠加</span>
+            <span class="chip"><b>DEN</b> @ <b>LAC</b> · Q2</span>
+          </div>
+        </div>
+        <div class="court-stage">
+          <div class="stage-rail"></div>
+          <div class="court-view" id="court-view">
+            <div class="hud">
+              <span class="clock" id="game-clock">07:38.0</span>
+              <span class="view">战术视角</span>
+              <span class="src">SAMPLE TRACKING</span>
+            </div>
+            <svg class="court-svg" viewBox="0 0 940 500" preserveAspectRatio="xMidYMid meet" aria-label="半场战术图">
+              <defs>
+                <pattern id="wood" width="48" height="48" patternUnits="userSpaceOnUse">
+                  <rect width="48" height="48" fill="#6a3f24"/>
+                  <path d="M0 12h48M0 28h48M0 40h48" stroke="rgba(0,0,0,.18)" stroke-width="6"/>
+                </pattern>
+              </defs>
+              <rect x="40" y="24" width="860" height="452" fill="url(#wood)" rx="4"/>
+              <rect x="40" y="24" width="860" height="452" fill="none" stroke="rgba(245,242,236,.55)" stroke-width="3"/>
+              <line x1="470" y1="24" x2="470" y2="476" stroke="rgba(245,242,236,.45)" stroke-width="2"/>
+              <circle cx="470" cy="250" r="62" fill="none" stroke="rgba(245,242,236,.45)" stroke-width="2"/>
+              <rect x="40" y="164" width="168" height="172" fill="none" stroke="rgba(245,242,236,.5)" stroke-width="2"/>
+              <rect x="732" y="164" width="168" height="172" fill="none" stroke="rgba(245,242,236,.5)" stroke-width="2"/>
+              <path d="M208 164 A86 86 0 0 1 208 336" fill="none" stroke="rgba(245,242,236,.5)" stroke-width="2"/>
+              <path d="M732 164 A86 86 0 0 0 732 336" fill="none" stroke="rgba(245,242,236,.5)" stroke-width="2"/>
+              <path d="M40 86 Q 250 250 40 414" fill="none" stroke="rgba(245,242,236,.38)" stroke-width="2"/>
+              <path d="M900 86 Q 690 250 900 414" fill="none" stroke="rgba(245,242,236,.38)" stroke-width="2"/>
+              <circle cx="78" cy="250" r="8" fill="none" stroke="#F9530C" stroke-width="2"/>
+              <circle cx="862" cy="250" r="8" fill="none" stroke="#F9530C" stroke-width="2"/>
+            </svg>
+            <div class="player ball" id="p15" style="left:58%;top:46%">15</div>
+            <div class="telestrator" id="tele" style="left:58%;top:46%"></div>
+            <div class="player off" style="left:63%;top:18%">7</div>
+            <div class="player off" style="left:68%;top:28%">3</div>
+            <div class="player off" id="p24" style="left:72%;top:14%">24</div>
+            <div class="player off" style="left:71%;top:38%">2</div>
+            <div class="player def" style="left:66%;top:56%">6</div>
+            <div class="player def" style="left:64%;top:68%">5</div>
+            <div class="player def" style="left:82%;top:72%">4</div>
+            <div class="player def" style="left:84%;top:86%">11</div>
+            <div class="video-frame" id="video-frame">
+              <svg viewBox="0 0 640 360" width="100%" height="100%" aria-label="skeleton tracking">
+                <rect width="640" height="360" fill="#12183A"/>
+                <polyline points="180,300 220,210 250,140 270,90" fill="none" stroke="#F5C518" stroke-width="2"/>
+                <polyline points="250,140 210,160 190,210" fill="none" stroke="#39C2D7" stroke-width="2"/>
+                <polyline points="250,140 300,165 330,220" fill="none" stroke="#39C2D7" stroke-width="2"/>
+                <polyline points="270,90 250,100 230,130" fill="none" stroke="#E23B3B" stroke-width="2"/>
+                <polyline points="270,90 300,108 340,150" fill="none" stroke="#E23B3B" stroke-width="2"/>
+                <circle cx="270" cy="78" r="8" fill="#E23B3B"/>
+                <circle cx="420" cy="120" r="46" fill="none" stroke="#F9530C" stroke-width="2"/>
+                <text x="24" y="28" fill="#8E8E96" font-size="12" font-family="JetBrains Mono, monospace">TELESTRATOR / POSSESSION #01 · Q2 07:40 · AI OVERLAY RUNNING</text>
+              </svg>
+            </div>
+            <div class="legend">
+              <span><i style="background:#3b82f6"></i>移动</span>
+              <span><i style="background:var(--bc-signal)"></i>战术</span>
+              <span><i style="background:var(--bc-ok)"></i>空间</span>
+            </div>
+          </div>
+          <aside class="possession">
+            <div class="pos-kicker">现实 · 2</div>
+            <button class="pos-card is-on" data-pos="1" type="button">
+              <div class="title"><span class="dot dot-orange"></span> Sample Possession 01</div>
+              <div class="meta">SAMPLE TRACKING · 6 个事件</div>
+            </button>
+            <button class="pos-card" data-pos="2" type="button">
+              <div class="title"><span class="dot" style="background:#4a4a52"></span> Sample Possession 02</div>
+              <div class="meta">SAMPLE TRACKING · 2 个事件</div>
+            </button>
+            <button class="pos-add" id="pos-add" type="button">+ 分析新回合</button>
+          </aside>
+        </div>
+        <div class="transport">
+          <button class="round-btn" id="btn-play" type="button" aria-label="播放">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l12-7z"/></svg>
+          </button>
+          <button class="round-btn" id="btn-reset" type="button" aria-label="重播">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12a8 8 0 1 0 2.3-5.7"/><path d="M4 5v5h5"/></svg>
+          </button>
+          <button class="ghost-btn" id="btn-replay" type="button">回放分析</button>
+          <span class="time-read" id="clip-clock">0.0s / 10.0s</span>
+          <span class="spacer"></span>
+          <span class="caption" id="phase-label">回合开始 · 半场阵地进攻</span>
+        </div>
+      </section>
+
+      <section class="panel timeline">
+        <div class="tl-head">
+          <div class="tabs">
+            <button class="is-on" type="button">现实时间轴</button>
+            <button type="button">事件时间轴</button>
+          </div>
+          <div class="chip-row">
+            <span class="focus-chip">聚焦 ×2.3 · 07:39.5-07:42.7</span>
+            <span class="range">07:38.0 → 07:48.0</span>
+          </div>
+        </div>
+        <div class="tl-body">
+          <div class="rail"><div class="span"></div></div>
+          <div class="playhead" id="playhead"></div>
+          <button class="marker up is-on" data-event="1" style="left:22%" type="button"><div class="stamp">07:40.1</div><div class="name">突破</div><div class="node"></div></button>
+          <button class="marker down" data-event="2" style="left:30%" type="button"><div class="node"></div><div class="stamp">07:40.2</div><div class="name">协防</div></button>
+          <button class="marker up" data-event="3" style="left:40%" type="button"><div class="stamp">07:40.6</div><div class="name">空位形成</div><div class="node"></div></button>
+          <button class="marker down" data-event="4" style="left:48%" type="button"><div class="node"></div><div class="stamp">07:40.8</div><div class="name">防守收缩</div></button>
+          <button class="marker up" data-event="5" style="left:58%" type="button"><div class="stamp">07:41.3</div><div class="name">传球</div><div class="node"></div></button>
+          <button class="marker down" data-event="6" style="left:72%" type="button"><div class="node"></div><div class="stamp">07:42.1</div><div class="name">三分出手</div></button>
+        </div>
+      </section>
+
+      <div class="bottom-row">
+        <section class="panel narrate">
+          <div class="tabs">
+            <button class="is-on" type="button">解说</button>
+            <span class="sub">现实优先，语言其次。</span>
+          </div>
+          <div class="narrate-body" id="story">
+            解说不是先写段落再找理由。Reality5 先检测事件，再对每一对事件做因果检验，只用通过检验的因果边组装故事——每一句话都能回到证据。
+          </div>
+          <div class="narrate-cta">
+            <button class="primary-btn" id="btn-explain" type="button">解释这个回合</button>
+          </div>
+        </section>
+        <section class="panel evidence">
+          <div class="panel-head" style="padding:0">
+            <div class="tabs">
+              <button class="is-on" type="button">证据</button>
+              <span class="sub">结构化证据</span>
+            </div>
+            <span class="sub">13 项指标</span>
+          </div>
+          <div class="evidence-list">
+            <div class="ev-item"><span class="bar"></span><div><div class="name">突破速度</div><div class="when">突破 · 07:40.1</div></div><div class="val">4.8 m/s</div></div>
+            <div class="ev-item"><span class="bar"></span><div><div class="name">篮下距离变化</div><div class="when">突破 · 07:40.1</div></div><div class="val">-3.8 m</div></div>
+            <div class="ev-item"><span class="bar"></span><div><div class="name">防守位移</div><div class="when">协防 · 07:40.2</div></div><div class="val">1.7 m</div></div>
+            <div class="ev-item"><span class="bar"></span><div><div class="name">峰值位移</div><div class="when">空位形成 · 07:40.6</div></div><div class="val">3.4 m</div></div>
+          </div>
+          <div class="foot-note">现实优先 · 证据其次 · 因果第三 · 语言最后</div>
+        </section>
+      </div>
+    </main>
+
+    <aside class="sidebar">
+      <section class="causal">
+        <div class="causal-head">
+          <div class="tabs">
+            <button class="is-on" type="button">因果图</button>
+            <button type="button">因果结构</button>
+          </div>
+          <div class="chip-row">
+            <span class="sub">6 N · <span class="ok-count">6 成立</span></span>
+            <button class="ghost-btn" id="btn-replay-2" type="button">回放分析</button>
+          </div>
+        </div>
+        <div class="question">
+          <button class="help" id="btn-help" type="button" aria-label="说明">?</button>
+          <h2>是什么创造了这次出手？</h2>
+          <p>4 条成立的因果边 · 只有证据的边回溯</p>
+        </div>
+        <div class="chain">
+          <article class="event is-on" data-event="1">
+            <div class="event-top"><span class="idx">01</span><span class="conf">07:40.1  89%</span></div>
+            <h3>突破</h3>
+            <div class="desc">突破启动 4.8 m/s</div>
+          </article>
+          <div class="link">↓ 触发 0.91 <span class="badge">成立</span> <button class="why" data-why="1" type="button">为什么?</button></div>
+          <article class="event" data-event="2">
+            <div class="event-top"><span class="idx">02</span><span class="conf">07:40.2  62%</span></div>
+            <h3>协防</h3>
+            <div class="desc">协防发生 1.7 m</div>
+          </article>
+          <div class="link">↓ 创造 0.90 <span class="badge">成立</span> <button class="why" data-why="2" type="button">为什么?</button></div>
+          <article class="event" data-event="3">
+            <div class="event-top"><span class="idx">03</span><span class="conf">07:40.6  63%</span></div>
+            <h3>空位</h3>
+            <div class="desc">空位形成 3.4 m</div>
+          </article>
+          <div class="link weak">↓ 仅时间先后 <button class="why" data-why="3" type="button">为什么不?</button></div>
+          <article class="event" data-event="4">
+            <div class="event-top"><span class="idx">04</span><span class="conf">07:40.8  76%</span></div>
+            <h3>防守收缩</h3>
+            <div class="desc">防守收缩 ×3</div>
+          </article>
+          <div class="link weak">↓ 仅时间先后 <button class="why" data-why="4" type="button">为什么不?</button></div>
+          <article class="event" data-event="5">
+            <div class="event-top"><span class="idx">05</span><span class="conf">07:41.3  95%</span></div>
+            <h3>传球</h3>
+            <div class="desc">分球 9.1 m</div>
+          </article>
+          <div class="link">↓ 先于 0.89 <span class="badge">成立</span> <button class="why" data-why="5" type="button">为什么?</button></div>
+          <article class="event" data-event="6">
+            <div class="event-top"><span class="idx">06</span><span class="conf">07:42.1  69%</span></div>
+            <h3>空位三分</h3>
+            <div class="desc">三分出手</div>
+          </article>
+        </div>
+      </section>
+      <footer class="sidebar-foot">
+        REALITY5 V0.4 · 现实 → 观察 → 事件 → 因果 → 解释<br>
+        <em>不要只告诉我发生了什么，告诉我为什么。</em>
+      </footer>
+    </aside>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const EVENTS = [
+  { id:1, t:2.1, clock:'07:40.1', name:'突破', desc:'突破启动 4.8 m/s', x:22 },
+  { id:2, t:2.2, clock:'07:40.2', name:'协防', desc:'协防发生 1.7 m', x:30 },
+  { id:3, t:2.6, clock:'07:40.6', name:'空位形成', desc:'空位形成 3.4 m', x:40 },
+  { id:4, t:2.8, clock:'07:40.8', name:'防守收缩', desc:'防守收缩 ×3', x:48 },
+  { id:5, t:3.3, clock:'07:41.3', name:'传球', desc:'分球 9.1 m', x:58 },
+  { id:6, t:4.1, clock:'07:42.1', name:'三分出手', desc:'三分出手', x:72 }
+];
+const WHY = {
+  1: '突破速度 4.8 m/s 与篮下距离 -3.8 m 同时成立，边通过检验。',
+  2: '协防位移 1.7 m 发生在突破后 0.1s，创造边 0.90 成立。',
+  3: '空位与收缩只有时间先后，未通过因果检验，不进入解说。',
+  4: '防守收缩 ×3 与传球仅时间相邻，缺少空间证据。',
+  5: '分球 9.1 m 先于出手 0.89，可回溯到空位证据。'
+};
+const STORY = '<p><em>07:40.1</em> 15 号以 4.8 m/s 启动突破，篮下距离收缩 3.8 m。</p><p>0.1 秒后弱侧协防位移 1.7 m——触发 0.91，成立。</p><p>07:40.6 空位拉开 3.4 m——创造 0.90，成立。</p><p>07:41.3 分球 9.1 m，先于出手 0.89。</p><p><em>07:42.1</em> 24 号接球三分出手。以上每一句都对应一条通过检验的因果边。</p>';
+const state = { t:0, playing:false, selected:1, pos:1, explained:false };
+const $ = (id) => document.getElementById(id);
+function toast(msg){ const el=$('toast'); el.textContent=msg; el.classList.add('is-on'); clearTimeout(toast._t); toast._t=setTimeout(()=>el.classList.remove('is-on'),1800); }
+function clockFromT(t){ const cur=7*60+38+t; const m=Math.floor(cur/60); const s=cur%60; return String(m).padStart(2,'0')+':'+s.toFixed(1).padStart(4,'0'); }
+function currentEvent(){ let cur=EVENTS[0]; EVENTS.forEach(e=>{ if(state.t+0.05>=e.t) cur=e; }); return cur; }
+function setPos(el,x,y){ el.style.left=x+'%'; el.style.top=y+'%'; }
+function renderPlayers(){ const t=state.t; const shift=Math.min(1,Math.max(0,(t-2)/2.2)); const pass=Math.min(1,Math.max(0,(t-3.3)/0.8)); const x15=58+18*shift-10*pass, y15=46-8*shift; setPos($('p15'), x15, y15); setPos($('p24'), 72+4*pass, 14-2*pass); const focus = t>=3.3 ? ['p24'] : ['p15']; const f=$(focus[0]); setPos($('tele'), parseFloat(f.style.left), parseFloat(f.style.top)); }
+function renderClock(){ $('game-clock').textContent=clockFromT(state.t); $('clip-clock').textContent=state.t.toFixed(1)+'s / 10.0s'; $('playhead').style.left=(8+state.t/10*84)+'%'; const e=currentEvent(); $('phase-label').textContent = state.t<2 ? '回合开始 · 半场阵地进攻' : (e.name+' · '+e.desc); }
+function selectEvent(id){ const e=EVENTS.find(x=>x.id===id); if(!e) return; state.selected=id; state.t=e.t; state.playing=false; document.querySelectorAll('[data-event]').forEach(n=>n.classList.toggle('is-on', Number(n.dataset.event)===id)); renderPlayers(); renderClock(); }
+function tick(ts){ if(!tick.prev) tick.prev=ts; const dt=Math.min(0.05,(ts-tick.prev)/1000); tick.prev=ts; if(state.playing){ state.t+=dt; if(state.t>=10){ state.t=10; state.playing=false; } const e=currentEvent(); state.selected=e.id; document.querySelectorAll('[data-event]').forEach(n=>n.classList.toggle('is-on', Number(n.dataset.event)===e.id)); renderPlayers(); renderClock(); } requestAnimationFrame(tick); }
+document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>{ document.querySelectorAll('[data-lang]').forEach(x=>x.classList.toggle('is-on', x===b)); toast(b.dataset.lang==='zh' ? '界面语言：中文' : 'Language: EN'); }));
+$('tab-court').addEventListener('click',()=>{ $('tab-court').classList.add('is-on'); $('tab-video').classList.remove('is-on'); $('court-view').classList.remove('is-video'); });
+$('tab-video').addEventListener('click',()=>{ $('tab-video').classList.add('is-on'); $('tab-court').classList.remove('is-on'); $('court-view').classList.add('is-video'); });
+document.querySelectorAll('[data-pos]').forEach(b=>b.addEventListener('click',()=>{ document.querySelectorAll('[data-pos]').forEach(x=>x.classList.toggle('is-on', x===b)); state.pos=Number(b.dataset.pos); state.t=0; state.selected=1; state.explained=false; $('story').classList.remove('is-filled'); $('story').textContent='解说不是先写段落再找理由。Reality5 先检测事件，再对每一对事件做因果检验，只用通过检验的因果边组装故事——每一句话都能回到证据。'; renderPlayers(); renderClock(); }));
+document.querySelectorAll('[data-event]').forEach(n=>n.addEventListener('click',()=>selectEvent(Number(n.dataset.event))));
+document.querySelectorAll('[data-why]').forEach(b=>b.addEventListener('click',(ev)=>{ ev.stopPropagation(); const id=b.dataset.why; let pop=b.parentElement.nextElementSibling; if(!pop || !pop.classList.contains('why-pop')){ pop=document.createElement('div'); pop.className='why-pop'; b.parentElement.after(pop); } pop.textContent=WHY[id]; pop.classList.toggle('is-on'); }));
+$('btn-play').addEventListener('click',()=>{ if(state.t>=10) state.t=0; state.playing=!state.playing; });
+$('btn-reset').addEventListener('click',()=>{ state.t=0; state.playing=false; state.selected=1; renderPlayers(); renderClock(); });
+$('btn-replay').addEventListener('click',()=>{ state.t=2; state.playing=true; });
+$('btn-replay-2').addEventListener('click',()=>{ state.t=2; state.playing=true; });
+$('btn-explain').addEventListener('click',()=>{ state.explained=true; $('story').classList.add('is-filled'); $('story').innerHTML=STORY; });
+$('btn-debug').addEventListener('click',()=>toast('因果引擎 V0.4 · 6 条边已检验'));
+$('btn-export').addEventListener('click',()=>{ const blob=new Blob([JSON.stringify({events:EVENTS},null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='reality5-possession-01.json'; a.click(); });
+$('btn-compare').addEventListener('click',()=>toast('对比现实：样本回合 01 / 02'));
+$('btn-new').addEventListener('click',()=>toast('接入新追踪源后可分析新回合'));
+$('pos-add').addEventListener('click',()=>$('btn-new').click());
+$('btn-help').addEventListener('click',()=>toast('4 条成立的因果边 · 只有证据的边回溯'));
+renderPlayers(); renderClock(); requestAnimationFrame(tick);
+</script>
+</body>
+</html>

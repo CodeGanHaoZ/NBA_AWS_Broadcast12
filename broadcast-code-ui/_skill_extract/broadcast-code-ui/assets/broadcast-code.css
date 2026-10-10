@@ -1,0 +1,226 @@
+/* ============================================================
+   Broadcast Code UI · 赛事转播数据终端风
+   Token + 工具类。字体需另行引入（见 SKILL.md）。
+   ============================================================ */
+
+:root {
+  /* color */
+  --bc-bg: #0B0B0C;
+  --bc-surface: #131315;
+  --bc-surface-2: #1B1B1F;
+  --bc-line: #2A2A2E;
+  --bc-chalk: #F5F2EC;
+  --bc-muted: #8E8E96;
+  --bc-signal: #F9530C;
+  --bc-signal-deep: #C43A08;
+  --bc-navy: #12183A;
+  --bc-key-red: #E23B3B;
+  --bc-key-yellow: #F5C518;
+  --bc-key-cyan: #39C2D7;
+  /* font */
+  --bc-font-display: "Anton", "Arial Narrow", sans-serif;
+  --bc-font-brush: "Ma Shan Zheng", cursive;
+  --bc-font-body: "Noto Sans SC", sans-serif;
+  --bc-font-mono: "JetBrains Mono", "IBM Plex Mono", monospace;
+  /* spacing */
+  --bc-s1: 4px;  --bc-s2: 8px;  --bc-s3: 12px; --bc-s4: 16px;
+  --bc-s6: 24px; --bc-s8: 32px; --bc-s12: 48px;
+  --bc-s16: 64px; --bc-s24: 96px;
+  /* motion */
+  --bc-ease: cubic-bezier(.2, .6, .2, 1);
+  --bc-dur: .25s;
+}
+
+/* ---------- base ---------- */
+.bc-root {
+  background: var(--bc-bg);
+  color: var(--bc-chalk);
+  font-family: var(--bc-font-body);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+.bc-root ::selection { background: var(--bc-signal); color: var(--bc-chalk); }
+
+/* ---------- type utilities ---------- */
+.bc-display {
+  font-family: var(--bc-font-display);
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  line-height: 1.05;
+  font-weight: 400;
+}
+.bc-brush { font-family: var(--bc-font-brush); line-height: 1.2; }
+.bc-mono {
+  font-family: var(--bc-font-mono);
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+/* ---------- kicker: 分区斜杠标签 ---------- */
+.bc-kicker {
+  font-family: var(--bc-font-mono);
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--bc-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--bc-s3);
+}
+.bc-kicker i { font-style: normal; color: var(--bc-signal); }
+
+/* ---------- buttons ---------- */
+.bc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--bc-s2);
+  padding: 14px 32px;
+  border-radius: 2px;
+  font-family: var(--bc-font-display);
+  font-size: 17px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform var(--bc-dur) var(--bc-ease),
+              background var(--bc-dur) var(--bc-ease),
+              color var(--bc-dur) var(--bc-ease),
+              border-color var(--bc-dur) var(--bc-ease);
+}
+.bc-btn--primary { background: var(--bc-signal); color: var(--bc-chalk); }
+.bc-btn--primary:hover { background: #FF6A24; transform: translateY(-1px); }
+.bc-btn--primary:active { transform: translateY(1px); }
+.bc-btn--ghost { background: transparent; color: var(--bc-chalk); border-color: var(--bc-line); }
+.bc-btn--ghost:hover { border-color: var(--bc-signal); color: var(--bc-signal); }
+.bc-btn--dashed { background: transparent; color: var(--bc-signal); border: 1.5px dashed var(--bc-signal); }
+.bc-btn--dashed:hover { background: rgba(249, 83, 12, .08); }
+.bc-btn:focus-visible { outline: 2px solid var(--bc-signal); outline-offset: 2px; }
+.bc-btn[disabled] { opacity: .35; pointer-events: none; }
+
+/* ---------- card ---------- */
+.bc-card {
+  background: var(--bc-surface);
+  border: 1px solid var(--bc-line);
+  border-radius: 2px;
+  padding: var(--bc-s8);
+  transition: background var(--bc-dur) var(--bc-ease),
+              border-color var(--bc-dur) var(--bc-ease);
+}
+.bc-card:hover { background: var(--bc-surface-2); border-color: #3A3A40; }
+
+/* ---------- pill ---------- */
+.bc-pill {
+  display: inline-block;
+  background: var(--bc-signal);
+  color: var(--bc-chalk);
+  font-family: var(--bc-font-mono);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: .08em;
+  padding: 4px 14px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* ---------- marquee: 虚线选框 + 四角手柄 ---------- */
+.bc-marquee { position: relative; border: 1.5px dashed var(--bc-signal); padding: var(--bc-s4) var(--bc-s6); }
+.bc-marquee > b {
+  position: absolute;
+  width: 7px; height: 7px;
+  background: var(--bc-chalk);
+}
+.bc-marquee > b:nth-of-type(1) { top: -4px; left: -4px; }
+.bc-marquee > b:nth-of-type(2) { top: -4px; right: -4px; }
+.bc-marquee > b:nth-of-type(3) { bottom: -4px; left: -4px; }
+.bc-marquee > b:nth-of-type(4) { bottom: -4px; right: -4px; }
+
+/* ---------- telestrator 标注圆环 ---------- */
+.bc-tele {
+  position: absolute;
+  border: 2px solid var(--bc-signal);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.bc-tele::before, .bc-tele::after {
+  content: "";
+  position: absolute;
+  background: var(--bc-signal);
+}
+.bc-tele::before { width: 1px; height: 30%; left: 50%; top: -15%; }
+.bc-tele::after  { height: 1px; width: 30%; top: 50%; left: -15%; }
+.bc-tele--pulse { animation: bc-pulse 2.4s var(--bc-ease) infinite; }
+@keyframes bc-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.06); opacity: .75; }
+}
+
+/* ---------- leather 皮革纹理 ---------- */
+.bc-leather {
+  background:
+    radial-gradient(rgba(0, 0, 0, .35) 1px, transparent 1.4px),
+    linear-gradient(160deg, var(--bc-signal) 0%, var(--bc-signal-deep) 70%);
+  background-size: 5px 5px, 100% 100%;
+}
+
+/* ---------- stat ---------- */
+.bc-stat__num {
+  font-family: var(--bc-font-display);
+  font-size: clamp(56px, 9vw, 120px);
+  line-height: 1;
+  color: var(--bc-chalk);
+}
+.bc-stat__num--signal { color: var(--bc-signal); }
+.bc-stat__cap { font-family: var(--bc-font-mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--bc-muted); margin-top: var(--bc-s3); }
+
+/* ---------- table ---------- */
+.bc-table { width: 100%; border-collapse: collapse; }
+.bc-table th {
+  font-family: var(--bc-font-mono);
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--bc-muted);
+  text-align: left;
+  padding: var(--bc-s3) var(--bc-s4);
+  border-bottom: 1px solid var(--bc-line);
+}
+.bc-table td {
+  padding: var(--bc-s4);
+  border-bottom: 1px solid var(--bc-line);
+  font-size: 15px;
+}
+.bc-table td[data-num] { font-family: var(--bc-font-mono); letter-spacing: .04em; }
+.bc-table tbody tr { transition: background var(--bc-dur) var(--bc-ease); }
+.bc-table tbody tr:hover { background: var(--bc-surface-2); }
+
+/* ---------- input ---------- */
+.bc-input {
+  width: 100%;
+  background: var(--bc-surface);
+  border: 1px solid var(--bc-line);
+  border-radius: 2px;
+  color: var(--bc-chalk);
+  font-family: var(--bc-font-body);
+  font-size: 15px;
+  padding: 12px 16px;
+  transition: border-color var(--bc-dur) var(--bc-ease), box-shadow var(--bc-dur) var(--bc-ease);
+}
+.bc-input::placeholder { color: rgba(142, 142, 150, .5); }
+.bc-input:focus {
+  outline: none;
+  border-color: var(--bc-signal);
+  box-shadow: 0 0 0 3px rgba(249, 83, 12, .15);
+}
+
+/* ---------- entrance ---------- */
+.bc-reveal { opacity: 0; transform: translateY(8px); transition: opacity .5s var(--bc-ease), transform .5s var(--bc-ease); }
+.bc-reveal.is-in { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bc-tele--pulse { animation: none; }
+  .bc-reveal { opacity: 1; transform: none; transition: none; }
+  .bc-btn { transition: none; }
+}
