@@ -16,7 +16,7 @@ source/     官方练习原片
 out/        已烧字幕的成品 + 预览图
 data/       两段对应的深度赛场 JSON
 scripts/    烧字幕、Polly 口播
-NOTES.md    GitHub 仓库 / 深度赛场读取 / Polly 口播，三块怎么用
+NOTES.md    深度赛场读取 / Polly 口播
 flagg.srt / amen.srt / commentary.yaml
 ```
 
@@ -55,4 +55,5 @@ python scripts/polly_voiceover.py --profile nba --region us-east-1
 
 - Polly 口播：脚本在，本机还没 AWS 凭证，所以没出声
 - 头顶名牌、箭头 overlay：等点位接口
+
 
