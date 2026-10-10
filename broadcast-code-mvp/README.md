@@ -5,6 +5,47 @@
 > Broadcast Code 12h 黑客松参赛作品（NBA × 亚马逊云科技）。
 > 数据集为参数化轨迹生成器合成的演示数据，路演中如实标注「演示数据」，指标计算逻辑真实。
 
+**在线预览**：<https://d35ms19zcr5b08.cloudfront.net/>
+
+![1791634424585](C:\Users\ghw\AppData\Roaming\Typora\typora-user-images\1791634424585.png)
+
+![1791634402626](C:\Users\ghw\AppData\Roaming\Typora\typora-user-images\1791634402626.png)
+
+![1791634379521](C:\Users\ghw\AppData\Roaming\Typora\typora-user-images\1791634379521.png)
+
+---
+
+## 本轮迭代更新（2026-10-10）
+
+在 MVP 交付版本基础上的第二轮迭代，聚焦「实拍视频融合 + 全站动效 + 移动端适配」：
+
+### 实拍视频融合（转播台左右布局）
+
+- 视频管线：原始 `output.avi`（XVID 1080p59.94 90Mbps）经 ffmpeg（imageio-ffmpeg 静态二进制）转码为 H.264 MP4（720p30 faststart，16.3MB），产物随前端静态资源分发：`web/public/media/processed-feed.mp4`
+- 转播台改为**左右双栏**：左栏完整展示处理完成视频（16:9 contain，不裁切）+ PROCESSED FEED 标签 / LIVE 呼吸徽章 / FEED MONITOR 信号监视面板（源/输出/管线/延迟参数 + 错峰电平表）；右栏为 TACTICAL OVERLAY 战术台（合成球场 + 四层标注）
+- **视频与母钟逐帧同步**：视频从动于全局时钟 bT，漂移 >0.18s 才 seek 校正；暂停/拖动时间轴/切换回合均联动
+- 下三分之一解说条移出舞台，改为横跨双栏的独立卡片（渐变底 + 证据芯片可点击回跳）
+
+### 全站动效体系
+
+- 图表：速度曲线 clip-path 擦除入场 + 辉光垫层 + 流光点（Motion Path 沿曲线巡游）、跑动距离/事件分布条形生长 + 数值弹入、KPI 滚动计数
+- 洞察面板：格子级联滑入 + 数值滚动 + 橙色信号轮巡高亮（6.5s 循环）+ 顶部扫光线
+- 投篮热点图：战术台同款科技感（径向渐变透明底 + 坐标网格 + HUD 角标），出手点逐个弹入 + 命中点辉光呼吸 + 切换范围/回合自动重放
+- 转播台：选中球员脉冲环、解说换行滑入、比分跳动、播放头光晕、舞台扫描线、导航/记分条/时间轴全区域驻留动效
+- 全部动效遵循 `prefers-reduced-motion` 系统偏好自动禁用
+
+### 移动端适配
+
+- 顶栏三行布局（品牌+操作 / 导航整行带分隔线 / 记分条），≤768px 导航改横向滑动（移动端标准模式）
+- 战术台/视频双栏 900px 以下自动单列堆叠，雷达/电平表自适应填充
+- 返回顶部按钮（回顶后动效可重放），769–1120px 中间断点专项处理
+
+### 稳定性修复
+
+- 修复球员引力大数字切换不联动（v-countup 指令依赖 updated 钩子不可靠 → 改组件内 watch 驱动滚动计数）
+- 修复 CSS 特异性冲突导致的移动端导航与记分条重叠（`.vb-bx.vb-shell` 行高锁死）
+- 修复热点图弹入只播一次、切换范围不重放的问题（`:key=数据指纹` 强制重挂载）
+
 ---
 
 ## 产品管线
@@ -89,6 +130,7 @@ broadcast-code-mvp/
 ├── web/                    前端（Vue 3 SPA 单页）
 │   ├── src/                App / components / lib(clock 单一时钟) / styles
 │   ├── public/fonts/       本地化字体（Anton / JetBrains Mono / Noto Sans SC）
+│   ├── public/media/       处理完成视频（processed-feed.mp4，与时间轴同步播放）
 │   └── dist/               构建产物（npm run build 生成）
 ├── scripts/
 │   └── start-all.mjs       一键启动后端 + preview（Ctrl+C 全部清理）
