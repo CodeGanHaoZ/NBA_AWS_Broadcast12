@@ -1,0 +1,15 @@
+{
+  "player_confidence": 0.10,
+  "player_activation": 0.35,
+  "player_lost_seconds": 0.50,
+  "ball_confidence": 0.12,
+  "ball_acquire_confidence": 0.35,
+  "ball_predict_seconds": 0.10,
+  "ball_interpolate_seconds": 0.067,
+  "possession_acquire_seconds": 0.10,
+  "possession_hold_until_transfer": true,
+  "possession_switch_frames": 16,
+  "possession_switch_seconds": 0.12,
+  "possession_grace_seconds": 0.15,
+  "possession_release_seconds": 0.067
+}

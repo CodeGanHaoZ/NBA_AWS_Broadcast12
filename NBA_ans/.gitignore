@@ -1,0 +1,6 @@
+__pycache__/
+stubs/
+output_videos/
+models/
+debug_config.json
+data/

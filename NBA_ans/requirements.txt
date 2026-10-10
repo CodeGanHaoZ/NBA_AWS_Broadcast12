@@ -1,0 +1,9 @@
+# NBA_ans 实测环境: conda py38_torch_cuda (Python 3.8.19, torch 1.13.1+cu116, RTX 4060)
+numpy==1.24.4
+opencv-python==4.9.0.80
+pandas==2.0.3
+Pillow>=9.5.0
+supervision==0.25.1
+torch>=1.13.1
+transformers==4.45.2
+ultralytics==8.3.146
