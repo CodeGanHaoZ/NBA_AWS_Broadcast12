@@ -28,6 +28,7 @@ const shots = computed(() => {
 
 const dots = computed(() => shots.value.map((s, i) => ({
   i,
+  made: s.made,
   cx: hsX(s.court[0]).toFixed(2),
   cy: hsY(s.court[1]).toFixed(2),
   r: (3.4 + s.xfg * 9).toFixed(2),
@@ -35,6 +36,11 @@ const dots = computed(() => shots.value.map((s, i) => ({
   fo: s.made ? 0.92 : 0.55,
   stroke: s.made ? 'rgba(249,83,12,.35)' : 'rgba(245,242,236,.2)',
 })))
+
+/** 数据指纹：切范围 / 切选中 / 数据变化时重放弹入动画 */
+const stamp = computed(() =>
+  `${BS.hotspotScope}:${BS.selected}:${shots.value.length}:${shots.value.filter(s => s.made).length}`
+)
 
 const scopeText = computed(() => {
   const total = shots.value.length
@@ -87,9 +93,29 @@ function onLeave() { tip.value.show = false }
 
     <div class="hotspot-wrap">
       <svg ref="svgEl" class="hotspot" viewBox="0 0 300 282" role="img" aria-label="投篮热点图">
+        <!-- 战术台同款科技感底：径向渐变透明 + 坐标网格 + HUD 角标 -->
+        <defs>
+          <radialGradient id="hsBg" cx="50%" cy="40%" r="78%">
+            <stop offset="0" stop-color="#3D5AA8" stop-opacity=".20" />
+            <stop offset=".55" stop-color="#1B2748" stop-opacity=".08" />
+            <stop offset="1" stop-color="#0B0B0C" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+        <rect x="0" y="0" width="300" height="282" fill="url(#hsBg)"></rect>
+        <g stroke="rgba(245,242,236,.05)" stroke-width="1">
+          <line v-for="n in 7" :key="'gx' + n" :x1="n * 37.5" y1="0" :x2="n * 37.5" y2="282"></line>
+          <line v-for="n in 7" :key="'gy' + n" x1="0" :y1="n * 40.3" x2="300" :y2="n * 40.3"></line>
+        </g>
+        <g class="hs-corners" fill="none" stroke="rgba(249,83,12,.75)" stroke-width="1.5" stroke-linecap="square">
+          <path d="M7,18 L7,7 L18,7"></path>
+          <path d="M282,7 L293,7 L293,18"></path>
+          <path d="M293,264 L293,275 L282,275"></path>
+          <path d="M18,275 L7,275 L7,264"></path>
+        </g>
         <path v-for="(l, i) in lines" :key="'c' + i" :d="l.d" fill="none"
               :stroke="l.stroke" :stroke-width="l.main ? 1.4 : 1"></path>
-        <circle v-for="d in dots" :key="d.i" class="hs-dot" :cx="d.cx" :cy="d.cy" :r="d.r"
+        <circle v-for="d in dots" :key="'d' + d.i + '-' + stamp" class="hs-dot" :class="{ 'is-made': d.made }"
+                :style="{ '--i': d.i }" :cx="d.cx" :cy="d.cy" :r="d.r"
                 :fill="d.fill" :fill-opacity="d.fo" :stroke="d.stroke" stroke-width="1"
                 style="cursor: pointer" @mouseenter="onEnter(d)" @mouseleave="onLeave"></circle>
       </svg>

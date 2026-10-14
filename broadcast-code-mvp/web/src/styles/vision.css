@@ -584,12 +584,21 @@
 .prow .no { transition: text-shadow .25s var(--bc-ease); }
 .prow.active .no { text-shadow: 0 0 12px rgba(249,83,12,.55); }
 
-/* 投篮热点：出手点弹入 + 命中率条生长 + 悬停放大 */
-.hs-dot { transform: scale(0); transform-box: fill-box; transform-origin: 50% 50%; transition: transform .45s var(--bc-ease); }
-.bc-reveal.is-in .hs-dot { transform: scale(1); }
-.bc-reveal.is-in .hs-dot:nth-of-type(2n) { transition-delay: 60ms; }
-.bc-reveal.is-in .hs-dot:nth-of-type(3n) { transition-delay: 110ms; }
-.bc-reveal.is-in .hs-dot:hover { transform: scale(1.4); }
+/* 投篮热点：出手点弹入（animation 驱动，--i 逐点错峰；:key=指纹 重放）+ 命中点辉光呼吸 + 悬停放大 */
+.hs-dot {
+  transform-box: fill-box; transform-origin: 50% 50%; transition: r .15s;
+  animation: hs-pop .45s var(--bc-ease) both; animation-delay: calc(var(--i, 0) * 26ms);
+}
+@keyframes hs-pop { from { transform: scale(0); opacity: 0; } }
+.hs-dot.is-made {
+  animation: hs-pop .45s var(--bc-ease) both, hs-glow 2.6s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 26ms), calc(var(--i, 0) * 26ms + .5s);
+}
+@keyframes hs-glow {
+  0%, 100% { filter: drop-shadow(0 0 1.5px rgba(249,83,12,.4)); }
+  50% { filter: drop-shadow(0 0 7px rgba(249,83,12,.95)); }
+}
+.hs-dot:hover { transform: scale(1.4); }
 .bar-row .track i { transform: scaleX(0); transform-origin: 0 50%; transition: transform .7s var(--bc-ease) .15s, width .5s var(--bc-ease); }
 .bc-reveal.is-in .bar-row .track i { transform: scaleX(1); }
 
@@ -604,7 +613,7 @@
 @media (prefers-reduced-motion: reduce) {
   .bc-reveal.is-in .vb-poss__item, .bc-reveal.is-in .prow, .bc-reveal.is-in .vb-factor { animation: none !important; }
   .leather .r::before, .vb-poss__item.is-on i { animation: none !important; }
-  .spark rect, .hs-dot, .bar-row .track i, .vb-factor__bar i, .vb-factor__link { transition: none !important; transform: none !important; }
+  .spark rect, .hs-dot, .bar-row .track i, .vb-factor__bar i, .vb-factor__link { transition: none !important; transform: none !important; animation: none !important; }
 }
 
 /* ============================================================
@@ -618,11 +627,14 @@
      （.vb-bx.vb-shell 特异性 0,2,0，必须一并匹配，否则转播台顶栏行被锁死、导航换行压到记分条上） */
   .vb-shell, .vb-bx.vb-shell { grid-template-rows: auto auto 1fr; height: auto; min-height: 100vh; overflow: visible; }
   .vb-body, .vb-main, .vb-rail { overflow: visible; }
-  /* 顶栏：品牌 + 主操作一行，导航整行换到第二行 */
+  /* 顶栏：品牌 + 主操作一行（按钮贴右），导航整行换到第二行并以细线分隔 */
   .vb-top { flex-wrap: wrap; height: auto; padding: 8px var(--bc-s4); row-gap: 6px; }
-  .vb-nav { order: 3; width: 100%; margin-left: 0; gap: 2px; flex-wrap: wrap; }
-  .vb-nav button { padding: 6px 9px; font-size: 13px; }
-  .vb-top-right { gap: var(--bc-s3); }
+  .vb-top-right { gap: var(--bc-s3); margin-left: auto; }
+  .vb-nav {
+    order: 3; width: 100%; margin-left: 0; margin-top: 2px; gap: 2px; flex-wrap: wrap;
+    padding-top: 6px; border-top: 1px solid var(--bc-line);
+  }
+  .vb-nav button { padding: 7px 10px; font-size: 13px; white-space: nowrap; }
   .vb-dash { grid-template-columns: repeat(2, 1fr); }
   .vb-kpi b { font-size: 34px; }
 }
@@ -638,6 +650,13 @@
   .vb-brand svg.vb-brand__word { display: none; }
   .vb-brand svg.vb-brand__mark { display: block; height: 34px; }
   .vb-top-right { order: 2; margin-left: auto; }
+  /* 导航改横向滑动（移动端标准模式）：tab 不换行，整行左右滑，隐藏滚动条 */
+  .vb-nav {
+    flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden;
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .vb-nav::-webkit-scrollbar { display: none; }
+  .vb-nav button { flex: none; font-size: 12.5px; padding: 7px 9px; }
   .vb-insight { grid-template-columns: 1fr; gap: var(--bc-s6); }
   .vb-dash-2 { grid-template-columns: 1fr; }
   .vb-kpi b { font-size: 30px; }
