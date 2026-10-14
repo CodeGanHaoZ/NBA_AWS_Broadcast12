@@ -1,0 +1,30 @@
+name: CI
+
+# 质量门禁：每次 push / PR 跑后端单测 + 前端构建，
+# 保证坏代码不会部署上去。真正的部署由 Render Blueprint 在 push 后自动触发。
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install & test backend
+        working-directory: broadcast-code-mvp/server
+        run: |
+          npm install
+          npm test
+
+      - name: Build frontend
+        working-directory: broadcast-code-mvp/web
+        run: |
+          npm install
+          npm run build

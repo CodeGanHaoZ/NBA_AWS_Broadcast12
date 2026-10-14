@@ -1,0 +1,38 @@
+# Broadcast Code — Render 部署蓝图
+# 用法：Render 控制台 → New → Blueprint → 连接本仓库（CodeGanHaoZ/NBA_AWS_Broadcast12）
+#       Render 会按本文件自动创建两个服务；之后每次 push 到 main 即自动重新部署。
+#
+# 服务 URL（由 name 决定，确定不变）：
+#   前端  https://nba-broadcast-web.onrender.com
+#   后端  https://nba-broadcast-api.onrender.com
+#
+# 后端已零改动：config.js 读取 process.env.PORT（Render 自动注入）与
+# process.env.CORS_ORIGINS（下方已设为前端地址），无需改任何源码。
+
+services:
+  # ===== 后端：Express 5 只读 API =====
+  - type: web
+    name: nba-broadcast-api
+    runtime: node
+    rootDir: broadcast-code-mvp/server
+    plan: free                      # 免费层；空闲 15min 后会休眠（冷启动约 30-50s）
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CORS_ORIGINS
+        value: https://nba-broadcast-web.onrender.com
+
+  # ===== 前端：Vue 3 静态站（构建产物 dist） =====
+  - type: web
+    name: nba-broadcast-web
+    runtime: static                # 静态站无 plan 字段（走全球 CDN，不休眠）
+    rootDir: broadcast-code-mvp/web
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    routes:
+      # 前端用相对路径 /api 调用，这里把 /api/* 反代到后端服务（rewrite 不暴露浏览器地址）
+      - type: rewrite
+        source: /api/*
+        destination: https://nba-broadcast-api.onrender.com/api/*
